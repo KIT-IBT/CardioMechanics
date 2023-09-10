@@ -18,7 +18,7 @@ The following features are available:
 * XML-based simulation setup.
 
 ## Building from Source
-See docs/BUILD.md
+See [docs/BUILD.md](https://github.com/KIT-IBT/CardioMechanics/blob/main/docs/BUILD.md)
 
 ## Examples
 See docs/EXAMPLES.md (coming soon)

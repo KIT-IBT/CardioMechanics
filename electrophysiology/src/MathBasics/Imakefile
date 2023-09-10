@@ -1,0 +1,75 @@
+#ifndef XCOMM
+#define XCOMM #
+#endif
+XCOMM 
+XCOMM default Imakefile to create the target: Tensor2Test Tensor4Test
+XCOMM 
+
+IBTStandardDirectoryRule($(kaRootDir))
+
+INCLUDES = $(SYSINCLUDES) -I. -I$(GLOBALSRC)/Lattice -I$(GLOBALSRC)/LatticeTools 
+
+OFILES = $(OBJDIR)/kaTabularizedFunction.o
+
+SRCS00 = MatrixNOpMatrixN.cpp 
+OBJS00 = $(OBJDIR)/MatrixNOpMatrixN.o 
+
+SRCS01 = MatrixNSet.cpp 
+OBJS01 = $(OBJDIR)/MatrixNSet.o
+
+SRCS02 = FormFunctionsTest.cpp
+OBJS02 = $(OBJDIR)/FormFunctionsTest.o $(OFILES)
+
+SRCS03 = Tensor2Test.cpp 
+OBJS03 = $(OBJDIR)/Tensor2Test.o $(OBJDIR)/kaTabularizedFunction.o
+
+SRCS04 = Tensor4Test.cpp 
+OBJS04 = $(OBJDIR)/Tensor4Test.o $(OBJDIR)/kaTabularizedFunction.o
+
+SRCS = 	$(SRCS00) $(SRCS01) $(SRCS02) $(SRCS03) $(SRCS04)
+
+DEPLIBS = -L$(LOCALLIB) $(LOCALLIB)/libLattice.a
+
+CplusplusSuffixRule(cpp,o)
+
+MYOPTIONS=$(DEFAULT_SETTINGS) -DKADEBUG=0 
+
+
+
+AllTarget($(EXEDIR)/MatrixNOpMatrixN)
+IBTAutoCplusplusProgramTarget(MatrixNOpMatrixN,$(OBJS00),,,$(SYSLIBS),$(MYOPTIONS))
+IBTInstallTarget($(EXEDIR),MatrixNOpMatrixN,$(INSTDIR),MatrixNOpMatrixN)
+
+AllTarget($(EXEDIR)/MatrixNSet)
+IBTAutoCplusplusProgramTarget(MatrixNSet,$(OBJS01),,,$(SYSLIBS),$(MYOPTIONS))
+IBTInstallTarget($(EXEDIR),MatrixNSet,$(INSTDIR),MatrixNSet)
+
+AllTarget($(EXEDIR)/FormFunctionsTest)
+IBTAutoCplusplusProgramTarget(FormFunctionsTest,$(OBJS02),$(DEPLIBS2),$(DEPLIBS2),$(SYSLIBS),$(MYOPTIONS))
+IBTInstallTarget($(EXEDIR),FormFunctionsTest,$(INSTDIR),FormFunctionsTest)
+
+AllTarget($(EXEDIR)/Tensor2Test)
+IBTAutoCplusplusProgramTarget(Tensor2Test,$(OBJS03),,,$(SYSLIBS),$(MYOPTIONS))
+IBTInstallTarget($(EXEDIR),Tensor2Test,$(INSTDIR),Tensor2Test)
+
+AllTarget($(EXEDIR)/Tensor4Test)
+IBTAutoCplusplusProgramTarget(Tensor4Test,$(OBJS04),,,$(SYSLIBS),$(MYOPTIONS))
+IBTInstallTarget($(EXEDIR),Tensor4Test,$(INSTDIR),Tensor4Test)
+
+
+IBTCplusplusObjectRule(MatrixNOpMatrixN,.,$(OBJDIR),cpp,$(MYOPTIONS))
+IBTCplusplusObjectRule(MatrixNSet,.,$(OBJDIR),cpp,$(MYOPTIONS))
+IBTCplusplusObjectRule(FormFunctionsTest,.,$(OBJDIR),cpp,$(MYOPTIONS))
+IBTCplusplusObjectRule(Tensor2Test,.,$(OBJDIR),cpp,$(MYOPTIONS))
+IBTCplusplusObjectRule(Tensor4Test,.,$(OBJDIR),cpp,$(MYOPTIONS))
+
+IBTCplusplusObjectRule(kaTabularizedFunction,.,$(OBJDIR),cpp,$(MYOPTIONS))
+
+
+IBTCleanTarget($(OBJDIR),$(PWD))
+
+IBTDependTarget($(OBJDIR),$(SRCS),-a)
+
+
+
+$(error This Imakefile is no longer maintained. Consider using cmake or update the Imakefile yourself.)

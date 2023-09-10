@@ -1,0 +1,12 @@
+CELLMODEL*IBT*KA
+MitchellSchaeffer
+9
+tau_in 0.3
+tau_open 120.0
+tau_close 150.0
+V_gate 0.13
+tau_out 6.0
+Vm_init -.085
+u_init 0.0
+h_init 0.8789655121804799
+Amp 0.2

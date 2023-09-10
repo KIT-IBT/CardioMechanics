@@ -1,0 +1,42 @@
+CELLMODEL*IBT*KA
+SachseEtAl
+40
+Tx 295 
+Vm -0.058
+Cm 4.5e-12
+Vfibro 2.68e-16
+Ko 5.4e-3
+Ki 139e-3 
+Cao 0
+Cai 0
+C0Shaker 1
+C1Shaker 0 
+C2Shaker 0 
+C3Shaker 0 
+C4Shaker 0
+OShaker  0 
+PShaker 5.4e-15 
+kv 30
+kvm 2
+ko 77
+kom 18
+zv 1.28
+zvm -1.53
+zom 0
+GKir 1e-9
+aKir 0.94
+bKir 1.26
+Gb 6.9e-12
+Eb 0
+Gstretch 0
+Estretch -20
+GBK 0
+L0BK 0
+zLBK 0
+J0BK 0
+zJBK 0
+KDBK 1
+CBK 0
+DBK 0
+EBK 0
+Amp 0

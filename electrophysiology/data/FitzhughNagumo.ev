@@ -1,0 +1,10 @@
+CELLMODEL*IBT*KA
+FitzhughNagumo
+7
+alpha 0.08
+gamma 3
+epsilon 0.005
+v_init 0
+w_init 0
+Vm_init -.085
+AMP 0.2

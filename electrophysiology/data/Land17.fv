@@ -1,0 +1,34 @@
+CELLMODEL*IBT*KA
+Land17
+31
+# ...
+perm50 0.35
+TRPN_n 2
+koff 0.1
+dr 0.25
+wfrac 0.5
+A_eff 25
+ktm_unblock 1.0
+beta_1 -2.4
+beta_0 2.3
+gamma 0.0085
+gamma_wu 0.615
+phi 2.23
+nperm 5.0
+ca50 0.805
+Tref 120
+nu 7
+mu 3
+xi 1.0
+a 2.1
+k 7
+eta_l 200
+eta_s 20
+HFM_Multiplier 1.0 # 0.6
+XS_init 0
+XW_init 0
+TRPN_init 0
+TmBlocked_init 1
+ZETAS_init 0
+ZETAW_init 0
+Cd_init 0

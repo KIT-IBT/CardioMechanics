@@ -1,0 +1,23 @@
+# thirdparty software 
+thirdparty
+
+# misc
+*.swp
+*.o
+*.d
+*.a
+*.pyc
+.DS_Store
+
+# build directories
+electrophysiology/src/Lattice/build
+electrophysiology/src/CellModel/build
+electrophysiology/src/LatticePETSc/build
+mechanics/build
+build
+
+# binaries
+bin
+
+# libraries
+lib

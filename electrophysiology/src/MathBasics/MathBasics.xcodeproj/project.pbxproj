@@ -1,0 +1,254 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXFileReference section */
+		0051518910AEE69100618C03 /* ASCIIMatrixImport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASCIIMatrixImport.h; sourceTree = "<group>"; };
+		0051518A10AEE69100618C03 /* FormFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FormFunctions.h; sourceTree = "<group>"; };
+		0051518B10AEE69100618C03 /* FormFunctionsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FormFunctionsTest.cpp; sourceTree = "<group>"; };
+		0051518C10AEE69100618C03 /* GoldenTemp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GoldenTemp.h; sourceTree = "<group>"; };
+		0051518D10AEE69100618C03 /* IterativeSolvers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IterativeSolvers.cpp; sourceTree = "<group>"; };
+		0051518E10AEE69100618C03 /* IterativeSolvers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IterativeSolvers.h; sourceTree = "<group>"; };
+		0051518F10AEE69100618C03 /* Jacobi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Jacobi.h; sourceTree = "<group>"; };
+		0051519010AEE69100618C03 /* kaADT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaADT.h; sourceTree = "<group>"; };
+		0051519110AEE69100618C03 /* kaMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaMatrix.h; sourceTree = "<group>"; };
+		0051519210AEE69100618C03 /* kaMatrixBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaMatrixBase.h; sourceTree = "<group>"; };
+		0051519310AEE69100618C03 /* kaMatrixLowTriProfile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaMatrixLowTriProfile.h; sourceTree = "<group>"; };
+		0051519410AEE69100618C03 /* kaMatrixMathN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaMatrixMathN.h; sourceTree = "<group>"; };
+		0051519510AEE69100618C03 /* kaMatrixMxN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaMatrixMxN.h; sourceTree = "<group>"; };
+		0051519610AEE69100618C03 /* kaMatrixN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaMatrixN.h; sourceTree = "<group>"; };
+		0051519710AEE69100618C03 /* kaMatrixSparseCol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaMatrixSparseCol.h; sourceTree = "<group>"; };
+		0051519810AEE69100618C03 /* kaPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaPoint.h; sourceTree = "<group>"; };
+		0051519910AEE69100618C03 /* kaSharedMatrixMxN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaSharedMatrixMxN.h; sourceTree = "<group>"; };
+		0051519A10AEE69100618C03 /* kaSharedMatrixN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaSharedMatrixN.h; sourceTree = "<group>"; };
+		0051519B10AEE69100618C03 /* kaSparseMatrixMxN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaSparseMatrixMxN.h; sourceTree = "<group>"; };
+		0051519C10AEE69100618C03 /* kaTabularizedFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kaTabularizedFunction.cpp; sourceTree = "<group>"; };
+		0051519D10AEE69100618C03 /* kaTabularizedFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaTabularizedFunction.h; sourceTree = "<group>"; };
+		0051519E10AEE69100618C03 /* kaTriangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kaTriangle.h; sourceTree = "<group>"; };
+		0051519F10AEE69100618C03 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		005151A010AEE69100618C03 /* Makefile.debug */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.debug; sourceTree = "<group>"; };
+		005151A110AEE69100618C03 /* MatrixFastSymBandMxN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixFastSymBandMxN.h; sourceTree = "<group>"; };
+		005151A210AEE69100618C03 /* MatrixNOpMatrixN.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MatrixNOpMatrixN.cpp; sourceTree = "<group>"; };
+		005151A310AEE69100618C03 /* MatrixNSet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MatrixNSet.cpp; sourceTree = "<group>"; };
+		005151A410AEE69100618C03 /* MatrixSymBandMxN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixSymBandMxN.h; sourceTree = "<group>"; };
+		005151A510AEE69100618C03 /* MatrixTools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MatrixTools.cpp; sourceTree = "<group>"; };
+		005151A610AEE69100618C03 /* MatrixTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixTools.h; sourceTree = "<group>"; };
+		005151A710AEE69100618C03 /* RandTemp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RandTemp.h; sourceTree = "<group>"; };
+		005151A810AEE69100618C03 /* README.TXT */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.TXT; sourceTree = "<group>"; };
+		005151A910AEE69100618C03 /* SVDTemp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVDTemp.h; sourceTree = "<group>"; };
+		005151AA10AEE69100618C03 /* Tensor2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tensor2.h; sourceTree = "<group>"; };
+		005151AB10AEE69100618C03 /* Tensor2Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tensor2Test.cpp; sourceTree = "<group>"; };
+		005151AC10AEE69100618C03 /* Tensor4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tensor4.h; sourceTree = "<group>"; };
+		005151AD10AEE69100618C03 /* Tensor4Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tensor4Test.cpp; sourceTree = "<group>"; };
+		005151AE10AEE69100618C03 /* UPSymMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UPSymMatrix.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* MathBasics */ = {
+			isa = PBXGroup;
+			children = (
+				0051518910AEE69100618C03 /* ASCIIMatrixImport.h */,
+				0051518A10AEE69100618C03 /* FormFunctions.h */,
+				0051518B10AEE69100618C03 /* FormFunctionsTest.cpp */,
+				0051518C10AEE69100618C03 /* GoldenTemp.h */,
+				0051518D10AEE69100618C03 /* IterativeSolvers.cpp */,
+				0051518E10AEE69100618C03 /* IterativeSolvers.h */,
+				0051518F10AEE69100618C03 /* Jacobi.h */,
+				0051519010AEE69100618C03 /* kaADT.h */,
+				0051519110AEE69100618C03 /* kaMatrix.h */,
+				0051519210AEE69100618C03 /* kaMatrixBase.h */,
+				0051519310AEE69100618C03 /* kaMatrixLowTriProfile.h */,
+				0051519410AEE69100618C03 /* kaMatrixMathN.h */,
+				0051519510AEE69100618C03 /* kaMatrixMxN.h */,
+				0051519610AEE69100618C03 /* kaMatrixN.h */,
+				0051519710AEE69100618C03 /* kaMatrixSparseCol.h */,
+				0051519810AEE69100618C03 /* kaPoint.h */,
+				0051519910AEE69100618C03 /* kaSharedMatrixMxN.h */,
+				0051519A10AEE69100618C03 /* kaSharedMatrixN.h */,
+				0051519B10AEE69100618C03 /* kaSparseMatrixMxN.h */,
+				0051519C10AEE69100618C03 /* kaTabularizedFunction.cpp */,
+				0051519D10AEE69100618C03 /* kaTabularizedFunction.h */,
+				0051519E10AEE69100618C03 /* kaTriangle.h */,
+				0051519F10AEE69100618C03 /* Makefile */,
+				005151A010AEE69100618C03 /* Makefile.debug */,
+				005151A110AEE69100618C03 /* MatrixFastSymBandMxN.h */,
+				005151A210AEE69100618C03 /* MatrixNOpMatrixN.cpp */,
+				005151A310AEE69100618C03 /* MatrixNSet.cpp */,
+				005151A410AEE69100618C03 /* MatrixSymBandMxN.h */,
+				005151A510AEE69100618C03 /* MatrixTools.cpp */,
+				005151A610AEE69100618C03 /* MatrixTools.h */,
+				005151A710AEE69100618C03 /* RandTemp.h */,
+				005151A810AEE69100618C03 /* README.TXT */,
+				005151A910AEE69100618C03 /* SVDTemp.h */,
+				005151AA10AEE69100618C03 /* Tensor2.h */,
+				005151AB10AEE69100618C03 /* Tensor2Test.cpp */,
+				005151AC10AEE69100618C03 /* Tensor4.h */,
+				005151AD10AEE69100618C03 /* Tensor4Test.cpp */,
+				005151AE10AEE69100618C03 /* UPSymMatrix.h */,
+			);
+			name = MathBasics;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		005151B410AEE6D200618C03 /* MathBasics */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 005151B510AEE6D200618C03 /* Build configuration list for PBXLegacyTarget "MathBasics" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			dependencies = (
+			);
+			name = MathBasics;
+			passBuildSettingsInEnvironment = 1;
+			productName = MathBasics;
+		};
+		D28A88AD04BDD90700651E21 /* MathBasics (Debug) */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "-f Makefile.debug $(ACTION)";
+			buildConfigurationList = 1DEB918F08733D9F0010E9CD /* Build configuration list for PBXLegacyTarget "MathBasics (Debug)" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			dependencies = (
+			);
+			name = "MathBasics (Debug)";
+			passBuildSettingsInEnvironment = 1;
+			productName = MathBasics;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB919308733D9F0010E9CD /* Build configuration list for PBXProject "MathBasics" */;
+			compatibilityVersion = "Xcode 3.1";
+			hasScannedForEncodings = 1;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* MathBasics */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D28A88AD04BDD90700651E21 /* MathBasics (Debug) */,
+				005151B410AEE6D200618C03 /* MathBasics */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		005151B610AEE6D200618C03 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEBUGGING_SYMBOLS = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = MathBasics;
+				kaRootDir = ../..;
+			};
+			name = Debug;
+		};
+		005151B710AEE6D200618C03 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = MathBasics;
+			};
+			name = Release;
+		};
+		1DEB919008733D9F0010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEBUGGING_SYMBOLS = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = MathBasics;
+				kaRootDir = ../..;
+			};
+			name = Debug;
+		};
+		1DEB919108733D9F0010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = MathBasics;
+			};
+			name = Release;
+		};
+		1DEB919408733D9F0010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = Debug;
+		};
+		1DEB919508733D9F0010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		005151B510AEE6D200618C03 /* Build configuration list for PBXLegacyTarget "MathBasics" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				005151B610AEE6D200618C03 /* Debug */,
+				005151B710AEE6D200618C03 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB918F08733D9F0010E9CD /* Build configuration list for PBXLegacyTarget "MathBasics (Debug)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB919008733D9F0010E9CD /* Debug */,
+				1DEB919108733D9F0010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB919308733D9F0010E9CD /* Build configuration list for PBXProject "MathBasics" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB919408733D9F0010E9CD /* Debug */,
+				1DEB919508733D9F0010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

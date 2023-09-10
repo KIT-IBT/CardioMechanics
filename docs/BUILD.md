@@ -1,0 +1,50 @@
+# Building CardioMechanics from source
+
+First, you have to make sure all requirements for building CardioMechanics are met.
+Afterwards, CardioMechanics can be build using CMake.
+Building from source was tested on Linux and Intel based Mac systems. 
+ARM based Macs may require some changes.
+
+## Requirements
+
+The following requirements have to be installed before trying to build CardioMechanics from source.
+We recommend using a package manager (we use [macports](https://www.macports.org) on our macOSX systems) whenever possible.
+* C and C++ compilers (e.g. gcc/g++ or clang/clang++)
+* [CMake](https://cmake.org)
+* [zlib](https://zlib.net)
+* [gfortran](https://gcc.gnu.org/fortran/)
+* [git](https://git-scm.com)
+* [make](https://git-scm.com)
+* [PETSc](https://www.mcs.anl.gov/petsc/)
+* [VTK](https://vtk.org)
+* [Open MPI](https://www.open-mpi.org)
+* [Python3](https://www.python.org) (optional, if you want to use some of the provided tools)
+
+With installRequirements.sh we provide a script to compile [Open MPI](https://www.open-mpi.org), [PETSc](https://www.mcs.anl.gov/petsc/), and [VTK](https://vtk.org) from source with the most recently tested versions to ensure compatibility.
+Building with CMake as described in the next step requires the location and version of the tools as set in the script.
+If you do want to use alternative locations/versions you have to link them as required.
+
+## Building using CMake
+
+Before continuing with compiling CardioMechanics using [CMake](https://cmake.org), add the following environmental variables to your systems configuration file ( e.g. .bashrc or .zshrc)
+```
+export kaRootDir=$HOME/CardioMechanics
+export THIRDPARTY_HOME=$kaRootDir/thirdparty
+export PETSC_DIR=$THIRDPARTY_HOME/macosx
+export PETSC_ARCH=petsc-v3.19.1
+```
+and add the location of the executables to your PATH variable (replace macosx with linux if you are on a linux machine).
+```
+PATH="$PATH:$THIRDPARTY_HOME/macosx/openMPI-64bit/bin"
+PATH="$PATH:$kaRootDir/_build/bin/macosx"
+export PATH
+```
+
+Now run 
+```
+cmake -S . -B _build
+```
+to create the `_build` folder and compile the code using
+```
+cmake --build _build
+```

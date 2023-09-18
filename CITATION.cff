@@ -1,0 +1,52 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: CardioMechanics
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Tobias
+    family-names: Gerach
+    email: tobias.gerach@kit.edu
+    affiliation: Karlsruhe Institute of Technology (KIT)
+    orcid: 'https://orcid.org/0000-0002-5101-2840'
+  - given-names: Thomas
+    family-names: Fritz
+    affiliation: Karlsruhe Institute of Technology (KIT)
+  - given-names: Robin
+    family-names: Moss
+    orcid: 'https://orcid.org/0000-0001-8738-0461'
+    affiliation: Universitätsklinikum Freiburg
+  - given-names: Gunnar
+    family-names: Seemann
+    affiliation: Karlsruhe Institute of Technology (KIT)
+    orcid: 'https://orcid.org/0000-0001-7111-7992'
+  - given-names: Axel
+    family-names: Loewe
+    email: axel.loewe@kit.edu
+    affiliation: Karlsruhe Institute of Technology (KIT)
+    orcid: 'https://orcid.org/0000-0002-2487-4744'
+identifiers:
+  - type: doi
+    value: 10.3390/math9111247
+    description: Paper documenting this software
+repository-code: 'https://github.com/KIT-IBT/CardioMechanics/tree/main'
+abstract: >-
+  CardioMechanics is a simulation environment designed for
+  (but not limited to) cardiac tissue electromechanics
+  problems. As of 09/2023, active development on this
+  software is no longer pursued. Therefore, support is
+  limited. Even though this repository includes a standalone
+  cardiac electrophysiology solver, we recommend using
+  openCARP instead if you are only interested in cardiac
+  electrophysiology.
+keywords:
+  - Cardiac mechanics
+  - Continuum mechanics
+  - Cardiac electromechanics
+  - Cardiac electrophysiology
+license: GPL-3.0-or-later
+version: '1.0'

@@ -396,7 +396,7 @@ void CBModelLoaderTetgen::LoadElementsNeighbors() { // CBElement<T> Class Factor
 
 void CBModelLoaderTetgen::LoadSurfaces(std::string surfacesFilename, std::vector<CBElement *> &newElements) { // CBElement<T> Class Factory
                                                                                                               // Format:
-                                                                                                              // <amount of elements> <Nodes per Element> (must be 3)> <Attributes> (must be 1: surface index)>
+                                                                                                              // <amount of elements> <Nodes per Element> (must be 3)> <Attributes> (min 2, max 3)>
                                                                                                               // <surface element Index> <node 1> <node 2> <node 3> <surface index>
     
     if (surfacesFilename != "") {
@@ -426,7 +426,7 @@ void CBModelLoaderTetgen::LoadSurfaces(std::string surfacesFilename, std::vector
             
             if (attr < 2) {
                 throw std::runtime_error(
-                                         "CBModelLoaderTetgen::LoadSurfaces(): Attributes has to be two (surface material & surface index) or higher (optional surface traction scaling)");
+                                         "CBModelLoaderTetgen::LoadSurfaces(): Attributes has to be two (surface material & surface index) or three (optional surface traction scaling)");
             }
             
             std::vector<TInt> nodesIndexes;

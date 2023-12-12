@@ -1,8 +1,16 @@
-/*! \file kaRootDir.h
-   \brief Class kaRootDir for handling of default root directories
-
-   \author fs IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaRootDir.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef KAROOTDIR_H
 #define KAROOTDIR_H
@@ -13,7 +21,6 @@
 /*!
    The default is hardcoded, but can be overwritten by setting the system variable "kaRootDir"
 
-   \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
  */
 
 class kaRootDir {

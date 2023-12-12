@@ -1,11 +1,16 @@
 /*
- *  CBDataPerMaterial.cpp
- *  CardioMechanics
+ * File: CBDataPerMaterial.cpp
  *
- *  Created by Lukas Baron and Steffen Schuler on 02.02.2016.
- *  Copyright 2016 Institute for Biomedical Engineering, Karlsruhe Institute of Technology (KIT). All rights reserved.
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 
 #include "CBDataPerMaterial.h"
 

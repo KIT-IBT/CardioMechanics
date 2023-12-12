@@ -1,8 +1,16 @@
-/*! \file acltConditions.h
-   \brief Managing conditions for PETScLSESolve simulations
-
-   \author ew095, IBT - Universitaet Karlsruhe (TH) on May 2010, ported from acltConditions.h
+/*
+ * File: PETScLSEConditions.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 
 #ifndef PETSCLSECONDITIONS_H

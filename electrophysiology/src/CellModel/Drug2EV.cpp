@@ -1,43 +1,16 @@
-/*! \file Drug2EV.cpp
-   \brief Functions for program Drug2EV
-
-   \version 1.0.1
-
-   \date Created Christian Rombach (24.06.09) \n
-
-   \author      Christian Rombach\n
-   Institute of Biomedical Engineering\n
-   Universitaet Karlsruhe (TH)\n
-   http://www.ibt.uni-karlsruhe.de\n
+/*
+ * File: Drug2EV.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
 
-// doxygen manpage Drug2EV
-/*! \page Drug2EV Drug2EV
-   Modify the evfile of a cellmodel to simulate the impact of drugs on the conductance of the ion channels
-
-   \section SYNOPSIS_Drug2EV SYNOPSIS
-   Drug2EV \<evfile\> \<datafile\>
-
-   \section OPTIONS_Drug2EV OPTIONS
-   \param "<evfile>" Original evfile with the initvalues and standardparameters of any Cellmodel.
-   \param "<datafile>" File with the specific data of the applied drug. Each line contains a conductance parameter, the
-      corresponding IC50 value and the Hillcoefficient nH.
-   \param "-concentration" Applied concentration of the drug.
-   \param "-bound" Percentage of the drug that is bound to plasma proteins.
-   \param "-outfile" Name of the modified evfile.
-   \param "-verbose" Additional informations about the performed modifications.
-
-   \section DESCRIPTION_Drug2EV DESCRIPTION
-   Drug2EV manipulates the conductance values of any cellmodel. The conductances will be multiplied with a hillfunction
-      that
-   contains the parameters given in the datafile and the concentration of the specific drug.\n
-   The parameters in the datafile should look like this: \<conductance parameter\> \<ic50\> \<nh\>.\n
-   Lines that should be ignored can be commented with "//"\n.
-
-   \section SOURCE_Drug2EV SOURCE
-   Drug2EV.cpp
-
- */
 
 #include <iostream>
 #include <fstream>

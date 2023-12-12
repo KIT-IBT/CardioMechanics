@@ -1,20 +1,16 @@
 /*
- **      Name
- **              Material.h
- **
- **
- **      Description
- **              store electrical and mechanical material parameters
- **
- **      History
- **              29.7.93         -fs             creation material.h/pc
- **              22.1.94         -fs             sigma
- **              00.0.98         -br             Cole Cole description
- **              05.1.01         -fs             mechanical properties
- **              20.5.02         -fs             Exceptions
- **              20.5.03         -kc             Tension
- **
+ * File: Material.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef MATERIAL_H
 #define MATERIAL_H

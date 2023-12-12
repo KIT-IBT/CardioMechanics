@@ -1,11 +1,16 @@
 /*
- *  CBElementSolidT4.h
- *  CardioMechanics
+ * File: CBElementSolidT4.h
  *
- *  Created by Thomas Fritz on 23.02.10.
- *  Copyright 2010 Institute for Biomedical Engineering, Karlsruhe Institute of Technology (KIT). All rights reserved.
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 
 #ifndef CB_ELEMENT_SOLID_T4_H
 #define CB_ELEMENT_SOLID_T4_H
@@ -67,7 +72,7 @@ protected:
     void GetNodesCoordsIndices(TInt *nodesCoordsIndices);
     virtual CBStatus CalcNodalForcesHelperFunction(const TFloat *nodesCoords, const bool *boundaryConditions, TFloat *forces);
     std::array<TInt, 4>   nodesIndices_;
-    std::array<TFloat, 12> dNdX_;     // partial derivates of the shape function Ni: ∂Ni/∂x Since this element is linear, the derivates are constant over the whole element.
+    std::array<TFloat, 12> dNdX_;     // partial derivates of the shape function Ni: âNi/âx Since this element is linear, the derivates are constant over the whole element.
     TFloat detJ_ = 0;
     
     // ek717: needed for the CBAccelerate Plug in

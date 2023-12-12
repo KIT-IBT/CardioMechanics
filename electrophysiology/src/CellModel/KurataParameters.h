@@ -1,14 +1,17 @@
-/*      File: KurataParameters.h
-    automatically created by ExtractParameterClass.pl - done by dw (22.03.2007)
-    Institute of Biomedical Engineering, Universitt Karlsruhe (TH)
-        send comments to dw@ibt.uka.de  */
-
-/*! \class KurataParameters Kurata.h "CellModel/Kurata.h"
- *  \brief This is a class to manage all parameters used by the model.
+/*
+ * File: KurataParameters.h
  *
- *  This class loads all parameters from an init (ev) file, calculates constant values
- *  and inits a table.
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
+
 
 #ifndef KURATAPARAMETERS_H
 #define KURATAPARAMETERS_H

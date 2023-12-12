@@ -1,10 +1,16 @@
-//
-//  CBApplyPressureFromFunctionNodeExport.h
-//  CardioMechanics
-//
-//  Created by Steffen Schuler on 01.03.16.
-//
-//
+/*
+ * File: CBApplyPressureFromFunctionNodeExport.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
+
 
 #ifndef CB_APPLY_PRESSURE_FROM_FUNCTION_NODE_EXPORT
 #define CB_APPLY_PRESSURE_FROM_FUNCTION_NODE_EXPORT

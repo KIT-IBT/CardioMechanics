@@ -1,21 +1,16 @@
-/**@file LatticesSymmetricTensor2.h
- * @brief <Brief (one-line) description here.>
+/*
+ * File: LatticesSymmetricTensor2.h
  *
- * Please see the wiki for details on how to fill out this header:
- * https://intern.ibt.uni-karlsruhe.de/wiki/Document_a_IBT_C%2B%2B_tool
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
  *
- * @version 1.0.0
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
- * @date Created <Your Name> (yyyy-mm-dd)
- *
- * @author Your Name\n
- *         Institute of Biomedical Engineering\n
- *         Karlsruhe Institute of Technology (KIT)\n
- *         http://www.ibt.kit.edu\n
- *         Copyright yyyy - All rights reserved.
- *
- * @see ...
  */
+
 
 #ifndef LATTICESSYMMETRICTENSOR2_H
 #define LATTICESSYMMETRICTENSOR2_H
@@ -25,8 +20,7 @@
 //! Class for handling of lattices with elements of type 2. order symmetric tensor
 /*!
    lattices with 6 tensor elements are combined in a single object.
-   \n\n
-   \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
+
  */
 
 template<class T> class LatticesSymmetricTensor2 : virtual public nskaGlobal::DataTypeInfo {

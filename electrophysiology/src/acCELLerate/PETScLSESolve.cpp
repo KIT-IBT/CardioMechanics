@@ -1,19 +1,16 @@
-/*! \file  PETScLSESolve.cpp
-   \brief Solving stiffnes matrices for boundary conditions
-
-   \version 1.0.0
-
-   \date Created Gunnar Seemann (14.07.08)\n
-   Last Modified Eike Wuelfers (28.04.11)
-
-   \author Frank Sachse, CVRTI - University of Utah\n
-   Institute of Biomedical Engineering\n
-   Universitaet Karlsruhe (TH)\n
-   http://www.ibt.uni-karlsruhe.de\n
-   Copyright 2000-2008 - All rights reserved.
-
-   \sa Synopsis \ref PETScLSESolve
+/*
+ * File: PETScLSESolve.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #include <PETScLSE.h>
 #include <PETScLSEConditions.h>

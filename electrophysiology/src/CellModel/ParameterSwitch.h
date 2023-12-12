@@ -1,11 +1,16 @@
 /*
- *  ParameterSwitch.h
- *  CellModel
+ * File: ParameterSwitch.h
  *
- *  Created by dw.local on 24.01.07.
- *  Copyright 2007 IBT Universität Karlsruhe. All rights reserved.
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 
 #ifndef PARAMETERSWITCH
 #define PARAMETERSWITCH

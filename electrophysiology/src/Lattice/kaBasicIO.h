@@ -1,14 +1,16 @@
-/*! \file kaBasicIO.h
-   \brief Basic functions for lattice-file input-output
-
-   Internal use only!
-   Known bugs: osWin32 and osLinux versions of Raw, RLE, and GZIP read
-   and write methods as well as the functions kaWrite and
-   kaRead modify data in memory temporarily. This may interfere with
-   further (shared) memory operations.
-
-   \author cw,idb IBT - Universität Karlsruhe (TH), fs CVRTI - University of Utah
+/*
+ * File: kaBasicIO.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef KABASICIO_H
 #define KABASICIO_H
@@ -127,7 +129,7 @@ template<class X> inline void kaRead(X *data, int fd) {
 
 //! Class for writing and reading of raw data to and from disk
 /*!
-   \author cw,fs, IBT - Universität Karlsruhe (TH)
+   \author cw,fs, IBT - UniversitÃ¤t Karlsruhe (TH)
  */
 
 template<class X>
@@ -174,7 +176,7 @@ const int obufsize = 39337;  // (int)(32*1024*1.2+16);
 /*!
    The class uses functions of zlib (described at http://www.gzip.org/zlib/)
 
-   \author fs, IBT - Universität Karlsruhe (TH)
+   \author fs, IBT - UniversitÃ¤t Karlsruhe (TH)
  */
 
 template<class X>
@@ -263,7 +265,7 @@ class GZIP {
    rle (run length encoding) compression takes usage of repetitions.
    N-times repeating data elements (a,a,a, ..., a) are stored as (a,N).
 
-   \author cw, IBT - Universität Karlsruhe (TH), fs - CVRTI - University of Utah
+   \author cw, IBT - UniversitÃ¤t Karlsruhe (TH), fs - CVRTI - University of Utah
  */
 
 template<class X> class kaRLE {

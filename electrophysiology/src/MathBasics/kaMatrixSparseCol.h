@@ -1,11 +1,16 @@
-/*! \file kaMatrixSparseCol.h
-   \brief Sparse matrix. Compressed column storage with distinct diagonal.
-
-   \author os, IBT - Universität Karlsruhe (TH)
-
-   modified:
-   ew095 apr 29, 2010: Added ability to save in PETSc format
+/*
+ * File: kaMatrixSparseCol.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 /*! \class kaMatrixSparseCol
    Sparse matrix. Compressed column storage with distinct diagonal.

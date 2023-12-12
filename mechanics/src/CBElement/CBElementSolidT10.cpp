@@ -1,12 +1,16 @@
 /*
+ * File: CBElementSolidT10.cpp
  *
- *  CBElementSolidT10.cpp
- *  CardioMechanics
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
  *
- *  Created by Thomas Fritz on 13.09.11.
- *  Copyright 2011 Institute for Biomedical Engineering, Karlsruhe Institute of Technology (KIT). All rights reserved.
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 
 #include "CBElementSolidT10.h"
 #include "CBElementAdapter.h"

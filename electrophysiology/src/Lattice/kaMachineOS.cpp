@@ -1,9 +1,16 @@
-/*! \file kaMachineOS.cpp
- \brief Machine specific functions, declarations und definitions
- 
- \author cw,idb,df IBT - Universität Karlsruhe (TH)
- fs CVRTI - University of Utah, USA
+/*
+ * File: kaMachineOS.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #include "kaMachineOS.h"
 #include "kaExceptions.h"

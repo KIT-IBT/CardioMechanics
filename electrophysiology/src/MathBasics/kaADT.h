@@ -1,16 +1,16 @@
-/*! \file kaADT.h
-
-   \brief Alternating Digital Tree
-
-   J. Bonet, J. Peraire "An Alternating Digital Tree (ADT) Algorithm
-   for 3D Geometric Searching and Intersection Problems"
-   International Journal for Numerical Methods in Engineering, vol. 31, 1-17 (1991)
-
-
-   \author os
-   4.09.02
-
+/*
+ * File: kaADT.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 #ifndef _kaADT_h
 #define _kaADT_h
 

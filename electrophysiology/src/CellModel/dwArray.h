@@ -1,11 +1,16 @@
 /*
- *  dwArray.h
- *  dwIniFile
+ * File: dwArray.h
  *
- *  Created by Daniel Weiss on 12.08.04.
- *  Copyright 2004 __MyCompanyName__. All rights reserved.
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 #ifndef DWARRAY_H
 #define DWARRAY_H
 

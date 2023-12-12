@@ -1,8 +1,16 @@
-/*! \file kaParser.cpp
-   \brief Class for parsing of command line arguments
-
-   \author cw, IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaParser.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #include <kaParser.h>
 

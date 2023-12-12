@@ -1,8 +1,16 @@
-/*! \file kaMatrixMxN.h
-   \brief Class for handling of MxN matrices
-
-   \author os, IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaMatrixMxN.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef M_MATRIXMXN_H
 #define M_MATRIXMXN_H

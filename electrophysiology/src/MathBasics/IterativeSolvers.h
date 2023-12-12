@@ -1,14 +1,16 @@
-/*! \file IterativeSolvers.h
-
-   \brief Congugate gradient solver.
-
-   \author os
-
-   created sometime in 2000
-   modified Feb 8, 2001
-
-   template May 18, 2004
+/*
+ * File: IterativeSolvers.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef _ITERATIVESOLVERS_H
 #define _ITERATIVESOLVERS_H

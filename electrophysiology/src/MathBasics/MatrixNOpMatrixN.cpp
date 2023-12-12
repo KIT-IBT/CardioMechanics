@@ -1,33 +1,16 @@
-/*------------------------------------------------------------------------------
-   --   Name
-   --           kaSharedMatrixNOpkaSharedMatrixN.cpp
-   --
-   --   Remark
-   --           Bestimmung einer Transformationsmatrix zwischen zwei homogenen
-   --           Tranformationsmatrizen.
-   --           Da die affinen Abbildungen in beiden Faellen durch eine
-   --           homogene Transformation beschrieben werden, sollte es reichen
-   --           die Abbildungsmatrix des Templates zu invertieren und von rechts
-   --           an die Abbildungsmatrix der Referenz zu multiplizieren, um die
-   --           direkte Transformation zwischen beiden Koordinatensystemen zu erhalten.
-   --           In Weltkoordinaten gilt:
-   --                   P1(Welt|Template)=A(Template)*P1
-   --                   P2(Welt|Referenz)=A(Referenz)*P2
-   --                   P1(Welt|Referenz)=A(Referenz)*A(Template)^-1*A(Template)*P1
-   --           Als Transformationsmatrix T ergibt sich damit:
-   --                   T = A(Referenz)*A(Template)^-1
-   --           Als Argumente bei Programmaufruf werden in Files
-   --           gespeicherte Matrizen eingelesen.
-   --
-   --
-   --
-   --   History
-   --           Erstellung      01.04.98        fs
-   --           Erweiterung     22.07.98        gvw
-   --           last modified   02.02.99        gvw
-   --
-   --   created at IBT - Universitaet Karlsruhe
-   ------------------------------------------------------------------------------*/
+/*
+ * File: MatrixNOpMatrixN.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
+
 
 #include <kaSharedMatrixN.h>
 #include <kaExceptions.h>

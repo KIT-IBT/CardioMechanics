@@ -1,8 +1,16 @@
-/*! \file CellModel.h
-   \brief Classes and methods for programs Elphy-, Force- and CellModelTest
-
-   \author gs, dw IBT - Universität Karlsruhe (TH), fs, CVRTI - University of Utah
+/*
+ * File: CellModel.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #include <kaBasicIO.h>
 using namespace nskaGlobal;
@@ -247,7 +255,7 @@ class CellParameters {
     else
       fc = (fb ? CalciumFeedBackCoupling : CalciumCoupling);
 # else // USE_EMT
-    if (cf == CF_Coppini) {       // human CaT used in Land et al. 2017 model (ref. 9 there, array from matlab code from Niederer lab web page; R. Coppini, C. Ferrantini, L. Yao, P. Fan, M. Del Lungo, F. Stillitano, L. Sartiani, B. Tosi, S. Suffredini, C. Tesi, M. Yacoub, I. Olivotto, L. Belardinelli, C. Poggesi, E. Cerbai, A. Mugelli, Late sodium current inhibition reverses electromechan- ical dysfunction in human hypertrophic cardiomyopathy, Circulation 127 (5) (February 2013) 575–584.
+    if (cf == CF_Coppini) {       // human CaT used in Land et al. 2017 model (ref. 9 there, array from matlab code from Niederer lab web page; R. Coppini, C. Ferrantini, L. Yao, P. Fan, M. Del Lungo, F. Stillitano, L. Sartiani, B. Tosi, S. Suffredini, C. Tesi, M. Yacoub, I. Olivotto, L. Belardinelli, C. Poggesi, E. Cerbai, A. Mugelli, Late sodium current inhibition reverses electromechan- ical dysfunction in human hypertrophic cardiomyopathy, Circulation 127 (5) (February 2013) 575â584.
       double tempCaTransient[] =
       {0.166, 0.166, 0.165, 0.165, 0.164, 0.164, 0.165, 0.166, 0.170, 0.175, 0.181, 0.188, 0.196, 0.205, 0.215, 0.225,
        0.235, 0.247, 0.259, 0.270, 0.280, 0.289, 0.297, 0.304, 0.312, 0.319, 0.328, 0.336, 0.345, 0.353, 0.359, 0.364,

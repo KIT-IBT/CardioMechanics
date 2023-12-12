@@ -1,20 +1,16 @@
-/* -------------------------------------------------------
- 
- CBConstitutiveModelFactory.cpp
- 
- Ver. 1.1.0
- 
- Created:       Thomas Fritz       (14.09.2011)
- Last modified: Tobias Gerach      (09.02.2021)
- 
- Institute of Biomedical Engineering
- Karlsruhe Institute of Technology (KIT)
- 
- http://www.ibt.kit.edu
- 
- Copyright 2000-2009 - All rights reserved.
- 
- ------------------------------------------------------ */
+/*
+ * File: CBConstitutiveModelFactory.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
+
 
 
 #include <string>

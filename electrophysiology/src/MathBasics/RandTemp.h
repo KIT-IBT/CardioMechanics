@@ -1,21 +1,16 @@
-/*!\file RandTemp.h
-   \brief Class for generating random numbers
-
-   \author os - IBT, Universitaet Karlsruhe (TH)
-
-   os May 9, 2001
-
-   NOTICE:
-   this class includes methods for generating
-   uniformly distributed pseudo-random values (numerical recipes, p.280)
-   and
-   normaly distributed pseudo-random values (ACM Algorithm 712, J.L.Leva)
-
-   The <double> version of the template should be tested.
-   Although I've already used it with double and had no complains. -os
-
-
+/*
+ * File: RandTemp.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 
 #ifndef _RandTemp_h

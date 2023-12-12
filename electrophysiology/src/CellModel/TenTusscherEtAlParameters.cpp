@@ -1,7 +1,16 @@
-/*      File: TenTusscherEtAlParameters.cpp
-    automatically created by ExtractParameterClass.pl - done by dw (20.04.2007)
-    Institute of Biomedical Engineering, Universitt Karlsruhe (TH)
-    send comments to dw@ibt.uka.de      */
+/*
+ * File: TenTusscherEtAlParameters.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
+
 
 
 #include <TenTusscherEtAlParameters.h>

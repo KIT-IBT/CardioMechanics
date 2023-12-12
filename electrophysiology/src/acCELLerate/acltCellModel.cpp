@@ -1,9 +1,16 @@
-/*! \file acltCellModel.cpp
- \brief
- 
- \author gs, IBT - Universitaet Karlsruhe Dec 2007. Copyright 2007 IBT Universitaet Karlsruhe (TH). All rights
- reserved.
+/*
+ * File: acltCellModel.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef CELLMODELSTRUCT_H
 #define CELLMODELSTRUCT_H

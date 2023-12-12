@@ -1,21 +1,16 @@
-/**@file FabbriEtAl.cpp
- * @brief <Brief (one-line) description here.>
+/*
+ * File: FabbriEtAl.cpp
  *
- * Please see the wiki for details on how to fill out this header:
- * https://intern.ibt.uni-karlsruhe.de/wiki/Document_a_IBT_C%2B%2B_tool
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
  *
- * @version 1.0.0
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
- * @date Created <Your Name> (yyyy-mm-dd)
- *
- * @author Your Name\n
- *         Institute of Biomedical Engineering\n
- *         Karlsruhe Institute of Technology (KIT)\n
- *         http://www.ibt.kit.edu\n
- *         Copyright yyyy - All rights reserved.
- *
- * @see ...
  */
+
 
 #include <FabbriEtAl.h>
 
@@ -108,7 +103,7 @@ ML_CalcType Fabbri::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_external = 
   const double VmE_K = V_int-E_K;
   const double VmE_Ca = V_int-E_Ca;
 
-  // Ströme
+  // StrÃ¶me
   //
   // I_f:
 
@@ -290,7 +285,7 @@ ML_CalcType Fabbri::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_external = 
   RI_Ca_rel += tinc*
     ((v(VT_kom))*I_Ca_rel-koSRCa*Ca_sub*Ca_sub*RI_Ca_rel-((v(VT_kim))*RI_Ca_rel-kiSRCa*Ca_sub*R_Ca_rel));
 
-  // Intrazelluläre Ca_Ströme:
+  // IntrazellulÃ¤re Ca_StrÃ¶me:
   double b_up = (0.7*v(VT_ACh)/(0.00009+v(VT_ACh)))-v(VT_Iso_b_up);
 
   const double P_up = 5; // in mM/s
@@ -454,7 +449,7 @@ void Fabbri::LongPrint(ostream &tempstr, double t,  ML_CalcType V) {
     I_KACh = 0;
   }
 
-  // Intrazelluläre Ca_Ströme:
+  // IntrazellulÃ¤re Ca_StrÃ¶me:
   const double j_SRCarel = (v(VT_ks))*O_Ca_rel*(Ca_jsr-Ca_sub);
 
   double b_up = 0.7*v(VT_ACh)/(0.00009+v(VT_ACh))-v(VT_Iso_b_up);

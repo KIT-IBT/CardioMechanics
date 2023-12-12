@@ -1,11 +1,16 @@
 /*
- *  CBDataFromFunction.h
- *  CardioMechanics
+ * File: CBDataFromFunction.h
  *
- *  Created by Thomas Fritz on 01.11.10.
- *  Copyright 2010 Institute for Biomedical Engineering, Karlsruhe Institute of Technology (KIT). All rights reserved.
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 
 #ifndef CB_DATA_FROM_FUNCTION_H
 #define CB_DATA_FROM_FUNCTION_H

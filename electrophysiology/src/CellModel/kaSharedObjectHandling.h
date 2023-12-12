@@ -1,14 +1,16 @@
 /*
- *  kaLoadSO.h
- *  CellModelSO
+ * File: kaSharedObjectHandling.h
  *
- *  Created by Daniel Weiss on 26.01.05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
  *
- *
- *  Changed 16.12.09: Removed deprecated macOSHandling (NS...) (Eike Wuelfers)
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 #ifndef KASHAREDOBJECTHANDLING
 #define KASHAREDOBJECTHANDLING
 

@@ -1,8 +1,16 @@
-/*! \file kaMask.h
-   \brief Class for handling of masks for unsigned char data
-
-   \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaMask.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 #ifndef KAMASK_H
 #define KAMASK_H
 
@@ -13,8 +21,6 @@
 /*!
    kaMask allows the definition of a 256-array of bools by a text string.
    The string includes numbers and ranges separated by commands, e.g. "1", "3,16", "2-4", "3,15-17,19"
-   \n\n
-   \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
  */
 
 class kaMask {

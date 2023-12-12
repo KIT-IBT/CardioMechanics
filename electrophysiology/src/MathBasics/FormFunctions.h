@@ -1,19 +1,16 @@
 /*
-**      Name
-**              FormFunctions.h
-**
-**      Usage
-**              xFEPoisson.h
-**
-**      Remark
-**              Formfunctions etc. Finite Elements
-**
-**      History
-**              4.5.00 -fs creation
-**
-**
-**  created at IBT - Universität Karlsruhe
-*/
+ * File: FormFunctions.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
+
 
 #ifndef FORMFUNCTIONS_H
 #define FORMFUNCTIONS_H

@@ -1,10 +1,16 @@
-/*! \file SachseEtAlParameters.cpp
-   \brief Implementation of  fibroblast model
-   This model uses only SI units.
-   Rat ventricular fibroblast Ann Biomed Eng Jan 2008
-   Human synovial fibrobast 2013
-   \author fs, CVRTI - University of Utah, USA
+/*
+ * File: SachseEtAlParameters.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 
 #include <SachseEtAlParameters.h>

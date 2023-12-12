@@ -1,20 +1,16 @@
 /*
-**      Name
-**              LatticeDB.h
-**
-**      Usage
-**              LatticeDB.cpp
-**
-**      Remark
-**              Verwaltung von zusammengehoerigen Lattices
-**
-**
-**      History
-**              01.02.98 -fs creation
-**
-**
-**  created at IBT - Universitaet Karlsruhe
-*/
+ * File: LatticeDB.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
+
 
 
 #ifndef LATTICEDB_H

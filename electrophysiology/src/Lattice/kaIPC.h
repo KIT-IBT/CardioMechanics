@@ -1,8 +1,16 @@
-/*! \file kaIPC.h
-  \brief Basic handling of IPC mechanisms (key, shared memory, and semphore)
+/*
+ * File: kaIPC.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
 
-  \author cw,fs, IBT - Universit‰t Karlsruhe (TH)
-*/
 
 #ifndef KAIPC_H
 #define KAIPC_H
@@ -19,7 +27,7 @@ namespace nskaIPC {
     An object of class InvalidIPC is typically thrown in case of errors with IPC functions.
     The object includes a string describing details of the error's cause.
     \n\n
-    \author cw,fs,idb, IBT - Universit‰t Karlsruhe (TH)
+    \author cw,fs,idb, IBT - Universit√§t Karlsruhe (TH)
   */
   //Class definition for InvalidIPC was removed due to a problem with inheritance from kaBaseException and the ... macro that was used to pass arguments \author dk091, gs, tf102
   #define InvalidIPC kaBaseException
@@ -29,7 +37,7 @@ namespace nskaIPC {
     An object of class InvalidIPC is thrown in case of non existance of file and creation flag equal false.
     The object includes a string describing details of the error's cause.
     \n\n
-    \author cw,fs,idb, IBT - Universit‰t Karlsruhe (TH)
+    \author cw,fs,idb, IBT - Universit√§t Karlsruhe (TH)
   */
 
 	//Class definition for FileNotExisting was removed due to a problem with inheritance from kaBaseException and the ... macro that was used to pass arguments \author dk091, gs, tf102
@@ -41,7 +49,7 @@ namespace nskaIPC {
     The file is created if not already existing.
     The file is exclusively opened by locking.
     \n\n
-    \author cw,fs,idb, IBT - Universit‰t Karlsruhe (TH)
+    \author cw,fs,idb, IBT - Universit√§t Karlsruhe (TH)
   */
 
   class IPCKey : virtual public nskaGlobal::FileCheck
@@ -158,7 +166,7 @@ namespace nskaIPC {
   /*!
     The creation of an IPC semaphore uses an IPC key.
     \n\n
-    \author cw,fs, IBT - Universit‰t Karlsruhe (TH)
+    \author cw,fs, IBT - Universit√§t Karlsruhe (TH)
   */
   class IPCSem : virtual public IPCKey
   {
@@ -320,7 +328,7 @@ namespace nskaIPC {
   /*!
     The creation of an IPC shared memory area uses an IPC key.
     \n\n
-    \author \author cw,fs,idb, IBT - Universit‰t Karlsruhe (TH)
+    \author \author cw,fs,idb, IBT - Universit√§t Karlsruhe (TH)
   */
   class IPCShm : virtual public IPCKey
   {

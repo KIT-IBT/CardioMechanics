@@ -1,11 +1,16 @@
 /*
- *  CBModelLoaderTetgen.h
- *  CardioMechanics
+ * File: CBModelLoaderTetgen.h
  *
- *  Created by Thomas Fritz on 13.04.10.
- *  Copyright 2010 Institute for Biomedical Engineering, Karlsruhe Institute of Technology (KIT). All rights reserved.
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 #ifndef CB_MODEL_LOADER_TETGEN
 #define CB_MODEL_LOADER_TETGEN
 

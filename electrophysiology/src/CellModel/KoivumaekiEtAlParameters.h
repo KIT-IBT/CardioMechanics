@@ -1,5 +1,16 @@
-/* File: KoivumaekiEtAlParameters.h
-        Institute of Biomedical Engineering, Karlsruhe Institute of Technology (KIT) */
+/*
+ * File: KoivumaekiEtAlParameters.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
+
 
 #ifndef KOIVUMAEKIETALPARAMETERS_H
 #define KOIVUMAEKIETALPARAMETERS_H

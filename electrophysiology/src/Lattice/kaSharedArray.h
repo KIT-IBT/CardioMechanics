@@ -1,8 +1,16 @@
-/*! \file kaSharedArray.h
-   \brief Class for handling of array with template elements in shared memory
-
-   \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaSharedArray.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef KASHAREDARRAY_H
 #define KASHAREDARRAY_H
@@ -16,8 +24,7 @@ using namespace nskaGlobal;
 /*!
    The array's size and data is addressed via pointers.
    The class serves a basis for kaLattice.
-   \n\n
-   \author cw,fs,idb,mm, IBT - Universität Karlsruhe (TH)
+
  */
 
 template<class T> class kaSharedArray {

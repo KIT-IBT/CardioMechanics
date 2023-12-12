@@ -1,20 +1,16 @@
-/* -------------------------------------------------------
+/*
+ * File: OHaraRudyParameters.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
 
-   OHaraRudyParameters.cpp
-
-   Ver. 1.3.0
-
-   Created:       Tobias Gerach (01.2018)
-   Last modified: Tobias Gerach (07.05.2023)
-
-   Institute of Biomedical Engineering
-   Karlsruhe Institute of Technology (KIT)
-
-   http://www.ibt.kit.edu
-
-   Copyright 2000-2009 - All rights reserved.
-
-   ------------------------------------------------------ */
 
 #include <OHaraRudyParameters.h>
 OHaraRudyParameters::OHaraRudyParameters(const char *initFile, ML_CalcType tinc) {

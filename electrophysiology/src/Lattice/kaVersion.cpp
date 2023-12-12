@@ -1,32 +1,16 @@
-/* -------------------------------------------------------
+/*
+ * File: kaVersion.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
 
-    kaVersion.cpp
-
-    Ver. 1.1.1
-
-    Created:       Daniel Weiss      (24.07.2008)
-    Last modified: Oussama Jarrousse    (05.12.2008)
-
-    Institute of Biomedical Engineering
-    Universitaet Karlsruhe (TH)
-
-    http://www.ibt.uni-karlsruhe.de
-
-    Copyright 2000-2008 - All rights reserved.
-
-        HISTORY:
-
-        v1.1.2 (2008-12-05) (oj116): Bugfix: in init(), the function doesn't write "done 1" to the error stream anymore.
-
-        v1.1.1 (2008-11-17) (fmw): getVersionString now only returns version w/o date
-                                                           getFullVersionString returns version + date + description
-
-        v1.1.0 (2008-11-11) (fmw): Added support for date information,
-                                                           use constructor with (major, minor, rev, year, month, day)
-
-        v1.0.1 (2008-10-29) (oj116): Annotations!
-
-   ------------------------------------------------------ */
 
 #include "kaVersion.h"
 

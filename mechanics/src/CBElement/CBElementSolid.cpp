@@ -1,10 +1,15 @@
-//
-//  CBElementSolid.cpp
-//  CardioMechanics_unstable
-//
-//  Created by Thomas Fritz on 13.05.13.
-//
-//
+/*
+ * File: CBElementSolid.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
 
 extern "C" double dgesvd_(const char*,const char*,int*,int*,double*,int*,double*,double*,int*,double*,int*,double*,int*,int*);
 // #endif
@@ -24,7 +29,7 @@ void CBElementSolid::RepairDeformationTensorIfInverted(Matrix3<TFloat>& deformat
         int m = 3, n = 3, lda = 3, ldu = 3, ldvt = 3, info, lwork;
         double wkopt;
         double* work;
-        /* Local arrays */
+        
         double s[3], u[9], vt[9];
         
         double a[9] =

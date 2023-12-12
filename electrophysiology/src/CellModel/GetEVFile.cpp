@@ -1,11 +1,16 @@
 /*
- *  GetEVFile.cpp
- *  CellModel
+ * File: GetEVFile.cpp
  *
- *  Created by dw on 20.07.07.
- *  Copyright 2007 IBT Uni Karlsruhe (TH) All rights reserved.
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 
 #include <CellModel.h>
 

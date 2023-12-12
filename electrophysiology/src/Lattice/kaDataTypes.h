@@ -1,8 +1,16 @@
-/*! \file kaDataTypes.h
-   \brief Basic definition of lattice's data and compress type
-
-   \author cw,fs, IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaDataTypes.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef KADATATYPES_H
 #define KADATATYPES_H
@@ -15,7 +23,7 @@ namespace nskaGlobal {
    dtLlong and dtULlong are not fully implemented yet.
    dtUnknown is used for non-standard types.
 
-   \author cw,fs, IBT - Universität Karlsruhe (TH)
+   \author cw,fs, IBT - UniversitÃ¤t Karlsruhe (TH)
  */
 typedef enum {
   dtUchar   = 0,
@@ -81,7 +89,7 @@ template<class X> inline DataType GetTemplateDataType() {
 /*!
    data types, sizes and corresponding lattice file names are defined.
 
-   \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
+   \author cw,fs,idb, IBT - UniversitÃ¤t Karlsruhe (TH)
  */
 
 class DataTypeInfo {

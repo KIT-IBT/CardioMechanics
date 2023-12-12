@@ -1,11 +1,16 @@
 /*
- *  CBCircWindkessel3.cpp
- *  CardioMechanics
+ * File: CBCircWindkessel3.cpp
  *
- *  Created by Steffen Schuler on 26.01.16.
- *  Copyright 2016 Institute for Biomedical Engineering, Karlsruhe Institute of Technology (KIT). All rights reserved.
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 
 #include "CBCircWindkessel3.h"
 

@@ -1,8 +1,16 @@
-/*! \file kaMatrixN.h
-   \brief Class for handling of quadratic matrices
-
-   \author fs,os, IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaMatrixN.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef KAMATRIXN_H
 #define KAMATRIXN_H

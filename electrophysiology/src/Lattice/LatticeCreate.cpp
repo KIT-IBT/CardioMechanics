@@ -1,10 +1,16 @@
-/*! \file LatticeCreate.cpp
-   \brief Functions for program LatticeCreate
-   \date created ??/??/?? ??\n
-        man     02/26/03 mm
-   \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
-   \sa Synopsis \ref LatticeCreate
+/*
+ * File: LatticeCreate.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 // doxygen manpage LatticeCreate
 /*! \page LatticeCreate LatticeCreate

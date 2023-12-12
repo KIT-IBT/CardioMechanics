@@ -1,11 +1,16 @@
 /*
- *  ParameterMap.h
- *  CardioMechanics
+ * File: ParameterMap.h
  *
- *  Created by Thomas Fritz on 20.04.10.
- *  Copyright 2010 Institute for Biomedical Engineering, Karlsruhe Institute of Technology (KIT). All rights reserved.
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 
 #ifndef PARAMETER_MAP_H
 #define PARAMETER_MAP_H

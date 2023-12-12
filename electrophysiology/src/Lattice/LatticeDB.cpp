@@ -1,16 +1,16 @@
-//
+/*
+ * File: LatticeDB.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
 
-//      Name
-//              LatticeDB.cpp
-//
-//      Remark
-//              Lattice database management
-//
-//      History
-//              01.02.98 -fs creation
-//
-//  created at IBT - Universitaet Karlsruhe
-//
 
 #include <LatticeDB.h>
 

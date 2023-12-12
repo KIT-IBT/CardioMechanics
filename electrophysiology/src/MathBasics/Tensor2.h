@@ -1,20 +1,16 @@
 /*
-**      Name
-**              Tensor2.h
-**
-**      Usages
-**              eg FDYZ.cpp
-**
-**      Remarks
-**              manage asymmetric and symmetric tensors of 2nd order
-**              compatible to class kaMatrixN
-**
-**      History
-**              9.2.99 -fs creation
-**              7.4.01 -fs asymmetric tensors, deformation gradient tensors
-**
-**  created at IBT - Universität Karlsruhe
-*/
+ * File: Tensor2.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
+
 
 #ifndef TENSOR2_H
 #define TENSOR2_H

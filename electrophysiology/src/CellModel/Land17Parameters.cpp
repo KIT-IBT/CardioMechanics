@@ -1,20 +1,16 @@
-/* -------------------------------------------------------
+/*
+ * File: Land17Parameters.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
 
-   Land17Parameters.cpp
-
-   Ver. 1.1.0
-
-   Created:       Robin Moss (07.06.2017)
-   Last modified: Tobias Gerach (08.02.2021)
-
-   Institute of Biomedical Engineering
-   Karlsruhe Institute of Technology (KIT)
-
-   http://www.ibt.kit.edu
-
-   Copyright 2000-2009 - All rights reserved.
-
-   ------------------------------------------------------ */
 
 // based on the available Matlab code from cemrg.co.uk
 

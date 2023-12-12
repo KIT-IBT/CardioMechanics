@@ -1,11 +1,16 @@
 /*
- *  Vector4.h
+ * File: Vector4.h
  *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
  *
- *  Created by Thomas Fritz on 24.08.09.
- *  Copyright 2009 Institute for Biomedical Engineering, Karlsruhe Institute of Technology (KIT). All rights reserved.
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 #ifndef MATHPACK_VECTOR4_H
 #define MATHPACK_VECTOR4_H
 

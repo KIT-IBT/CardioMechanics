@@ -1,13 +1,16 @@
 /*
- *  kaBasicIO_intel.h
+ * File: kaBasicIO_intel.h
  *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
  *
- *  Created by Dimitri Farina on 16.05.2008.
- *  Copyright 2008 __MyCompanyName__. All rights reserved.
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
- *  file defines kaWrite_intel and kaRead_intel templates, which enable to write and read
- *  little-endian data on any platform
  */
+
 
 #ifdef KABASICIO_H
 #undef KABASICIO_H

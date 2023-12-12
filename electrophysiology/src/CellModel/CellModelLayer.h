@@ -1,20 +1,16 @@
 /*
-**      Name
-**              CellModelLayer.h
-**
-**      Usage
-**
-**
-**      Remark
-**
-**
-**
-**      History
-**              10.09.02 gs
-**
-**
-**  created at IBT - Universität Karlsruhe
-*/
+ * File: CellModelLayer.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
+
 
 #ifndef CELLMODELLAYER_H
 #define CELLMODELLAYER_H

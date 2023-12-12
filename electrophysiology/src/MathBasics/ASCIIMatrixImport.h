@@ -1,15 +1,16 @@
-/*! \file ASCIIMatrixImport.h
-   \brief Import matrices in ASCII format, understand comments (with '#').
-
-   os May 18 2001
-   os Mar 23 2003 modification
-
-   The import subroutines understand comments ('#') in ascii files
-
-   helper functions to read matrices form ASCII files
-   (e. g. MATLAB .dat-files)
-
+/*
+ * File: ASCIIMatrixImport.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef __ASCIIMatrixImport_h
 #define __ASCIIMatrixImport_h

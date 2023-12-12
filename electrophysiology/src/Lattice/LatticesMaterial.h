@@ -1,21 +1,16 @@
-/**@file LatticesMaterial.h
- * @brief <Brief (one-line) description here.>
+/*
+ * File: LatticesMaterial.h
  *
- * Please see the wiki for details on how to fill out this header:
- * https://intern.ibt.uni-karlsruhe.de/wiki/Document_a_IBT_C%2B%2B_tool
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
  *
- * @version 1.0.0
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
- * @date Created <Your Name> (yyyy-mm-dd)
- *
- * @author Your Name\n
- *         Institute of Biomedical Engineering\n
- *         Karlsruhe Institute of Technology (KIT)\n
- *         http://www.ibt.kit.edu\n
- *         Copyright yyyy - All rights reserved.
- *
- * @see ...
  */
+
 
 #ifndef LATTICESMATERIAL_H
 #define LATTICESMATERIAL_H
@@ -25,8 +20,7 @@
 //! Class for handling of orientation lattices
 /*!
    lattices with information concerning distribution of 2D- and 3D-orientation are combined in a single object.
-   \n\n
-   \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
+
  */
 
 template<class T> class LatticesOrientation : virtual public nskaGlobal::DataTypeInfo {
@@ -193,7 +187,7 @@ template<class T> class LatticesOrientation : virtual public nskaGlobal::DataTyp
    lattices with information concerning distribution of material, 2D- and 3D-orientation are combined in a single
       object.
    \n\n
-   \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
+   \author cw,fs,idb, IBT - UniversitÃ¤t Karlsruhe (TH)
  */
 
 

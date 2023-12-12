@@ -1,8 +1,16 @@
-/*! \file kaMatrix.h
-   \brief Base class for matrix classes
-
-   \author cw,fs,os, IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaMatrix.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef KAMATRIX_H
 #define KAMATRIX_H
@@ -12,8 +20,7 @@
 //! Base class for matrix classes.
 /*!
    kaMatrix is used to define uniform interfaces to classes of matrices of different types.
-   \n\n
-   \author cw,fs,os, IBT - Universität Karlsruhe (TH)
+
  */
 
 template<class T> class kaMatrix  {

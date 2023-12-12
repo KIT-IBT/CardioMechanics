@@ -1,16 +1,16 @@
-/*      File: Kurata.h
-    automatically created by ExtractParameterClass.pl - done by dw (22.03.2007)
-    Institute of Biomedical Engineering, Universitt Karlsruhe (TH)
-    send comments to dw@ibt.uka.de      */
-
-/*! Kurata
- *  \brief Kurata Cell Model
- *  \author Manuel Ifland
- *  \version 1.1
- *  \date 15.03.2007
+/*
+ * File: Kurata.h
  *
- *  This is the Kurata Cell Model.
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef KURATA
 #define KURATA

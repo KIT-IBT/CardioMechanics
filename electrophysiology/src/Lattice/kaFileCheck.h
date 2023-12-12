@@ -1,8 +1,16 @@
-/*! \file kaFileCheck.h
-   \brief Basic functions for file handling
-
-   \author cw,fs,cw, IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaFileCheck.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef KAFILECHECK_H
 #define KAFILECHECK_H
@@ -42,7 +50,7 @@ typedef long           timespec_t;
 
 //! Class for checking of file existance and attributes
 /*!
-   \author \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
+   \author \author cw,fs,idb, IBT - UniversitÃ¤t Karlsruhe (TH)
  */
 
 class FileCheck {

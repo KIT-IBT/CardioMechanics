@@ -1,48 +1,20 @@
-/**@file kaVersion.h
- * @brief <Brief (one-line) description here.>
+/*
+ * File: kaVersion.h
  *
- * Please see the wiki for details on how to fill out this header:
- * https://intern.ibt.uni-karlsruhe.de/wiki/Document_a_IBT_C%2B%2B_tool
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
  *
- * @version 1.0.0
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
- * @date Created <Your Name> (yyyy-mm-dd)
- *
- * @author Your Name\n
- *         Institute of Biomedical Engineering\n
- *         Karlsruhe Institute of Technology (KIT)\n
- *         http://www.ibt.kit.edu\n
- *         Copyright yyyy - All rights reserved.
- *
- * @see ...
  */
+
 
 #ifndef KAVERSION_H
 #define KAVERSION_H
-/* -------------------------------------------------------
 
-    kaVersion.h
-
-    Ver. 1.1.0
-
-    Created:       Daniel Weiss      (24.07.2008)
-    Last modified: Frank M. Weber    (11.11.2008)
-
-    Institute of Biomedical Engineering
-    Universitaet Karlsruhe (TH)
-
-    http://www.ibt.uni-karlsruhe.de
-
-    Copyright 2000-2008 - All rights reserved.
-
-        HISTORY:
-
-        v1.1.0 (2008-11-11) (fmw): Added support for date information,
-                                                           use constructor with (major, minor, rev, year, month, day)
-
-        v1.0.1 (2008-10-29) (oj): <Document changes here>
-
-   ------------------------------------------------------ */
 #include <stdio.h>
 #include <iostream>
 #include <string>

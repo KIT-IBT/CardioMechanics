@@ -1,8 +1,16 @@
-/*! \file evReplaceValue.cpp
-   \brief Replace values in for given token at start of line
-
-   \author fs, CVRTI - University of Utah, 25 Nov 05
+/*
+ * File: evReplaceValue.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #include <kaExceptions.h>
 #include <vector>

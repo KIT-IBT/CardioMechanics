@@ -1,7 +1,16 @@
-/*      File: TenTusscher2Parameters.cpp
-    automatically created by ExtractParameterClass.pl - done by dw (19.07.2007)
-    Institute of Biomedical Engineering, Universitt Karlsruhe (TH)
-    send comments to dw@ibt.uka.de      */
+/*
+ * File: TenTusscher2Parameters.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
+
 
 #include <TenTusscher2Parameters.h>
 
@@ -333,7 +342,7 @@ void TenTusscher2Parameters::Calculate() {
   // temperature effect of I_Katp channel
   /// (E16)
   P[VT_f_T].value = pow(1.3, ( (P[VT_Tx].value - 273.15) - 36) / 10); // All simulations correspond to a
-                                                                      // temperature of 37¡C
+                                                                      // temperature of 37Â¡C
   P[VT_gammaconst].value = (P[VT_gkatp].value / P[VT_nicholsarea].value) * P[VT_INVERSECAPACITANCE].value;
 #endif  // ifdef ACTIVATE_IKATP_CHANNEL
 //#ifdef SAC_KUIJPERS

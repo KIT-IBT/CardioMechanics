@@ -1,20 +1,16 @@
-/*! \file  acCELLerate.h
-   \brief Class header for 1-3 domain models of electrical conduction in cardiac tissue
-
-   \version 1.0.1
-
-   \date Created Gunnar Seemann (28.12.07)\n
-   Ported from PETScMultiDomain written by Frank Sachse\n
-   Last Modified Meike Karl (20.04.09)
-
-   \author Gunnar Seemann\n
-   Institute of Biomedical Engineering\n
-   Universitaet Karlsruhe (TH)\n
-   http://www.ibt.uni-karlsruhe.de\n
-   Copyright 2000-2008 - All rights reserved.
-
-   \sa Synopsis \ref acCELLerate
+/*
+ * File: acCELLerate.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef ACCELERATE_H
 #define ACCELERATE_H

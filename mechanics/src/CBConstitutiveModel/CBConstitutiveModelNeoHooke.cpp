@@ -1,20 +1,16 @@
-/* -------------------------------------------------------
- 
- CBConstitutiveModelNeoHooke.cpp
- 
- Ver. 1.0.0
- 
- Created:       Tobias Gerach      (13.07.2021)
- Last modified: Tobias Gerach      (13.07.2021)
- 
- Institute of Biomedical Engineering
- Karlsruhe Institute of Technology (KIT)
- 
- http://www.ibt.kit.edu
- 
- Copyright 2000-2009 - All rights reserved.
- 
- ------------------------------------------------------ */
+/*
+ * File: CBConstitutiveModelNeoHooke.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
+
 
 /// Taken from Bonet and Wood: NONLINEAR CONTINUUM MECHANICS FOR FINITE ELEMENT ANALYSIS Chapter 5, page 14
 

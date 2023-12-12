@@ -1,8 +1,16 @@
-/*! \file kaSharedMatrixN.h
-   \brief Class for handling of quadratic matrices in shared memory
-
-   \author cw,fs,mm,os, IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaSharedMatrixN.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef KASHAREDMATRIXN_H
 #define KASHAREDMATRIXN_H
@@ -15,7 +23,6 @@
 /*!
    kaSharedMatrixN includes variant methods for matrix mathematics and file-io.
 
-   \author fs,os, IBT - Universität Karlsruhe (TH)
  */
 
 template<class T> class kaSharedMatrixN : public kaMatrixMathN<T> {

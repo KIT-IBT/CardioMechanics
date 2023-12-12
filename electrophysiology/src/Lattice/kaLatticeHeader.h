@@ -1,13 +1,16 @@
-/*! \file kaLatticeHeader.h
-   \brief Classes for handling of lattice headers.
-
-   Lattice headers include information concerning size, type, geometry of lattices.
-   Public interfaces are the classes kaLatticeHeader and kaLatticeSharedHeader
-
-   \author cw,fs, IBT - Universität Karlsruhe (TH)
-
-   19.12.2003 df: IOVersion -> kaIOVersion
+/*
+ * File: kaLatticeHeader.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 #ifndef KALATTICEHEADER_H
 #define KALATTICEHEADER_H
 
@@ -645,7 +648,7 @@ class kaLatticeHeader : virtual public nskaGlobal::DataTypeInfo, virtual public 
 /*!
    Internal use only!
    \n\n
-   \author \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
+   \author \author cw,fs,idb, IBT - UniversitÃ¤t Karlsruhe (TH)
  */
 
 class kaLatticeSMHeader : public kaLatticeHeader, public nskaIPC::IPCShm {
@@ -731,7 +734,7 @@ class kaLatticeSMHeader : public kaLatticeHeader, public nskaIPC::IPCShm {
    Therefore, a secondary process can successfully create an object of type kaLattice, while an object of type
       kaLatticeSharedHeader is already existing.
    \n\n
-   \author \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
+   \author \author cw,fs,idb, IBT - UniversitÃ¤t Karlsruhe (TH)
  */
 class kaLatticeSharedHeader :  public kaLatticeSMHeader {
  public:

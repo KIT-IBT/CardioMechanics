@@ -1,9 +1,16 @@
-/*! \file kaMachineOS.h
-   \brief Machine specific functions, declarations und definitions
-
-   \author cw,idb,df IBT - Universität Karlsruhe (TH), Germany
-          fs CVRTI - University of Utah, USA
+/*
+ * File: kaMachineOS.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef MACHINEOS_H
 #define MACHINEOS_H

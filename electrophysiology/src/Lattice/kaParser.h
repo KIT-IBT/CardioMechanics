@@ -1,8 +1,16 @@
-/*! \file kaParser.h
-   \brief Class for parsing of command line arguments
-
-   \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaParser.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 #ifndef KAPARSER_H
 #define KAPARSER_H
 
@@ -29,7 +37,6 @@ typedef enum {
    kaParser copies the argments and allows searching by keywords.
 
    \bugs Invalid arguments are not reported.
-   \author cw, IBT - Universität Karlsruhe (TH)
  */
 
 class kaParser {

@@ -1,11 +1,16 @@
 /*
- *  CBMaterial.cpp
- *  CardioMechanics
+ * File: CBMaterial.cpp
  *
- *  Created by Thomas Fritz on 14.09.11.
- *  Copyright 2011 Institute for Biomedical Engineering, Karlsruhe Institute of Technology (KIT). All rights reserved.
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 
 #include "CBMaterial.h"
 

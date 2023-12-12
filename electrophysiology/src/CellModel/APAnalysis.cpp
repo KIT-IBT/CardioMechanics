@@ -1,10 +1,16 @@
-/*! \file APAnalysis.cpp
-   \brief Functions to analyse files with numerical data ordered
-   in rows (lines) and columns separated by spaces or tabs.
-
-   \author gs, IBT - Universität Karlsruhe (TH), fs, CVRTI - University
-   of Utah
+/*
+ * File: APAnalysis.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #include <kaExceptions.h>
 #include <ExpFit.h>

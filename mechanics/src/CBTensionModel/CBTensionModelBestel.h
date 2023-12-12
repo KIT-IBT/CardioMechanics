@@ -1,12 +1,16 @@
 /*
- *  CBTensionModelBestel.h
- *  CardioMechanics
+ * File: CBTensionModelBestel.h
  *
- *  Created by Tobias Gerach, Thu. 07. October 2021
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
  *
- *  Copyright 2017 Institute for Biomedical Engineering, Karlsruhe Institute of Technology (KIT). All rights reserved.
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
  *
  */
+
 
 #pragma once
 

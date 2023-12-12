@@ -1,20 +1,16 @@
-/* -------------------------------------------------------
+/*
+ * File: TenTusscher2IschemiaSetup.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
 
-   TenTusscher2IschemiaSetup.h
-
-   Ver. 1.0.0
-
-   Created:       Daniel Weiss      (23.07.2008)
-   Last modified: Daniel Weiss     (23.07.2008)
-
-   Institute of Biomedical Engineering
-   Universitaet Karlsruhe (TH)
-
-   http://www.ibt.uni-karlsruhe.de
-
-   Copyright 2000-2008 - All rights reserved.
-
-   ------------------------------------------------------ */
 
 
 #ifndef TENTUSSCHER2ISCHEMIASETUP

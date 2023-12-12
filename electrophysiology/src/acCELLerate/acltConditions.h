@@ -1,8 +1,16 @@
-/*! \file acltConditions.h
- \brief Managing conditions for acCELLerate simulations
- 
- \author gs, IBT - Universitaet Karlsruhe (TH) on Dec 2007, ported from MultiDomainConditions.h
+/*
+ * File: acltConditions.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 
 #ifndef ACLTCONDITIONS_H

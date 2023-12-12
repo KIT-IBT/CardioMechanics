@@ -1,7 +1,16 @@
-/*      File: TenTusscher2.cpp
-    automatically created by ExtractParameterClass.pl - done by dw (19.07.2007)
-    Institute of Biomedical Engineering, Universität Karlsruhe (TH)
-    send comments to dw@ibt.uka.de      */
+/*
+ * File: TenTusscher2.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
+
 
 #include <TenTusscher2.h>
 
@@ -694,9 +703,9 @@ ML_CalcType TenTusscherEtAl2::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_e
   /// Maximum conductance of the ATP-sensitive K channel (mS/uF)
   /// - Nichols et al. determined a maximum conductance of 195 nS/cell in whole guinea-pig recordings at Ko = 4.0 mM
   ///   and physiologic concentrations of ADP, GDP and free Mg2+ (see p. 282 in Nichols et al)
-  /// - assuming that the guinea pig ventricular cell is approximated by cylinder length 100 µm and circumference of 50
-  /// µm, then the
-  ///   surface area would be 5000 µm^2 (= 5 * 10^-5 cm^2), suggesting that there are approx. 25000 channels per cell
+  /// - assuming that the guinea pig ventricular cell is approximated by cylinder length 100 Âµm and circumference of 50
+  /// Âµm, then the
+  ///   surface area would be 5000 Âµm^2 (= 5 * 10^-5 cm^2), suggesting that there are approx. 25000 channels per cell
   /// (Nichols paper p. 286, footnote)
   // has been integrated into gamma: const double gkatp = P[VT_gkatp].value / P[VT_nicholsarea].value;
 
@@ -721,21 +730,21 @@ ML_CalcType TenTusscherEtAl2::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_e
   // mw104: changed constants in calculation of K_m (original: K_m = ( 35.8 + 17.9 * pow( vadpi, 0.256 ) ) *
   // v(VT_Km_factor);)
   // this change is necessary to obtain the same APs in healthy cells as in the original ten Tusscher 2006 model
-  // for this purpose, the factor K_m was adjusted to almost zero (0.001) in healthy cells (ADPi = 15 µmol), so that
+  // for this purpose, the factor K_m was adjusted to almost zero (0.001) in healthy cells (ADPi = 15 Âµmol), so that
   // i_Katp almost vanishes
   // without this correction, the APs are much shorter than in the original model and the plateau phase of epicardial
   // cells has a much lower amplitude than that of endo and mid, which leads to ST segment shifts in the ECG!!!
-  // Corresponding values:      Stage 1 (orig. 57 µmol) --> 87.4593
+  // Corresponding values:      Stage 1 (orig. 57 Âµmol) --> 87.4593
   //                                                                                            Phase 1b (orig. 110
-  // µmol) --> 101.5289
+  // Âµmol) --> 101.5289
   const ML_CalcType K_m = (-151.0919 + 75.5379 * pow(vadpi, 0.256) ) * v(VT_Km_factor);
 
   /// Hill coefficient (E19)
   const ML_CalcType H = 1.3 + 0.74 * exp(-0.09 * vadpi);
 
   /// (E17) (see Kakei, p. 454, 456)
-  /// convert K_m from µmol to mmol (by dividing by 1000, or multiplying by 0.001) because K_m calculation uses ADPi
-  /// which is specified in µmol
+  /// convert K_m from Âµmol to mmol (by dividing by 1000, or multiplying by 0.001) because K_m calculation uses ADPi
+  /// which is specified in Âµmol
   const ML_CalcType f_ATP = 1 / (1 + pow(vatpi / (K_m * 0.001), H) );
 
   /// anoxia formulation for I_CaL
@@ -806,7 +815,7 @@ ML_CalcType TenTusscherEtAl2::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_e
   const  ML_CalcType CaCSQN = Bufsr*CaSR/(CaSR+Kbufsr);                       // 95
   const  ML_CalcType bjsr   = Bufsr-CaCSQN-dCaSR-CaSR+Kbufsr; // CaSum_1;
   const  ML_CalcType cjsr   = Kbufsr*(CaCSQN+dCaSR+CaSR); // CaSum_1;
-  CaSR = (sqrt(bjsr*bjsr+4*cjsr)-bjsr)/2.;                                    // Lösung der quadr. Gleichung:
+  CaSR = (sqrt(bjsr*bjsr+4*cjsr)-bjsr)/2.;                                    // LÃ¶sung der quadr. Gleichung:
                                                                               // CaSR^2+bjsr*CaSR-cjsr=0 //vgl. Zeng
                                                                               // 1995
   const  ML_CalcType CaSSBuf = Bufss*CaSS/(CaSS+Kbufss);                      // new n42
@@ -814,7 +823,7 @@ ML_CalcType TenTusscherEtAl2::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_e
     (-I_xfer*(v(VT_Vc)/Vss)+I_rel*(v(VT_Vsr)/Vss)+(-I_CaL*v(VT_inversevssF2)*Cm));
   const  ML_CalcType bjss = Bufss-CaSSBuf-dCaSS-CaSS+Kbufss;  // CaSum_3;                                //new
   const  ML_CalcType cjss = Kbufss*(CaSSBuf+dCaSS+CaSS);  // CaSum_3;                                            //new
-  CaSS = (sqrt(bjss*bjss+4.*cjss)-bjss)/2.;                // new Lösung der quadr. Gleichung: CaSS^2+bjss*CaSS-cjss=0
+  CaSS = (sqrt(bjss*bjss+4.*cjss)-bjss)/2.;                // new LÃ¶sung der quadr. Gleichung: CaSS^2+bjss*CaSS-cjss=0
   const  ML_CalcType CaBuf = v(VT_Bufc)*Ca_i/(Ca_i+Kbufc);  // 93
   const  ML_CalcType dCai  = tinc*1000.0*
     ((-(I_bCa+I_pCa-2*I_NaCa    // +I_CaL missing?? lh326
@@ -824,7 +833,7 @@ ML_CalcType TenTusscherEtAl2::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_e
         )*v(VT_inverseviF2)*Cm)-(SERCA-I_leak)*(1.0/v(VT_VcdVsr))+I_xfer);
   const  ML_CalcType bc = v(VT_BufcPKbufc)-CaBuf-dCai-Ca_i;
   const  ML_CalcType cc = Kbufc*(CaBuf+dCai+Ca_i);  // CaSum_2;
-  Ca_i = (sqrt(bc*bc+4*cc)-bc)/2.;                                        // Lösung der quadr. Gleichung:
+  Ca_i = (sqrt(bc*bc+4*cc)-bc)/2.;                                        // LÃ¶sung der quadr. Gleichung:
                                                                           // Ca_i^2+bc*Ca_i-cc=0 //94 //vgl. Zeng 1995
   const  ML_CalcType dNai = -(I_Na+I_bNa+3*I_NaK+3*I_NaCa
 #ifdef SAC_KUIJPERS

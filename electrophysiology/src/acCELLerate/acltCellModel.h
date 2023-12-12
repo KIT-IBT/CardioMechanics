@@ -1,8 +1,16 @@
-/*! \file CellModel.h
-   \brief These are two classes to handle cell/force model.
-
-   \author gs, IBT - Universitaet Karlsruhe Dec 2007.
+/*
+ * File: acltCellModel.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef ACLTCELLMODEL_H
 #define ACLTCELLMODEL_H
@@ -100,7 +108,7 @@ class EMCoupling {
       }
     }
 
-    // gibt 1 zurück wenn der Parameter gefunden wurde, ansonsten 0
+    // gibt 1 zurÃ¼ck wenn der Parameter gefunden wurde, ansonsten 0
     if (foundParameter == true)
       return 1.;
     else

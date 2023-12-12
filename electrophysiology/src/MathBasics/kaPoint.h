@@ -1,8 +1,16 @@
-/*! \file kaPoint.h
-   \brief Class for handling of points in 3D
-
-   \author fs,km, IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaPoint.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 #ifndef KAPOINT_H
 #define KAPOINT_H
 
@@ -14,8 +22,7 @@
 //! Class for handling of points in 3D
 /*!
    kaPoint includes standard mathematical and printing functions.
-   \n\n
-   \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
+
  */
 
 template<class T>

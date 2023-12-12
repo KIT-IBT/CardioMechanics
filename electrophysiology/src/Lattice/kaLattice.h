@@ -1,12 +1,16 @@
-/*! \file kaLattice.h
-   \brief Template class kaLattice
-
-   Public interface for io and access of 3D array (lattice) in shared memory.
-   A lattice includes a header data and a flattend 3D array, i.e. 1D array.
-
-   \author cw,fs, IBT - Universität Karlsruhe (TH)
-   \version 3.0
+/*
+ * File: kaLattice.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 #ifndef KALATTICE_H
 #define KALATTICE_H
 
@@ -22,7 +26,6 @@
    The 3D array is flattened in a 1D array.
    The position, orientation and scaling of the array are defined by a homogenous matrix.
 
-   \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
  */
 
 template<class X>

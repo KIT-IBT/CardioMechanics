@@ -1,20 +1,16 @@
 /*
-**      Name
-**              Tensor4.h
-**
-**      Usages
-**              eg FEMechanicScalar.h
-**
-**      Remarks
-**              manage asymmetric and symmetric tensors of 4nd order
-**
-**      History
-**              9.2.99 -fs creation
-**              7.4.01 -fs asymmetric tensors, deformation gradient tensors
-**              8.8.01 -fs Tensor4
-**
-**  created at IBT - Universität Karlsruhe
-*/
+ * File: Tensor4.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
+
 
 #ifndef __TENSOR4_H
 #define __TENSOR4_H

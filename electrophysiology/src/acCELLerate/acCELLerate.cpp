@@ -1,30 +1,16 @@
-/*! \file  acCELLerate.cpp
- \brief Class for 1-3 domain models of electrical conduction in cardiac tissue
- 
- \version 1.1.0
- 
- \date Created Gunnar Seemann (28.12.07)\n
- Ported from PETScMultiDomain written by Frank Sachse\n
- Last Modified Christian Rombach (04.12.09)
- 
- \author Gunnar Seemann\n
- Institute of Biomedical Engineering\n
- Universitaet Karlsruhe (TH)\n
- http://www.ibt.uni-karlsruhe.de\n
- Copyright 2000-2009 - All rights reserved.
- 
- \sa Synopsis \ref acCELLerate
- 
- // XX.XX.2012, tf, force model
- // 09.03.2012, mwk, gs, Force model not read in from backup (altered backup version in initializeXCLT)
- // 15.03.2012, mwk, Added some more time output information
- // xx.06.2012, mwk+tf, compiled for force model
- // 27.07.2012, mwk, new parameter in .aclt parameter file: 'Force' to enable forcemodel. Bugfixed problem with
- backupfile writing under force calculation.
- // 2015-2017, ew095: Implement new methods for finite elements: mass matrix,
- //            ionic current integration (ICI), null space removal
- 
+/*
+ * File: acCELLerate.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #include "acCELLerate.h"
 #include <algorithm>
@@ -789,7 +775,7 @@ void acCELLerate::InitMono(Vec materials) {
     if (backuploadname.size())
         ReadBackup(pElphyIntra, pForceIntra, &Intra);
     
-    // Lattices von Ii, Ve... werden standardmäßig nicht gespeichert
+    // Lattices von Ii, Ve... werden standardmÃ¤Ãig nicht gespeichert
     for (int i = 0; i < ResultVars::numResultVars; i++) {
         saveLattice[i] = false;
     }
@@ -819,8 +805,8 @@ void acCELLerate::InitMono(Vec materials) {
             resultName[ri] = acltResult;
             nextPara       = false;
             
-            // Für jedes Voxel wird die Materialklasse/verwendetes Zellmodell festgestellt und die Position des Parameters im
-            // Outputstring für dieses Modell gespeichert
+            // FÃ¼r jedes Voxel wird die Materialklasse/verwendetes Zellmodell festgestellt und die Position des Parameters im
+            // Outputstring fÃ¼r dieses Modell gespeichert
             for (PetscInt Ii = StartCells; Ii < EndCells; Ii++) {
                 PetscInt lindex = Ii-StartCells;
                 
@@ -841,7 +827,7 @@ void acCELLerate::InitMono(Vec materials) {
                         }
                     }
                     
-                    // unbekannter Parameter, Resultwerte werden später auf "0" gesetzt
+                    // unbekannter Parameter, Resultwerte werden spÃ¤ter auf "0" gesetzt
                     if (compareType == false) {
                         resultPos[ri][rm] = -1;
                         nextPara          = true;
@@ -861,7 +847,7 @@ void acCELLerate::InitMono(Vec materials) {
     }
     
     if (numberParameters > 0) {
-        // Vektor für Resultwerte erstellen
+        // Vektor fÃ¼r Resultwerte erstellen
         ierr = VecDuplicate(Intra.X, &VecResultValues); CHKERRQ(ierr);
     } else {
         setResults = false;
@@ -1312,7 +1298,7 @@ inline void acCELLerate::InitSensors() {
                         }
                     }
                     
-                    // Wenn Parameter aus Zellmodell im Sensorfile vorhanden wird er an das Parameterarray angehängt
+                    // Wenn Parameter aus Zellmodell im Sensorfile vorhanden wird er an das Parameterarray angehÃ¤ngt
                     if (comparePara == false) {
                         saveresultLattice[ri] = false;
                         ri++;
@@ -1795,7 +1781,7 @@ void acCELLerate::SaveCellModelVariables(PetscScalar const *pix, acltTime saveat
         // pm -> pointer auf Zellmodelltypvektor
         ierr = VecGetArray(MaterialV, &pm); CHKERRQ(ierr);
         
-        // für jeden Parameter...
+        // fÃ¼r jeden Parameter...
         for (int j = 0; j < numberParameters; j++) {
             if (setResults == true) {
                 ierr = VecGetArray(VecResultValues, &pres);

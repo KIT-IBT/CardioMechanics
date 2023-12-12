@@ -1,8 +1,16 @@
-/*! \file kaTriangle.h
-   \brief Class for handling of triangles consisting of three points
-
-   \author cw,fs,km, IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaTriangle.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef KATRIANGLE_H
 #define KATRIANGLE_H

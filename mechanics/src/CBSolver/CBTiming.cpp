@@ -1,62 +1,22 @@
-//
+/*
+ * File: CBTiming.cpp
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
 
-//  CBTiming.cpp
-//  CardioMechanics
-//
-//  Created by Emanuel Poremba on 16.01.17.
-//
-//
 
 #include "CBTiming.h"
 
 #include "DCCtrl.h"
 
-/*
- The CBTiming class tracks the time step length, and controls reduction and
- increase of the time step length depending on solver return code.
- 
- The idea behind time stepping is to decrease the time step by a factor
- of two each time the simulation fails, and to increase it by the same factor.
- Increase should happen in such a way that the same points in time are hit that
- would be hit by the larger time steps, to get exactly to the export time steps.
- 
- The cardiac cycle consists of different phases that are more and less difficult
- to solve. To prevent too many of the computationally expensive failing solver
- steps, the relaxation can be delayed by the following two parameters:
- 
- MinSteps: After reduction, do at least this number of steps before trying a
- larger time step. Should be dividable by two.
- 
- FastRelaxation: Allows the time step to increase by more than one level at the
- same time. Tries always the maximum possible time step length after each
- export, no matter how small the time step was before.
- 
- Usage in Solver:
- Two functions need to be called in every iteration:
- - SetSolverStatus(rc) to pass information if the solver was computed
- successfully or not
- - ComputeNextTimeStep() to update the time step according to the solver status
- for the next step
- 
- KNOWN BUGS:
- 1) The counter_ multiplication stuff might exceed numeric limits when the
- number of levels is large. With standard integer (sometimes 16bit), this can
- happen already at 0.5^16 ~ 1.53e-5 initial time step length.
- -> use 'unsigned long long' 64 bit ~ 5.42e-20
- 
- 2) In this case
- X       X       X       X       X       X       X       X       X       X       X       X       X       X       X       X       X       X
- 0       1f                                                                      10
- |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
- 2   3   4f      6   7   8   9   10f     12  13f         16  17  18  19  20
- . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
- 8 9 101112s             2021222324  26272829303132
- timestepping should not go up at level 3 from 28 to 14 at level because there
- were just two small steps computed.
- -> introduce lowestLevelCounter_, too little steps on the levels above are ok
- since increase was successful
- 
- */
+
 
 CBTiming::CBTiming() {}
 

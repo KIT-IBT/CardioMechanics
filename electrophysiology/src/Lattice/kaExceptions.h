@@ -1,8 +1,16 @@
-/*! \file kaExceptions.h
-   \brief Base and standard classes for exception handling in kaTools
-
-   \author cw,fs,idb, IBT - Universität Karlsruhe (TH)
+/*
+ * File: kaExceptions.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
  */
+
 
 #ifndef KAEXCEPTIONS_H
 #define KAEXCEPTIONS_H
@@ -14,7 +22,7 @@
    An object of class kaBaseException and derived classes is typically thrown in case of exception.
    The object includes a string describing details of the exception's cause.
    \n\n
-   \author fs, IBT - Universität Karlsruhe (TH)
+   \author fs, IBT - UniversitÃ¤t Karlsruhe (TH)
  */
 
 class kaBaseException {

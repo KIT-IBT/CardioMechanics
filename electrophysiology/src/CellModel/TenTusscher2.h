@@ -16,8 +16,6 @@
 #define TENTUSSCHER2
 
 #include <TenTusscher2Parameters.h>
-//#include <HandleManager.h> idea //lh326
-
 
 
 #define HETERO

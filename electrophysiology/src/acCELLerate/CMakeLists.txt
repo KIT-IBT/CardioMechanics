@@ -49,7 +49,6 @@ kaAddObjects( ../MathBasics/kaTabularizedFunction.cpp )
 
 kaMakeTools(
     acCELLerate.cpp,acltCellModel.cpp,${CELLMODEL_LIBS}
-    PETScVec2VTK.cpp,${VTK_LIBS}
 )
 
 set ( IBT_USE_OPT_LOCAL ${OLD_OPT_LOCAL_VALUE} CACHE BOOL "abc" FORCE )

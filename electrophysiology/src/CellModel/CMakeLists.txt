@@ -80,5 +80,4 @@ kaMakeTools(
     ElphyModelTest.cpp,-DUSE_EMT,${kaVersion},../Lattice/kaMachineOS.cpp
     CellModelTest.cpp,-DUSE_EMT,-DUSE_FMT,${kaVersion},../Lattice/kaMachineOS.cpp
     ForceModelTest.cpp,-DUSE_FMT,${kaVersion},../Lattice/kaMachineOS.cpp
-    APAnalysis.cpp,${nrutil}
 )

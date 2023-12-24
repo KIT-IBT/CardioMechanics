@@ -637,11 +637,6 @@ void CBacCELLerate::AssembleMatrix() {
     MaterialListe materialProperties(MaterialFileName_.c_str());
     std::vector<int> nodeMaterial(nPoints_, 0);
     
-    /// prioritize smaller anatomical structures over myocardium
-    std::vector<unsigned char> priorityVector;
-    
-    priorityVector = split("72,73,74,75,76,77,78,29,30,31,34,35,32,33,79,80", ',');
-    
     DCCtrl::debug << "Assemble matrices ... ";
     
     /// find conductivities in each material
@@ -660,7 +655,7 @@ void CBacCELLerate::AssembleMatrix() {
     
     /// order material by priority
     int prio = 0;
-    for (std::vector<unsigned char>::reverse_iterator i = priorityVector.rbegin(); i != priorityVector.rend(); ++i)
+    for (std::vector<TInt>::reverse_iterator i = priorityVector_.rbegin(); i != priorityVector_.rend(); ++i)
         materialPriority[*i] = ++prio;
     
     /// allocate system matrix or set to 0 if it already exists
@@ -802,6 +797,17 @@ void CBacCELLerate::InitParameters() {
     
     MaterialFileName_ = GetParameters()->Get<std::string>("Plugins.acCELLerate.MaterialFile");
     DCCtrl::debug << "\n Material File: " << MaterialFileName_;
+
+    priorityVector_ = parameters_->GetArray<TInt>("Plugins.acCELLerate.TissuePriority");
+    if (priorityVector_.empty()) {
+        for (TInt i = 0; i < 256; i++)
+            priorityVector_.push_back(i);
+        DCCtrl::debug << "\n Tissue Priority: 0, 1, 2, 3, 4, ... (default)";
+    } else {
+        DCCtrl::debug << "\n Tissue Priority: ";
+        for (std::vector<TInt>::const_iterator i = priorityVector_.begin(); i != priorityVector_.end(); ++i)
+            DCCtrl::debug << *i << ", ";
+    }
     
     resPreFix_ = GetParameters()->Get<std::string>("Plugins.acCELLerate.ResultPreFix");
     DCCtrl::debug << "\n Result Prefix: " << resPreFix_;

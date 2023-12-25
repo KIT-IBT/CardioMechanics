@@ -24,7 +24,7 @@ See [docs/BUILD.md](https://github.com/KIT-IBT/CardioMechanics/blob/main/docs/BU
 See docs/EXAMPLES.md (coming soon)
 
 ## User manual
-See docs/MANUAL.pdf (coming soon)
+See [docs/Manual.pdf](https://github.com/KIT-IBT/CardioMechanics/blob/main/docs/Manual.pdf)
 
 ## License
 This project is licensed under the GNU General Public License 3 - see the LICENSE.md file for details.

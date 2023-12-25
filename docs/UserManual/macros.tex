@@ -1,0 +1,94 @@
+% Some convenience commands
+\newcommand{\vect}[3]{\begin{pmatrix}#1 \\ #2 \\ #3\end{pmatrix}}
+% \newcommand{\norm}[1]{\left\lVert #1 \right\rVert_2}
+\newcommand{\argmin}{\operatornamewithlimits{argmin}}
+\newcommand{\Eq}[1]{Equation~(\ref{#1})}
+\newcommand{\Fig}{Figure~\ref}
+\newcommand{\Tab}{Table~\ref}
+\newcommand{\Sec}{Section~\ref}
+\newcommand{\Chap}{Chapter~\ref}
+\newcommand{\Alg}{Algorithm~\ref}
+\newcommand{\eg}{e.g.\ }
+\newcommand{\ie}{i.e.\ }
+\newcommand{\vs}{vs.\ }
+\newcommand{\etal}{et al.\ }
+\newcommand{\etc}{etc.\ }
+\newcommand{\rhs}{r.h.s.\ }
+\newcommand{\wrt}{w.\,r.\,t.\ }
+
+\renewcommand{\labelitemi}{$\circ$} % open circle as bullet points
+
+% My commands
+\def\vec#1{\ensuremath{\mathchoice
+           {\mbox{\boldmath$\displaystyle\mathbf{#1}$}}
+           {\mbox{\boldmath$\textstyle\mathbf{#1}$}}
+           {\mbox{\boldmath$\scriptstyle\mathbf{#1}$}}
+           {\mbox{\boldmath$\scriptscriptstyle\mathbf{#1}$}}}}
+           
+\def\ACC{\textit{acCELLerate}}
+\def\CM{\textit{CardioMechanics}}
+\def\CMT{\textit{CellModelTest}}
+\def\EMT{\textit{ElphyModelTest}}
+\def\FMT{\textit{ForceModelTest}}
+
+% Invariants
+\newcommand{\I}[1]{\mathrm{I}_{\vec #1}}
+\newcommand{\II}[1]{\mathrm{II}_{\vec #1}}
+\newcommand{\III}[1]{\mathrm{III}_{\vec #1}}
+\newcommand*{\tran}{{\mkern-1.5mu\mathsf{T}}}
+
+% EP
+\def\u{\vec u} %transmembrane potential
+\def\w{\vec w} % gating ODEs EP cell
+\def\q{\vec q} % ion ODEs EP cell
+\def\Cm{C_\mathrm{m}} % membrane capacitance
+\def\D{\Vec D} %Conductivity Tensor
+\def\Iion{I_{\mathrm{ion}}} %ionic current
+\def\Isac{I_{\mathrm{sac}}} %ionic current
+\def\Iext{I_{\mathrm{app}}} % external stimulus
+\newcommand{\Cai}{[\mathrm{Ca}^{2+}]_{\mathrm{i}}}
+\newcommand{\Nai}{[\mathrm{Na}^{+}]_{\mathrm{i}}}
+\newcommand{\Ki}{[\mathrm{K}^{+}]_{\mathrm{i}}}
+% \newcommand{\CCa}{[\mathrm{Ca}^{2+}]}
+\newcommand{\Ca}{\mathrm{Ca}^{2+}}
+
+
+% Mech
+\def\d{\vec d}
+\def\v{\vec v}
+\def\a{\vec a}
+\def\x{\vec x}
+\def\F{\vec F} %Deformation Gradient
+\def\C{\vec C}
+\def\E{\vec E}
+\def\S{\vec S}
+\def\M{\vec M}
+\def\K{\vec K}
+\def\Gs{\vec G_{\vec s}}
+\newcommand{\SL}{\mathrm{SL}}
+\newcommand{\Ta}{T_\mathrm{a}}
+
+% Circ
+\newcommand{\p}[1]{p_\mathrm{#1}}
+\newcommand{\res}[1]{\vec r_\mathrm{#1}}
+\newcommand{\vp}[1]{\vec p_\mathrm{#1}}
+\newcommand{\vol}[1]{V_\mathrm{#1}}
+\newcommand{\Q}[1]{Q_\mathrm{#1}}
+\newcommand{\state}[1]{\eta_\mathrm{#1}}
+\def\c{\vec c}
+\def\Gc{\vec G_{\vec c}}
+
+\newcommand{\OmegaEP}{\Omega_\mathrm{EP}}
+\newcommand{\OmegaM}{\Omega_\mathrm{M}}
+
+% discrete form
+\newcommand{\dn}[1]{\vec d^{#1}}
+\newcommand{\vn}[1]{\vec v^{#1}}
+\newcommand{\an}[1]{\vec a^{#1}}
+\newcommand{\tn}[1]{t^{#1}}
+\newcommand{\dt}{\Delta t}
+\newcommand{\dnp}[1]{\Tilde{\vec d}^{#1}}
+\newcommand{\vnp}[1]{\Tilde{\vec v}^{#1}}
+
+\newcommand{\un}[1]{\vec u^{#1}}
+\newcommand{\unp}[1]{\Tilde{\vec u}^{#1}}

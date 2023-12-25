@@ -1,0 +1,38 @@
+%% CardioMechanics		
+%% Software Manual
+\documentclass{softwaremanual}
+
+% Custom macros
+\input{macros}
+\newcommand{\doclink}[2]{\href{#1}{#2}\footnote{\url{#1}}}
+\newcommand{\cs}[1]{\texttt{\textbackslash #1}}
+
+% Frontmatter data
+\title{CardioMechanics \\ \vspace{5cm} User's Manual \& \\Documentation}
+\version{1.0}
+\author{Dr.-Ing. Tobias Gerach}
+\softwarelogo{\includegraphics[width=8cm]{Logo_IBT.png}}
+
+\begin{document}
+
+\maketitle
+\input{License/license}
+\thispagestyle{empty}
+
+\tableofcontents
+\newpage
+\lstlistoflistings
+\newpage
+
+\input{Content/Introduction}
+\input{Content/GettingStarted}
+\input{Content/Model}
+\input{Content/FileFormats}
+\input{Content/SimSetup}
+\input{Content/Tools}
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}

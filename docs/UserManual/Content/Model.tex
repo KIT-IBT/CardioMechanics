@@ -1,0 +1,274 @@
+\section{Mathematical Model}
+\label{sec:model}
+
+A general overview of the equations that are solved by \CM~is given in this section.
+This is a shortened version of the explanation given in \cite{gerach2022personalized}.
+
+% \subsection{Modeling Cardiac Electrophysiology}
+
+% At the finest scale, the electrical activity is the result of the flow of ions through specialized ionic channels embedded in the cell membrane.
+% The membrane of a cardiomyocycte is permeable to multiple ionic species. 
+% Ion transport is not restricted to the passive flow of ions based on concentration gradients between the intra- and extracellular space.
+% The total electric current across the membrane is given by the sum of electric currents associated with the respective number of ionic species $N$:
+% \begin{equation}
+%     \Iion = \sum_{k=1}^{N} I_k \,,
+% \end{equation}
+% where, according to Hodgkin and Huxley~\cite{hodgkin52a}, the current of a single ionic species is given by
+% \begin{equation}
+%     I_k = g_k \Big( \prod\limits_{j=1}^{n_{\w}} w_j^{p_{j,k}} \Big)\Big(\V-E_k\Big) \,,
+% \end{equation}
+% with the membrane conductance $g_k$, the transmembrane voltage $\V$, and the Nernst potential $E_k$, while $p_{j,k}$ quantifies the influence of channel $j$ on the ionic species $k$.
+% The dynamic behavior of opening and closing the ion channels is driven by the transmembrane voltage, hence $n_{\w}$ gating variables
+% \begin{equation}
+%     \dv{w_j}{t} = \frac{w_j^\infty(\V) - w_j}{\tau_j} \qfor j = 1,\dots,n_{\w} \,,
+% \end{equation}
+% were introduced.
+% The classic Hodgkin-Huxley model \cite{hodgkin52a} only contains three ionic currents (sodium, potassium, and leakage current).
+% More modern models not only encompass additional descriptions of ionic currents but also track the dynamics of ion concentrations in a set of variables denoted as $\q$.
+% Therefore, in the most general sense, an ionic model ($\mathcal{I}$) can be described by
+% \begin{align}
+% (\mathcal{I})&
+% \begin{cases}
+% \pdv{\w}{t} - \Gw(\V,\w,\q) &= \vec 0 \,, \\
+% \pdv{\q}{t} - \Gq(\V,\w,\q) &= \vec 0  \,,
+% \end{cases} \label{eq:I}
+% \end{align}
+% where $\w$ and $\q$ collect the gating variables and ion concentrations, respectively, and $\Gw$ and $\Gq$ are suitably defined functions.
+% The model of a single cardiac cell is completed by relating the transmembrane voltage $\V$ to the ionic currents.
+% Assuming the cell membrane acts like a capacitor in parallel with a resistor, this relation is given by
+% \begin{equation}
+%     \Cm \pdv{\V}{t} + \Iion(\V,\w,\q) + \Iext(t) = 0 \label{eq:cardiomyocyte} \,,
+% \end{equation}
+% where $\Cm$ denotes the membrane capacitance and $\Iext$ is an externally applied stimulus current.
+
+% Moving on to a larger scale model of tissue electrophysiology, Eq.~\eqref{eq:cardiomyocyte} is not sufficient anymore since cardiac cells are not electrically isolated from each other.
+% They are connected by gap junctions that allow an exchange of ions between cells.
+% Representing the microscopic details of these small structures on the tissue scale is difficult if not impossible.
+% However, a suitable mathematical model, the so-called \textit{bidomain model}, can be derived if the microstructure of the myocardium is homogenized in terms of muscle fibers that are organized in sheets.
+% The bidomain model is generally considered as the most accurate representation of cardiac electrophysiology.
+% However, it is computationally expensive and is not relevant for most applications.
+% For this reason, many computational modeling studies refer to the \textit{monodomain model}, which is a valid reduction of the bidomain model when an equal anisotropy ratio of the tissue is assumed.
+% Given a computational domain $\Omega_0 \subset \mathbb{R}^3$ and a time interval $t \in (0,T]$, the monodomain model ($\mathcal{E}$) reads
+% \begin{align}
+% (\mathcal{E})&
+% \begin{cases}
+% \beta \left[ \Cm \pdv{\V}{t} + \Iion(\V,\w,\q) +\Iext(t) \right] = \div{(\D \grad{\V})}  & \qq*{in} \Omega_0 \,,\\
+% (\D \grad{\V}) \cdot \vec N = 0 & \qq*{on} \partial\Omega_0 \,,
+% \end{cases} \label{eq:EP}
+% \end{align}
+% where $\beta$ is the membrane surface-to-volume ratio, $\D$ the diffusion tensor, and $\vec N$ the outer surface normal.
+% To account for the anisotropy of cardiac tissue due to its structure, a local frame of reference $(\vec f_0, \vec s_0, \vec n_0)$ is introduced at each point $\vec X \in \Omega_0$, consisting of the three orthogonal vectors that represent the direction of the fibers, sheets, and the sheet normals, respectively.
+% This reference frame is incorporated into the conductivity tensor by means of
+% \begin{equation}
+% \vec D = \sigma_f \vec f_0 \otimes \vec f_0 + \sigma_s \vec s_0 \otimes \vec s_0 + \sigma_n \vec n_0 \otimes \vec n_0 \,,
+% \end{equation}
+% where $\sigma_i$ is half of the harmonic mean of the intra- and extracellular conductivity in the three principal directions $i \in [f,s,n]$.
+
+% Most of the time, the external stimulus current $\Iext$ is given by a predefined protocol typically defined in a region $\Omega_\mathrm{stim} = \Omega_\mathrm{SAN} \cup \Omega_\mathrm{HPS}$ as
+% \begin{equation}
+%     \Iext(t) = \begin{cases}
+%     A \qin \Omega_\mathrm{SAN} \times (0, \tau] \,, \\
+%     A \qin \Omega_\mathrm{HPS} \times (t_\mathrm{AVN}, t_\mathrm{AVN} + \tau] \,, \\
+%     0 \qotherwise \,,
+%     \end{cases} \label{eq:Iext}
+% \end{equation}
+% depending on the duration $\tau$ and the amplitude $A$ of the stimulus as well as the conduction delay introduced by the atrioventricular node $t_\mathrm{AVN}$.
+
+
+\subsection{Modeling Cardiac Mechanics}
+
+Under normal conditions, the heart undergoes large deformations during the contraction and relaxation phases of the cardiac cycle.
+The associated displacement of the myocardium can be found by relating the strain of the tissue with the stress generated by the contraction of myocytes together with the pressure that is exerted onto the endocardium by the blood inside the chambers.
+
+Considering a continuous body $\Omega_0 \subset \mathbb{R}^3$ in its reference configuration, a deformation map $\varphi\colon(0,T]\times\Omega_0\rightarrow\mathbb{R}^3$ can be defined that relates the reference coordinates $\vec X \in \Omega_0$ to the current coordinates $\vec x \in \Omega$ such that $\vec x = \varphi(\vec X, t)$ at time $t$.
+Next, the displacement field of the body is defined by $\d(\vec X,t) = \varphi(\vec X, t) - \vec X$ together with the deformation gradient $\F(\vec X,t) = \grad{\varphi(\vec X, t)} = \mathds{1} - \grad{\d}$.
+The deformation map is injective and orientation preserving, \ie its Jacobian satisfies $J = \det \F > 0$. 
+
+The fundamental equation that describes the mechanical behavior and kinematics of a solid body is based on Newton's second law of motion.
+The so-called momentum equation:
+\begin{equation}
+    \rho \pdv[2]{\d}{t}- \div{\vec\sigma} - \rho \vec b = \vec 0 \,, \label{eq:linmomentum}
+\end{equation}
+where $\rho$ is the body's density, $\sigma$ is the Cauchy stress, and $\vec b$ are body forces.
+Cauchy stress corresponds to the real or physical stress, since it refers to the
+current configuration.
+However, various stress measures can be delineated, exhibiting distinctions based on their respective frames of reference.
+The nominal stress tensor $\vec P$ is an asymmetric tensor defined as 
+\begin{equation}
+    \vec P = J \F^{-1} \vec\sigma \,,
+\end{equation}
+and can be used to express the current force $\dd{\vec f}$ acting on a surface $\Gamma$ in terms of the normal vector $\vec n_0$ and that surface in the reference configuration $\Gamma_0$:
+\begin{equation}
+    \dd{\vec f} = \vec n_0 \vec P \dd{\Gamma_0} \,.
+\end{equation}
+However, due to its asymmetry, $\vec P$ is less attractive to work with.
+Cardiac tissue is considered an orthotropic material with fibers that have a certain orientation.
+Typically we are interested in the stress along the fibers.
+This can be done by using the second Piola-Kirchhoff stress tensor:
+\begin{equation}
+    \S = J \F^{-1}\vec \sigma \F^{-\tran} \,.
+\end{equation}
+Contrary to the nominal stress $\vec P$, $\S$ is symmetric and compared to the Cauchy stress does not change during rigid body rotations.
+
+Passive material properties of the myocardium are assumed to be hyperelastic and quasi-incompressible.
+As a consequence, the second Piola-Kirchhoff stress $\S$ can be defined by a stored strain energy density function $\Psi$ after introducing the right Cauchy-Green tensor $\C = \F^\tran\F$ and the Green-Lagrange strain tensor $\E = \frac{1}{2}(\C - \mathds{1})$:
+\begin{equation}
+    \S = 2 \pdv{\Psi(\C)}{\C} = \pdv{\Psi(\E)}{\E} \,.
+\end{equation}
+Different constitutive laws have been introduced and used in the context of cardiac modeling.
+Due to the presence of fibers in cardiac tissue, these constitutive laws account for anisotropy by imposing a different elastic response along the directions of fibers $\vec f_0$, sheets $\vec s_0$, and sheet-normals $\vec n_0$.
+
+To account for the active stress generated during cardiac contraction, $\S$ is additively decomposed into an active ($\S_\mathrm{a}$) and a passive ($\S_\mathrm{p}$) component such that
+\begin{align}
+    \S(\d, \Ta(\F)) &= \S_\mathrm{p} + \S_\mathrm{a} \label{eq:activeStress} \\
+     &= 2 \frac{\partial \Psi(\C)}{\partial \C} + T_\text{a}(\F) \frac{\vec f_0 \otimes \vec f_0}{\sqrt{\vec F \vec f_0 \vdot \vec F \vec f_0}} \,, \nonumber
+\end{align}
+where $\Ta$ is the contractile force. 
+Active stress is modeled by upscaling the microscopic force $\Ta$ generated by cardiac muscle fibers to the tissue level.
+Thus, expressing it in terms of an internal stress that acts in the first principal direction of the tissue, namely the fibers $\vec f_0$.
+
+\subsection{Spatial Discretization}
+
+We use finite elements to transform \autoref{eq:linmomentum} into its discrete form.
+The notation $\dot{u} = \pdv{u}{t}$ and $\Ddot{u} = \pdv[2]{u}{t}$ is adopted for time derivatives.
+Using index notation in terms of the displacement $\d$, \autoref{eq:linmomentum} is given by 
+\begin{equation}
+    \rho \Ddot{d}_i- \pdv{}{x_j}\sigma_{ji} - \rho b_i = 0
+\end{equation}
+The fundamental concept of the finite element method involves the approximation of $d_i$ within the domain of interest $\Omega$ using a trial function $\Tilde{d}_i$. 
+This trial function comprises a defined finite set of appropriate basis functions $N_i$, referred to as element shape functions, which exhibit vanishing behavior on the displacement boundaries.
+The approximation of the displacement in component $i$ at node $I$ reads
+\begin{equation}
+    d_i \approx \Tilde{d}_i = d_{iI} N_I \,.
+\end{equation}
+Since $\Tilde{d}_i$ is an approximation to the solution, we are left with a residual $R$.
+Following Galerkin's Method of weighted residuals, we use an arbitrary weighting function $w_i = w_{iI} N_I$ (test function) from the same function space as the trial function and build the inner product with $R$:
+\begin{equation}
+    \int_\Omega w_{iI} \left( \rho N_I N_J \Ddot{d}_{jJ} - \pdv{N_I}{x_j} \sigma_{ji} -\rho N_I b_i \right) \dd{\Omega} = 0 \,.
+\end{equation}
+This is the weak form of the linear momentum equation.
+Using the relations 
+\begin{align*}
+    J \sigma_{ji} = F_{jk} P_{ki} &= \pdv{x_j}{X_k} P_{ki} \\
+    \dd{\Omega} &= J \dd{\Omega_0} \\
+    \rho b_i &= \rho_0 b_i \Omega_0
+\end{align*}
+we can transform the weak form into the reference domain $\Omega_0$ (also known as total Lagrangian form):
+\begin{equation}
+    \int_{\Omega_0} w_{iI} \left( \rho_0 N_I N_J \Ddot{d}_{jJ} - \pdv{N_I}{X_j} P_{ji} -\rho N_I b_i \right) \dd{\Omega_0} = 0 \,.
+\end{equation}
+Finally, we use the derivative product formula in order to get rid of the derivative of the nominal stress and apply the Gauss’s theorem on the result. 
+Then we use that $w_i$ vanishes on the traction boundary and obtain discrete equations of the weak form of the total Lagrangian formulation:
+\begin{equation}
+    w_{iI} \int_{\Omega_0} \rho_0 N_I N_J \Ddot{d}_{jJ} \dd{\Omega_0} + w_{iI} f_{iI}^\mathrm{int} - w_{iI} f_{iI}^\mathrm{ext} = 0 \,,
+\end{equation}
+with the internal and external nodal forces 
+\begin{equation}
+    f_{iI}^\mathrm{int} = \int_{\Omega_0} \pdv{N_I}{X_j} P_{ji} \dd{\Omega_0} \qq{and}
+    f_{iI}^\mathrm{ext} = \int_{\Omega_0} N_I \rho_0 b_i \dd{\Omega_0} + \int_{\Gamma_0} N_I t_i^0  \dd{\Gamma_0} \,,
+\end{equation}
+respectively.
+Since the test functions $w_{iI}$ are arbitrary, it follows 
+\begin{align}
+    M_{ijIJ} \Ddot{d}_{jJ} + f_{iI}^\mathrm{int} - f_{iI}^\mathrm{ext} = 0 \,, \\
+    \qq{where} M_{ijIJ} = \delta_{ij} \int_{\Omega_0} \rho_0 N_I N_J \dd{\Omega_0} \,,
+\end{align}
+is the so-called mass matrix.
+Rewriting everything in matrix vector notation gives
+\begin{equation}
+    \vec M \Ddot{\d} + \vec f^\mathrm{int}(\d(t),t) - \vec f^\mathrm{ext}(\d(t),t) = \vec 0 \,.
+\end{equation}
+If it is desired to take friction into account, the equation can be extended with a term for damping
+\begin{equation}
+    \vec M \Ddot{\d} + \vec C \dot{\d} + \vec f^\mathrm{int}(\d(t),t) - \vec f^\mathrm{ext}(\d(t),t)  = \vec 0 \,. \label{eq:semiLinMom}
+\end{equation}
+The type of damping used in \CM~is called Rayleigh damping with the damping matrix
+\begin{equation}
+    \vec C = \alpha \vec M + \beta \vec K
+\end{equation}
+using the linearization of the internal forces $\vec f^\mathrm{int}(\d(t),t) \approx \vec K \cdot \d(t)$ and the stiffness matrix $\vec K := \grad_{\d}{\vec f^\mathrm{int}(\d(t),t)}$.
+
+In the case of static equilibrium, where mass inertia can be neglected, all time derivatives vanish and \autoref{eq:semiLinMom} reduces to 
+\begin{equation}
+    \vec f^\mathrm{int}(\d) - \vec f^\mathrm{ext}(\d)  = \vec 0 \,. \label{eq:staticLinMom}
+\end{equation}
+
+\subsection{Time Discretization}
+
+Now that the equations are discretized in space, the temporal derivatives $\dot{\d}$ and $\Ddot{\d}$ have to be discretized in time as well.
+For better readability, we redefine $\a = \Ddot{\d}$ and $\v = \dot{\d}$ and use $\Tilde{()}$ for incremental solutions.
+
+Since \autoref{eq:staticLinMom} omits all time derivatives and yields a solution in static equilibrium with respect to the current boundary conditions, there is no need for time integration and the system
+\begin{equation}
+    \vec r(\d) := \vec f^\mathrm{int}(\d) - \vec f^\mathrm{ext}(\d)  = \vec 0 \,,
+\end{equation}
+can be solved directly using Newton's method.
+
+A suitable time integration method for \autoref{eq:semiLinMom} is Newmark-beta time integration.
+It was designed for elasticity problems and can be set up as an explicit or an implicit method depending on the choice of parameters $\beta$ and $\gamma$.
+\autoref{eq:semiLinMom} is an initial value problem, which can be discretized using $\Delta t = \tn{n+1} - \tn{n}$, $\d(\tn{0}) = \dn{0}$, $\v(\tn{0}) = \vn{0}$, $\a(\tn{0}) = \an{0}$:
+\begin{equation}
+   \vec r(\dn{n+1}) = \M \an{n+1} + \C \vn{n+1} + \vec f^\mathrm{int}(\dn{n+1}, \tn{n+1}) - \vec f^\mathrm{ext}(\dn{n+1}, \tn{n+1}) \overset{!}{=} 0 \label{eq:timediscreteLinMom}
+\end{equation}
+To solve this equation with the Newmark-beta scheme, we first calculate predictor values for the displacement and the velocity which depend on the previous time step
+\begin{align}
+    \dnp{n+1} &= \dn{n} + \dt \vn{n} + \frac{\dt^2}{2}(1-2\beta)\an{n} \,, \\
+    \vnp{n+1} &= \vn{n} + (1-\gamma) \dt \an{n} \,,
+\end{align}
+and substitute $\dn{n+1}$, $\vn{n+1}$, and $\an{n+1}$ in \autoref{eq:timediscreteLinMom} with the following formulas
+\begin{align}
+    \dn{n+1} &= \dn{n} + \dt \vn{n} + \frac{\dt^2}{2}\left( (1-2\beta)\an{n} + 2\beta \an{n+1} \right) \,, \label{eq:updated} \\
+    \vn{n+1} &= \vnp{n+1} + \gamma \dt \an{n+1} \,, \label{eq:updatev} \\
+    \an{n+1} &= \frac{1}{\beta \dt^2} (\dn{n+1} - \dnp{n+1}) \,, \label{eq:updatea}
+\end{align}
+which leads to a system of nonlinear equations that only depends on $\dn{n+1}$:
+\begin{align}
+     \vec r(\dn{n+1}) =& \M \left[ \frac{1}{\beta \dt^2} (\dn{n+1} - \dnp{n+1}) \right]
+        + \C \left[ \frac{\gamma}{\beta \dt} (\dn{n+1} - \dnp{n+1}) + \vnp{n+1} \right] \nonumber \\
+        &+ \vec f^\mathrm{int}(\dn{n+1}, \tn{n+1}) - \vec f^\mathrm{ext}(\dn{n+1}, \tn{n+1}) = 0 \label{eq:residual}
+\end{align}
+The most robust method to solve non-linear algebraic equations such as \autoref{eq:residual} is Newton's method.
+Linearizing \autoref{eq:residual} using a Taylor expansion around the current value of the displacement $\dn{n+1}$ and dropping terms of higher order results in the linear model
+\begin{equation}
+    \vec r(\dn{n+1}, \tn{n+1}) + \vec A \Delta \dn{n+1} = 0 \,, \label{eq:linMech}
+\end{equation}
+with the system Jacobian matrix
+\begin{equation}
+    \vec A = \frac{1}{\beta \dt^2} \M + \frac{\gamma}{\beta \dt} \C + \K \,,
+\end{equation}
+where internal and external forces $\K$ are linearized in each Newton iteration:
+\begin{equation}
+    \K \dn{n+1} \approx \vec f^\mathrm{int}(\dn{n+1}, \tn{n+1}) - \vec f^\mathrm{ext}(\dn{n+1}, \tn{n+1}) \,.
+\end{equation}
+Finally, we calculate the updated values for velocity and acceleration using \autoref{eq:updatev} and \autoref{eq:updatea}.
+
+
+\subsection{Units}
+
+In general, all units are given in the international system of units (SI).
+For the most important units you can refer to Table \ref{tab:units}.
+If you are unsure about the unit of parameters not listed in Table \ref{tab:units}, use base SI units without prefix.
+
+\begin{table}[h!]
+    \centering
+    \caption{Units used in \CM.}
+    \label{tab:units}
+    \begin{tabular}{ccccl}
+        \toprule
+        Symbol  & Input unit & Internal unit & Conversion & Comment \\
+        \midrule
+         $x,y,z$ & \si{mm} & \si{m} & $10^{-3}$ & -\\
+         $t$ & \si{s} & \si{s} & $1$ & -\\
+         % $\V$ & \si{\volt}  & \si{\volt} & 1 & some ionic models use \si{mV} internally\\
+         % $\Cm$ & \si{\farad\per\meter\squared} & \si{\farad\per\meter\squared} & 1 & -\\
+         % $\beta$ & \si{\per\meter} & \si{\per\meter} & 1 & -\\
+         % $\sigma$ & \si{\siemens\per\meter} & \si{\siemens\per\meter} & 1 & -\\
+         $\d$ & \si{m} & \si{m} & $1$ & -\\
+         $\rho_0$ & \si{\kilo\gram\per\meter\cubed} & \si{\kilo\gram\per\meter\cubed} & 1 & -\\
+         $\Ta$ & \si{\pascal} & \si{\pascal} & 1 & -\\
+         $\S$ & \si{\pascal} & \si{\pascal} & 1 & -\\
+         $p$ & \si{\pascal} & \si{\pascal}; \si{mmHg} & 1 & decision by plugin\\
+         \bottomrule
+    \end{tabular}
+\end{table}
+

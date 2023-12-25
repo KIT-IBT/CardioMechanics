@@ -1,0 +1,316 @@
+\section{Tools}
+\label{sec:tools}
+
+In the following, you will find short descriptions of some regularly used tools that are supplied with \CM.
+Each of them can support you in either setting up your simulations or dealing with geometry related tasks.
+Additionally, it is recommended to take a look into the \href{https://github.com/KIT-IBT}{IBT GitHub} for other useful tools, \eg rule based fiber generation algorithms (\href{https://github.com/KIT-IBT/RESILIENT}{RESILIENT}, \href{https://github.com/KIT-IBT/LDRB_Fibers}{LDRB Fibers}), ventricular coordinate system (\href{https://github.com/KIT-IBT/Cobiveco}{Cobiveco}), and the powerful \href{https://github.com/KIT-IBT/vtkToolbox}{vtkToolbox} for MATLAB.
+
+\subsection{BidomainMatrixGenerator}
+\label{tools:BidomainMatrixGenerator}
+
+This tool generates matrices and vectors needed for mono- and bidomain FEM simulations with acCELLerate. 
+That includes stiffness and mass matrices, materials vector, and index set. 
+Output files are in PETSc format.
+When using the \verb|-gzip| option, all output file will have the additional suffix .gz. You can use these files with acCELLerate without decompressing them!
+The only mandatory argument is the geometry as a \nameref{subsubsec:VTK}.
+It should contain the data arrays \verb|Material| and one of the following arrays containing information about the fiber orientation:
+\begin{itemize}
+    \item \verb|Phi|, \verb|Theta| are a specific angle measurement to define fiber orientation with a binary quantization of the angle using 8 bits or 1 Byte such that $\phi = \Tilde{\phi} \cdot \frac{254}{\pi}$ and $\theta = \Tilde{\theta} \cdot \frac{254}{\pi}$, where $\Tilde{\phi}$ and $\Tilde{\theta}$ are spherical coordinates given in radians.
+    An orientation vector is calculated using
+    \begin{equation}
+        \vec f_0 = \mqty( -\cos \Tilde{\theta} \cos\Tilde{\phi} \\ -\cos\Tilde{\theta} \sin\Tilde{\phi} \\ \sin\Tilde{\theta} )
+    \end{equation}
+    $\phi = \theta = 255$ represents the isotropic case.
+    Aligning the fibers with the x-axis can be done with $\phi = 0$ and $\theta = 127$.
+
+    \item If you already have an orientation vector, you can supply it with an array called either \verb|Fiber| or \verb|Orientation|.
+\end{itemize}
+
+\begin{lstlisting}[language=bash,caption=Runtime options for BidomainMatrixGenerator]
+BidomainMatrixGenerator <.vt?> [-o <prefix>] [-v]
+    [-bath <mask> [mat.def]]
+    [-mono <mat.def> [mat2.def]]
+    [-bi <intra.def> <extra.def>]
+    [-tissue <list>] [-freq <freq>]
+    [-combined] [-coupled <betaCm_dt>] [-gauss <n>]
+    [-fullLumping] [-massLumping <theta>]
+    [-iso] [-gzip] [-ignoreMissing]
+
+-v --- Enable additional informational (verbose) output.
+
+-bath <mask> [mat.def] --- All elements matching <mask> will only be part of the extracellular domain. Requires [-bi ...]. If [mat.def] is not given, <extra.def> is used.
+
+-mono <mat.def> [mat2.def] --- Creates monodomain matrix. If [mat2.def] is given, the conductivity will be the harmonic mean of the two given conductivities for each cell (parallel circuit).
+
+-bi <intra.def> <extra.def> --- Creates bidomain matrices with the intra- and extracellular conductivities from the given material files.
+
+-combined --- Creates bidomain matrices where intracellular matrix is already added to extracellular matrix.
+
+-coupled <betaCm_dt> [theta] --- Create fully coupled bidomain matrices (LHS and RHS) <betaCm_dt> is (beta*C_m)/dt. theta is the time discretization weight (0=explicit, 1=implicit, 0.5=Crank-Nicolson, default = 0).
+
+-gauss <n> --- Create Gauss interpolation and integration matrices. <n> is the number of Gauss points. Default integration rules are provided.
+
+-fullLumping --- Use full mass lumping and multiply intra/mono matrix with inverse of lumped mass matrix. Will not save mass matrix separately. Does not apply with -coupled. Use -massLumping 0 instead.
+
+-massLumping <theta> --- Use mass lumping. Saved mass matrix will be weighted sum: M* = (theta)M + (1-theta)*M_lumped Usually, you would choose theta in [0,1]. Different choices may work, however.
+
+-tissue <list> --- Comma-separated list of tissue classes in order of their, precedence when creating the tissue vector. Highest precedence first. Default: smaller numbers have higher precedence.
+
+-freq <freq> --- Evaluate conductivities at frequency <freq> if supported.
+
+-iso --- Ignore fiber orientation (isotropic case).
+
+-ignoreMissing --- Ignore missing intra conductivities, i.e., set them to 0. Only recommended to use with -bi.
+
+-bds <value> --- CV stabilization factor beta*Delta_s.
+
+-gzip --- Compress output files.
+
+-o <prefix> --- Prefix for saving the resulting files. Defaults to the name of the input geometry sans extension. Depending on the given options, the following files may be created:
+           <prefix>.vec - Material class vector.
+           <prefix>.mat - Monodomain matrix.
+           <prefix>.mass.mat - Mass matrix.
+           <prefix>.intra.mat - Bidomain intra matrix.
+           <prefix>.extra.mat - Bidomain extra matrix.
+           <prefix>.i+e.mat - Bidomain combined matrix.
+           <prefix>.n2e.mat - Node-to-element Gauss point (interpolation) matrix.
+           <prefix>.e2n.mat - Element-to-node Gauss point (integration) matrix.
+           <prefix>.lhs.mat - Coupled LHS matrix.
+           <prefix>.rhs.mat - Coupled RHS matrix.
+           <prefix>.is - Index set of intracellular domain.
+\end{lstlisting}
+
+\subsection{PETScVec2VTK}
+\label{tools:PETScVec2VTK}
+
+Converts a PETSc vector as e.g. provided by acCELLerate to a VTK unstructured grid (.vtu) or VTK poly data (.vtp) file for postprocessing or visualization. 
+The input VTK file should be the same that was used to generate the matrix using \nameref{tools:BidomainMatrixGenerator}.
+The python script \nameref{tools:ConvertPETScDir2VTK} can be used to convert an entire directory at once.
+\begin{lstlisting}[language=bash,caption=Syntax for PETScVec2VTK]
+PETScVec2VTK <vector filename> <VTK filename (.vtp/.vtu) in>  <VTK filename (.vtp/.vtu) out>
+	[--arrayName]	Name of the VTK array to be appended (default: Results)
+	[--delete]	Delte PETScVec after conversion
+\end{lstlisting}
+
+\subsection{ConvertT4toT10}
+\label{tools:ConvertT4toT10}
+
+Use to convert linear elements to quadratic elements based on \nameref{nodeFile} and \nameref{eleFile}.
+
+\begin{lstlisting}[language=bash,caption=Syntax for ConvertT4toT10]
+ConvertT4toT10 <Nodes_File.node> <Elements_File.ele> <Output>
+\end{lstlisting}
+
+\subsection{VTPExtractSurfaceFromMesh}
+\label{tools:VTPExtractSurfaceFromMesh}
+
+Given a .node and .ele file of a geometry as well as a surface in .vtp/.stl format, you can use this tool to generate an appropriate .sur file with matching node indexing for use in \CM.
+The \verb|-append| option can be used to fill a single .sur file with multiple surfaces in case of repeated execution of \verb|VTPExtractSurfaceFromMesh|.
+
+\begin{lstlisting}[language=bash,caption=Syntax for VTPExtractSurfaceFromMesh]
+VTPExtractSurfaceFromMesh <nodes_file.node> <elements_file.ele> <vtp.file> <element_index> <surface_index> <output_prefix> 
+Options:
+	-free_surface_element_index <val>
+	-unit <val>
+	-append
+	-first_index <val>
+	-export_nodes_indices <exp_nodes_file.node>
+	-export_stand_alone <standalone_prefix>
+
+\end{lstlisting}
+
+\subsection{FixNodes}
+\label{tools:FixNodes}
+
+Can be used to apply Dirichlet boundary conditions to nodes specified in fixation.list.
+
+\begin{lstlisting}[language=bash,caption=Syntax for FixNodes]
+FixNodes <input.node> <output.node> <fixation.list> 
+	-val <val> (optional) 
+	-keep_original (optional) Modify only nodes from list, if not set, all 
+    other nodes are set to 0 (unfixed)
+\end{lstlisting}
+
+
+\section{Scripts}
+\label{tools:Python}
+
+\subsection{VTK2tetgen}
+\label{tools:VTK2tetgen}
+
+Convert a vtk file to .node and .ele files for CardioMechanics.
+If fiber orientation is given with the appropriate \verb|Fiber|, \verb|Sheet|, and \verb|Sheetnormal| data arrays, a .bases file is generated as well.
+
+\begin{lstlisting}[language=bash,caption=Syntax for VTK2tetgen.py]
+usage: VTK2tetgen.py [-h] [-outfile OUTFILE] [-scale SCALE]
+                     [-fixMaterial FIXMATERIAL [FIXMATERIAL ...]]
+                     mesh
+
+positional arguments:
+  mesh                  VTK input file.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -outfile OUTFILE      Set an alternative output filename PREFIX if desired.
+  -scale SCALE          Scale the VTK input file by a factor SCALE.
+  -fixMaterial FIXMATERIAL [FIXMATERIAL ...]
+                        Fix nodes if they are connected to cells that match 
+                        the given mask in "Material". Example: "-
+                        fixMaterial 32 162" 
+\end{lstlisting}
+
+
+\subsection{ConvertPETScDir2VTK}
+\label{tools:ConvertPETScDir2VTK}
+
+ConvertPETScDir2VTK.py automatically converts all *.vec files in the provided directory to *.vtu format and creates a *.pvd file containing all results ready to be viewed in ParaView.
+
+\begin{lstlisting}[language=bash,caption=Syntax for ConvertPETScDir2VTK.py]
+Usage: ConvertPETScDir2VTK.py [options]
+
+Options:
+  --version             show programs version number and exit
+  -h, --help            show this help message and exit
+  -d PATH, --directory=PATH
+                        Directory containing simulation results
+  -g GEOFILE, --geometry=GEOFILE
+                        Geometry file (*.vtu) used for the simulation
+  -o FILENAME, --outfile=FILENAME
+                        Filename of the resulting *.pvd file
+  -c, --clean           Choose wether or not to delete converted *.vec files
+\end{lstlisting}
+
+
+\subsection{tuneCV}
+\label{tools:tuneCV}
+
+This script can be used to tune conductivity values to achieve a desired conduction velocity on tetrahedral meshes based on the method described in \cite{costa2013automatic}.
+It requires acCELLerate, \href{https://gmsh.info}{Gmsh}, and VTK to be installed.
+If your Gmsh root directory differs from the default path used on MacOS, please provide it using one of the parameters of the script.
+Conduction velocity is only evaluated in one direction using a planar wavefront.
+For anisotropic cases, you have to do multiple runs with the desired conduction velocity.
+Keep in mind that this evaluation is done on a very simple geometry, meaning the actual CV in your heart geometries may differ depending on a plethora of circumstances.
+Nevertheless, this tool should still leave you with a good estimate.
+
+\begin{lstlisting}[language=bash,caption=Syntax for tuneCV.py]
+usage: tuneCV.py [-h] [-resolution RESOLUTION] [-length LENGTH] 
+                 [-velocity VELOCITY]
+                 [-gi GI] [-ge GE] [-gm GM] [-beta BETA] [-cm CM] [-
+                 sourceModel {mono}]
+                 [-tol TOL] [-converge] [-maxit MAXIT] [-dt DT] [-theta 
+                 {0,0.5,1}]
+                 [-stol STOL] [-lumping {True,False}]
+                 [-activationThreshold ACTIVATIONTHRESHOLD] [-log LOG]
+                 [-gmshexec GMSHEXEC]
+                 {BeelerReuter,TenTusscher2,CourtemancheEtAl,OHaraRudy,HimenoEtAl,KoivumaekiEtAl,GrandiEtAlVentricle,GrandiEtAlAtrium}
+                 amplitude duration
+
+positional arguments:
+  {BeelerReuter,TenTusscher2,CourtemancheEtAl,OHaraRudy,HimenoEtAl,KoivumaekiEtAl,GrandiEtAlVentricle,GrandiEtAlAtrium}
+                        Ionic model
+  amplitude             Stimulus amplitude
+  duration              Stimulus duration in s
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -resolution RESOLUTION mesh resolution in mm (default is 0.5 mm)
+  -length LENGTH        length of strand in mm (default is 20.0 mm)
+  -velocity VELOCITY    desired conduction velocity in m/s 
+                        (default: 0.67 m/s)
+  -gi GI                initial value intracellular conductivity in S/m 
+                        (default: 0.174 S/m)
+  -ge GE                initial value extracellular conductivity in S/m 
+                        (default: 0.625 S/m)
+  -gm GM                initial value monodomain conductivity (harmonic 
+                        mean of gi/ge) in S/m (default: 0.136 S/m)
+  -beta BETA            Membrane surface-to-volume ratio (default: 140000 
+                        m^-1)
+  -cm CM                Membrane capacitance per unit area 
+                        (default: 0.01 Fm^-2)
+  -sourceModel {mono}   pick type of electrical source model 
+                        (default is monodomain)
+  -tol TOL              Percentage of error in conduction velocity 
+                        (default: 0.01)
+  -converge             Iterate until converged velocity (default: False)
+  -maxit MAXIT          Maximum number of conduction velocity iterations 
+                        (default: 20)
+  -dt DT                Integration time step on seconds (default: 1e-5 s)
+  -theta {0,0.5,1}      Choose time stepping method 0: explicit, 0.5: CN, 
+                        1: implicit (default: 0.5)
+  -stol STOL            Solver tolerance (default: 10^-6)
+  -lumping {True,False} Use mass lumping (default: False)
+  -activationThreshold ACTIVATIONTHRESHOLD
+                        Threshold to record LAT (default: -0.02 V)
+  -log LOG              Generate/append to a log file.
+  -gmshexec GMSHEXEC    Use this option to define an alternative Gmsh path.
+\end{lstlisting}
+
+\subsection{CircWholeHeart}
+\label{tools:CircWholeHeart}
+
+This script is an implementation of the basic 4-chamber circulatory system model described in Section \ref{plugin:Circulation}.
+The script has not much use by itself, but is ready to be used with the Python library \href{https://github.com/FrancescoRegazzoni/cardioemulator}{cardioemulator} by Francesco Regazzoni to construct zero-dimensional emulators of the cardiac electromechanical function.
+
+\subsection{createSimDir}
+\label{tools:createSimDir}
+
+This script helps you to set up a directory for electromechanical simulations with \CM.
+All arguments are optional.
+However, if you already know which material numbers, conductivities, and ionic models you want to use, you can provide lists in the associated arguments.
+Other parameters for the monodomain equation such as membrane surface-to-volume ratio, membrane capacitance and integration time step can be given as well.
+This will automatically create the correct entries in the respective files.
+If no arguments are given, the files will be populated with some default arguments.
+Files that require the geometry need to be set up by the user.
+The location of files that are not generated by the script are indicated by the command line output.
+
+\begin{lstlisting}[language=bash,caption=Syntax for createSimDir.py]
+usage: createSimDir [-h] [-material [MATERIAL ...]]
+                    [-model [{BeelerReuter,TenTusscher2,CourtemancheEtAl,OHaraRudy,HimenoEtAl,KoivumaekiEtAl,GrandiEtAlVentricle,GrandiEtAlAtrium} ...]]
+                    [-sigma [SIGMA ...]] [-beta BETA] [-cm CM] [-time TIME]
+                    [-dt DT] [-theta {0,0.5,1}] [-sourceModel {mono}]
+                    [-activationThreshold ACTIVATIONTHRESHOLD] [-dir DIR]
+
+options:
+  -h, --help            show this help message and exit
+  -material [MATERIAL ...]
+                        List of material numbers (default: 0)
+  -model [{BeelerReuter,TenTusscher2,CourtemancheEtAl,OHaraRudy,HimenoEtAl,KoivumaekiEtAl,GrandiEtAlVentricle,GrandiEtAlAtrium} ...]
+                        List of ionic models (default: ElphyDummy)
+  -sigma [SIGMA ...]    List of monodomain conductivities in S/m (default:
+                        0.136 S/m)
+  -beta BETA            Membrane surface-to-volume ratio (default: 140000
+                        m^-1)
+  -cm CM                Membrane capacitance per unit area (default: 0.01
+                        Fm^-2)
+  -time TIME            Simulation time in s (default: 0.8 s)
+  -dt DT                Integration time step in seconds (default: 1e-5 s)
+  -theta {0,0.5,1}      Choose time stepping method 0: explicit, 0.5: CN, 1:
+                        implicit (default: 0.5)
+  -sourceModel {mono}   pick type of electrical source model (default is
+                        monodomain)
+  -activationThreshold ACTIVATIONTHRESHOLD
+                        Threshold to record LAT (default: -0.02 V)
+  -dir DIR              Name of top level directory (default: SimDir)
+\end{lstlisting}
+
+\subsection{ClipVTUwithVTU}
+\label{tools:ClipVTUwithVTU}
+
+This script is a short post-processing tool for vtu files.
+Using a clipped version of the mesh created in \eg ParaView, you can clip an entire time series while preserving all elements even when they move out of the clipped plane. 
+
+\begin{lstlisting}[language=bash,caption=Syntax for ClipVTUwithVTU.py]
+usage: ClipVTUwithVTU.py [-h] [-outfile OUTFILE] [-start START] [-stop STOP] [-step STEP] mesh clip
+
+positional arguments:
+  mesh              vtk/vtu/vtp data you want to clip.
+  clip              clipped version of <mesh> created in e.g. ParaView invtu/vtk/vtp.
+
+optional arguments:
+  -h, --help        show this help message and exit
+  -outfile OUTFILE  prefix of the results file.
+  -start START      start value for the time series.
+  -stop STOP        stop value for the time series.
+  -step STEP        increment of the time series.
+
+\end{lstlisting}

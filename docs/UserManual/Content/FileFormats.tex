@@ -1,0 +1,279 @@
+\section{File Formats}
+\label{sec:fileformats}
+
+\subsection{Input Files}
+\label{subsec:infiles}
+
+\subsubsection{CardioMechanics Config File (*.xml)}
+\label{subsubsec:CardioMechanicsConfig}
+
+This is the main configuration file that controls the mechanical simulations.
+It uses the extensible markup language (XML) to store and define all simulation parameters.
+The top level tags are defined as follows: \verb|General|, \verb|Mesh|, \verb|Materials|, \verb|Export|, \verb|Solver|, and \verb|Plugins|.
+All available settings inside these tags are described in detail within the \nameref{sec:SimFramework}.
+\begin{lstlisting}[language=XML,caption=CardioMechanics Config File (*.xml)]
+<settings>A general description</settings>
+
+<General>
+    <LogFile> 	filename.txt 	</LogFile>
+    <Verbose> 	false/true 	    </Verbose>
+    <Debug>  	false/true 		</Debug>
+</General>
+
+<Mesh>
+...
+</Mesh>
+
+<Materials>
+...
+</Materials>
+
+<Export>
+...
+</Export>
+
+<Solver>
+...
+</Solver>
+
+<Plugins>
+...
+</Plugins>
+
+\end{lstlisting}
+
+\subsubsection{Element file (*.ele)}
+\label{eleFile}
+
+The element file contains only the elements for the mechanical mesh and has the following structure:
+\begin{lstlisting}[language=Bash,caption=Element file (*.ele)]
+    <# elements> <Nodes per Element> <# Attributes>
+    <Element Index> <node 1> <node 2> ... <node n> <material index>
+    ...
+\end{lstlisting}
+Only P1 and P2 elements are supported, hence each element needs either $n=4$ or $n=10$ nodes.
+
+\subsubsection{Node File (*.node)}
+\label{nodeFile}
+
+The node file contains only the vertices for the mesh and has the following structure:
+\begin{lstlisting}[language=Bash,caption=Node File (*.node)]
+    <# nodes> <Dimension (must be 3)> <Boundary Conditions> (0: no boundary condition, 1: Dirichlet)> <BoundaryMarker (must be 0)>
+    <Node Index> <x> <y> <z> <Boundary Condition>
+    ...
+\end{lstlisting}
+
+The boundary condition is set as an integer number between 0 and 7. 
+These numbers translated to their respective binary representation describe the Dirichlet boundary condition in the axes z,y,x, i.e. 001 (dec: 1) -> x-direction fixed, 010 (dec: 2) -> y-direction fixed, 100 (dec: 4) -> z-direction fixed, 111 (dec: 1+2+4 = 7) all directions fixed. 
+Combinations of the aforementioned fixations are possible as well, i.e. you can fix a node in the x,y-plane by using the integer number 3 (binary: 011) etc.
+
+\subsubsection{Surface Elements File (*.sur)}
+\label{surFile}
+
+This file contains a list of all surface triangle node indices of the mechanical mesh and its attributes.
+\begin{lstlisting}[language=Bash,caption=Surface Elements File (*.sur)]
+    <# elements> <Nodes per Element> <# Attributes (min 2; max 3)>
+    <surface element Index> <node 1> <node 2> ... <node n> <material index> <surface index> <surface traction scaling>
+    ...
+\end{lstlisting}
+Only P1 and P2 elements are supported, hence $n=3$ or $n=6$.
+You need a minimum of two or a maximum of three attributes defined for each surface element.
+Attribute 1 is the material index, which is used as a material tag during export.
+Attribute 2 is the surface index, which is used by boundary conditions. 
+Attribute 3 is optional and sets a scaling factor which can be applied to epicardial boundary conditions (\nameref{plugin:ContactHandling}, \nameref{plugin:Robin}, \nameref{plugin:RobinGeneral}).
+
+\subsubsection{Fiber Orientation File (*.bases)}
+\label{basesFile}
+
+This file contains a list of all fiber orientations of the mechanical mesh. 
+If you intend to use P2 elements, you have to submit the fiber orientations for each quadrature point as well.
+Either way, the first orientation is always the centroid of the element.
+This means it is possible to use a file for P2 elements with P1 elements as well, since the program will only read the number of quadrature points given in the file.
+\begin{lstlisting}[language=Bash,caption=Fiber Orientation File (*.bases)]
+    <# elements> <# qp>
+    <element index> <fiber_x> <fiber_y> <fiber_z> <sheet_x> <sheet_y> <sheet_z> <normal_x> <normal_y> <normal_z>
+    ...
+\end{lstlisting}
+
+\subsubsection{Local Activation Time File (*.txt)}
+\label{LATFile}
+
+This file contains activation times for each element of the mesh that defines the start of the contraction cycle in the tension model.
+If a tension model requires a calcium transient, you need to make sure to provide one.
+This is only relevant to the \autoref{tension:land17} model, which has multiple calcium transients to choose from already implemented.
+Leave an empty line at the end of the file.
+\begin{lstlisting}[language=Bash,caption=Local Activation Time File (*.txt)]
+    <# elements> 1
+    <element 1> <activation time in s>
+    <element 2> <activation time in s>
+    <element 3> <activation time in s>
+    ...
+    <element n> <activation time in s>
+    
+\end{lstlisting}
+
+\subsection{Output Files}
+\label{sec:outfiles}
+
+\subsubsection{VTK Unstructured Grid Files (*.vtu)}
+\label{subsubsec:VTK}
+
+This file contains all data specified by the \nameref{subsec:Export} options and the \verb|SolverPlugin::Export()| function of each active plugin as long as the plugin supports exporting to VTK.
+Refer to \autoref{tab:options} for an overview of export options to the VTK file type.
+A file is written at each \verb|Export.TimeStep|.
+
+\subsubsection{ParaView Data File (*.pvd)}
+
+This file can be used to open, view, and post process the time series of \nameref{subsubsec:VTK} files in \href{https://www.paraview.org/}{ParaView}. 
+Refer to the \href{https://www.paraview.org/Wiki/ParaView/Data_formats#PVD_File_Format}{ParaView Wiki on data formats} for more information.
+
+\subsection{acCELLerate Specific Input Files}
+\label{files:acCELLerate}
+
+The input files listed in the following sections are specific to \ACC~and are only required if you intend to use the solver plugin \nameref{plugin:acCELLerate} to run electromechanically coupled simulations.
+
+\subsubsection{Config File (*.aclt)}
+\label{files:ACCConfig}
+
+This is the main configuration file for EP tissue simulations.
+Not all listed entries are needed for, e.g. Monodomain simulations, but possible entries are
+\begin{lstlisting}[language=Bash,caption=acCELLerate configuration file (*.aclt)]
+Resprefix      The prefix of the result data
+Condition      Name of the condition file 
+Sensor         Name of the sensor file 
+CalcLength     Calculation length [s]
+DTCell         Time step of cell model calculation [s]
+DTExtra        Time step of extracellular calculation [s]
+DTIntra        Time step of intracellular calculation [s]
+BeginSave      Time at which saving of results starts [s]
+DTSave         Time step of saving [s]
+CellModelFile  Name of the cell model file
+Material       Name of vector describing tissue classes
+MaterialFibro  Name of vector describing fibroblast classes
+MatrixIntra    Name of intracellular conductivity matrix
+MatrixExtra    Name of extracellular conductivity matrix
+MatrixExtraCombined       Name of extracellular conductivity matrix that is already combined with Intra (and Fibro)
+MatrixFibro    Name of fibroblast conductivity matrix
+BetaMyoFib     Number of Myo-Fibro gap junctions [1/m^3]
+RMyoFib        Resistor of single myo-fibro gap junction [Ohm]
+VolumeMyo      Relative amount of myocyte volume
+VolumeExtra    Relative amount of extracellular volume
+VolumeFibro    Relative amount of fibroblast volume
+Domain         Type, either "Mono", "Bi", or "Tri"
+Verbose        Print verbose information into terminal
+Protocol       Name of verbose information file
+HeteroFileIntra      Name of the heterogeneous cell model file (entries: <vector file name> <parameter name>)
+HeteroFileFibro     Name of the heterogeneous fibro model file (entries: <vector file name> <parameter name>)
+LoadBackup     Loads backup from standard file of <file> if declared
+SaveBackup     Saves backup to standard file of <file> if declared
+DTBackup       Time step of backup
+Results        List of variables to be saved (e.g., Vm, Ve, AT, m, Na_i, I_Na, and any variable of the cell model)
+Implicit       Number of Jacobi iterations for implicit calculation (!Only for Monodomain)
+Force          Also calculate and output force
+MassMatrixIntra        Name of intracellular mass matrix
+ThetaIntra     Theta for intra PDE solver scheme. [0.0..1.0] 0=explicit, 1=implicit (default: 0 (FD) or 0.5 (FE))
+MembraneCapacitance      Membrane capacitance per unit area, number or vector (F/m^2)
+SurfaceToVolume       Myocyte surface to volume ratio, number or vector (1/m, default: cell model)
+Gauss          Matrices for gauss interpolation and integration
+ActivationThreshold       TMV threshold for activation time (default: 0V).
+CurrentScheme  Godunow, SVI, ICI, None. SVI and None require Gauss matrices.
+IntraIndexSet  PETSc IndexSet of the intracellular domain (if smaller than the xtracellular domain)
+Compress       Compress output vectors using deflate/gzip.
+NoExport       Deactivate Export
+\end{lstlisting}
+
+\subsubsection{Condition File (*.acnd)}
+\label{files:condition}
+
+This file contains the stimuli and initial/boundary conditions for an EP simulation.
+\begin{lstlisting}[language=Bash,caption=acCELLerate condition file (*.acnd)]
+    <node index> <amplitude> <cycle length> <duration> <temporal offset> Ii|Ie|If|Vm|Ve|Vf
+    ...
+\end{lstlisting}
+The type of stimulus (last column) is given as a combination of first letter: either I(current) or V(voltage); domain of stimulus as second letter: intracellular=i, extracellular=e or fibroblastic=f.
+
+\subsubsection{Cell Model File (*.cmf)}
+\label{files:cellmodel}
+
+Within the cell model file, the tissue classes from the geometry file are assigned to cell model types and force models.
+\begin{lstlisting}[language=Bash,caption=acCELLerate cell model file (*.cmf)]
+    <first tissue class> <elphpy model> <force model>
+    <second tissue class> <elphpy model> <force model>
+    <third tissue class> <elphpy model> <force model>
+    ...
+\end{lstlisting}
+Elphy model and force model are given as the path to the .ev-file and .fv-file you want to use.
+
+\subsubsection{Material File (*.def)}
+\label{files:material}
+
+Defines material properties, such as conductivities.
+Each material that exists in the \emph{Material} array of the geometry has to be defined in this file with the following entries:
+\begin{lstlisting}[language=Bash,caption=acCELLerate material file (*.def)]
+[NAME MATERRIALNUMBER COLORCODE]
+Kappa           FLOAT	FLOAT
+AnisotropyX     FLOAT
+AnisotropyY		FLOAT
+AnisotropyZ		FLOAT
+\end{lstlisting}
+Kappa is the conductivity (second column, in S/m) at a given frequency (first column).
+The COLORCODE value is currently not in use and can be set to an arbitrary number.
+MATERIALNUMBER should be of type INT and should stay in the range 1 to 255 (same in the geometry array!).
+You can use the anisotropy parameters to define different conductivites in fiber (AnisotropyX), sheet (AnisotropyY), and normal (AnisotropyZ) directions.
+Kappa by itself defines the transversal conductivities, such that only AnisotropyX would need to be defined in case of transverse isotropy.
+A second option to define a material is by using a definition of another material by referencing it with a hashtag followed by the material number if the conductivities are the same.
+In the following example, we set a general material for the ventricles and atria to define the left/right atrium and ventricle.
+\begin{lstlisting}[language=Bash,caption=acCELLerate material file example]
+[Ventricle_myo 100 0]
+Kappa           0	0.28
+AnisotropyX     1.0
+AnisotropyY		0.65
+AnisotropyZ		0.35
+
+[Atria_myo 200 0]
+Kappa           0	0.1823
+AnisotropyX     3.75
+
+[Ventrikel_rechts 2 0]
+#100
+
+[Ventrikel_links 3 0]
+#100
+
+[right_atrium 32 0]
+#200
+
+[left_atrium 33 0]
+#200
+\end{lstlisting}
+
+\subsubsection{Sensor File (*.txt)}
+\label{files:Sensor}
+
+The sensor files contain the information about the sensors that are placed in a simulated tissue. 
+A sensor records any output parameter of the cell model in the applied node and saves the values in a textfile.
+\begin{lstlisting}[language=Bash,caption=acCELLerate sensor file (*.txt)]
+    <node index> <file name> <offset> <t_increment> Ii|Ie|If|Vm|Ve|Vf (or any output parameter of the applied cellmodel)
+    ...
+\end{lstlisting}
+
+\subsubsection{CellModel Parameter File (*.ev)}
+\label{files:ionmodel}
+
+Cellmodel files define parameters and initial values for ionic models.
+The general structure is given below.
+Parameter files for all ionic models can be found in \href{https://github.com/KIT-IBT/CardioMechanics/tree/main/electrophysiology/data}{electrophysiology/data/}.
+
+\begin{lstlisting}[language=Bash,caption=Ionic model parameter file (*.ev)]
+CELLMODEL*IBT*KA
+CELLMODELNAME
+# of parameters to read
+...
+...
+...
+\end{lstlisting}
+
+\subsubsection{ForceModel Parameter File (*.fv)}
+
+Files with \emph{.fv} ending contain parameters and initial values for tension models.
+Their structure is the same as for \emph{.ev} files described above.

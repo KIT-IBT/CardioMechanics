@@ -212,7 +212,6 @@ def Init():
 
 
 def run():
-    # Initialize tuneCV
     args = Init()
     CreateCellModelFile(args)
     CreateConditionFile(args)

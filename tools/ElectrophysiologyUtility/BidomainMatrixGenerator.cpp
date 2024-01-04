@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
   std::array<int, MAX_MAT> tissuePrecedence({{MAX_MAT}});
   {
     int i = 0;
-    for (mat_t m = 0; m < MAX_MAT; m++) {
+    for (int m = 0; m < MAX_MAT; m++) {
       tissuePrecedence[m] = i++;
     }
   }

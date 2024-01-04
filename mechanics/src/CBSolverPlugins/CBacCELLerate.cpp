@@ -58,7 +58,7 @@ void CBacCELLerate::Init() {
     /// Create accelerate instance and call acCELLerate constructor with the project file
     const char *pf = accprojectFile_.c_str();
     act_ = new acCELLerate();
-    DCCtrl::debug << "Load project file ... ";
+    DCCtrl::debug << "\nLoad project file ... ";
     InitPvdFile();
     act_->LoadProject(pf);
     DCCtrl::debug << "Done\n";
@@ -798,7 +798,7 @@ void CBacCELLerate::InitParameters() {
     MaterialFileName_ = GetParameters()->Get<std::string>("Plugins.acCELLerate.MaterialFile");
     DCCtrl::debug << "\n Material File: " << MaterialFileName_;
 
-    priorityVector_ = parameters_->GetArray<TInt>("Plugins.acCELLerate.TissuePriority");
+    priorityVector_ = parameters_->GetArray<TInt>("Plugins.acCELLerate.TissuePriority", priorityVector_);
     if (priorityVector_.empty()) {
         for (TInt i = 0; i < 256; i++)
             priorityVector_.push_back(i);
@@ -866,10 +866,11 @@ void CBacCELLerate::InitMesh() {
     }
     
     DCCtrl::debug << "\nLoading fiber orientation ... ";
-    acMeshMaterials_ = vtkDoubleArray::SafeDownCast(((acMesh_->GetCellData()->GetArray("Material"))));
-    acMeshFiberValues_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Fiber")));
-    acMeshSheetValues_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Sheet")));
-    acMeshNormalValues_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Sheetnormal")));
+    acMeshFiberValues_ = acMesh_->GetCellData()->GetArray("Fiber");
+    acMeshSheetValues_ = acMesh_->GetCellData()->GetArray("Sheet");
+    acMeshNormalValues_ = acMesh_->GetCellData()->GetArray("Sheetnormal");
+    acMeshMaterials_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Material")));
+
     if (!acMeshFiberValues_ || !acMeshSheetValues_ || !acMeshNormalValues_) {
         DCCtrl::debug << "Info: No fiber orientation defined.\n";
         throw std::runtime_error("Automatic mapping of fibers currently not supported.");

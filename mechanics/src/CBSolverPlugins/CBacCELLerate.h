@@ -27,6 +27,7 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkIntArray.h>
 #include <vtkDoubleArray.h>
+#include <vtkDataArray.h>
 #include <vtkCellData.h>
 #include <vtkPointData.h>
 #include <vtkProperty.h>
@@ -186,7 +187,7 @@ private:
     std::vector<CBElementSolid *> elements_;
     vtkSmartPointer<vtkUnstructuredGrid> acMesh_;
     vtkSmartPointer<vtkDoubleArray> acMeshMaterials_;
-    vtkSmartPointer<vtkDoubleArray> acMeshFiberValues_;
-    vtkSmartPointer<vtkDoubleArray> acMeshSheetValues_;
-    vtkSmartPointer<vtkDoubleArray> acMeshNormalValues_;
+    vtkSmartPointer<vtkDataArray> acMeshFiberValues_;
+    vtkSmartPointer<vtkDataArray> acMeshSheetValues_;
+    vtkSmartPointer<vtkDataArray> acMeshNormalValues_;
 };

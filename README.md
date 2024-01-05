@@ -21,7 +21,7 @@ The following features are available:
 See [docs/BUILD.md](./docs/BUILD.md)
 
 ## Examples
-See [examples](./examples/README.md)
+See [examples](./examples)
 
 ## User manual
 See [User's Manual & Documentation](./docs/Manual.pdf)

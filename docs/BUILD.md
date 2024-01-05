@@ -20,10 +20,10 @@ We recommend using a package manager (we use [macports](https://www.macports.org
 * [Open MPI](https://www.open-mpi.org)
 * [Python3](https://www.python.org) (optional, if you want to use some of the provided tools)
 
-With [installRequirements.sh](https://github.com/KIT-IBT/CardioMechanics/blob/main/installRequirements.sh) we provide a script to compile [Open MPI](https://www.open-mpi.org), [PETSc](https://www.mcs.anl.gov/petsc/), and [VTK](https://vtk.org) from source with the most recently tested versions to ensure compatibility.
+With [installRequirements.sh](/installRequirements.sh) we provide a script to compile [Open MPI](https://www.open-mpi.org), [PETSc](https://www.mcs.anl.gov/petsc/), and [VTK](https://vtk.org) from source with the most recently tested versions to ensure compatibility.
 Building with CMake as described in the next step requires the location and version of the tools as set in the script.
 If you do want to use alternative locations/versions you have to link them as required.
-By default, the script [installRequirements.sh](https://github.com/KIT-IBT/CardioMechanics/blob/main/installRequirements.sh) compiles all components using a single process, which takes a considerable amount of time.
+By default, the script [installRequirements.sh](/installRequirements.sh) compiles all components using a single process, which takes a considerable amount of time.
 If you want to speed up this process, use the command `make` with the option `-j X` where `X` is the number of processes you want to use.
 Additionally, adjust `export AUTOMAKE_JOBS=X` specifically for [Open MPI](https://www.open-mpi.org).
 
@@ -40,11 +40,12 @@ and add the location of the executables to your PATH variable (replace macosx wi
 ```
 PATH="$PATH:$THIRDPARTY_HOME/macosx/openMPI-64bit/bin"
 PATH="$PATH:$kaRootDir/_build/bin/macosx"
+PATH="$PATH:$kaRootDir/tools/python"
 export PATH
 ```
 We assume here that you copied the repository to your `$HOME` directory.
 If you chose a different root directory, adjust the `kaRootDir` variable accordingly.
-If you used a different PETSc version in [installRequirements.sh](https://github.com/KIT-IBT/CardioMechanics/blob/main/installRequirements.sh), adjust the `PETSC_ARCH` variable.
+If you used a different PETSc version in [installRequirements.sh](/installRequirements.sh), adjust the `PETSC_ARCH` variable.
 Now run 
 ```
 cmake -S . -B _build

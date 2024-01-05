@@ -20,11 +20,11 @@ Naturally, you can run the problems on multiple processes as well by preceding t
 
 ## EM01
 
-This example realizes a simple electromechanical problem on a cuboid geometry with dimensions $20.0 \times 16.0 \times 12.0\,\text{mm}^3$.
+This example realizes a simple electromechanical problem on a cuboid geometry with dimensions $20.0 \times 16.0 \times 12.0$ mm.
 You can use this to familiarize yourself with the setup of all files required for electromechanical simulations.
 
 The electrophysiology setup directly follows the problem definition of the [N-version benchmark by Niederer et al. (2011)](https://royalsocietypublishing.org/doi/full/10.1098/rsta.2011.0139) with an external stimulus provided in an $1.5 \times 1.5 \times 1.5$ mm area from a corner of the cube.
-A sensor is placed at the location of P8 of the N-version benchmark to record $V_m$ and $[Ca^{2+}]_i$, meaning you can directly compare to the results of the pure EP benchmark if you wish to do so.
+A sensor is placed at the location of P8 of the N-version benchmark to record $V_m$ and intracellular calcium, meaning you can directly compare to the results of the pure EP benchmark if you wish to do so.
 For passive mechanics, the Holzapfel-Odgen material with $a = 330$ Pa, $a_{ff} = 18535$ Pa, $a_{ss} = 2564$ Pa, $a_{fs} = 417$ Pa, $b = 9.242$, $b_{ff} = 15.972$, $b_{ss} = 10.446$, $b_{fs} = 11.602$, and $\kappa = 10^6$ Pa.
 Active stress is calculated by the Land17 model and zero normal displacement boundary conditions are placed at the boundaries where the stimulus is applied.
 

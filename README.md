@@ -18,13 +18,13 @@ The following features are available:
 * XML-based simulation setup.
 
 ## Building from Source
-See [docs/BUILD.md](https://github.com/KIT-IBT/CardioMechanics/blob/main/docs/BUILD.md)
+See [docs/BUILD.md](./docs/BUILD.md)
 
 ## Examples
-See docs/EXAMPLES.md (coming soon)
+See [examples](./examples/README.md)
 
 ## User manual
-See [docs/Manual.pdf](https://github.com/KIT-IBT/CardioMechanics/blob/main/docs/Manual.pdf)
+See [User's Manual & Documentation](./docs/Manual.pdf)
 
 ## License
 This project is licensed under the GNU General Public License 3 - see the LICENSE.md file for details.

@@ -1,0 +1,19 @@
+Verbose
+Results AT
+CalcLength 1.0
+DTSave 1e-2
+BeginSave 0.0
+Domain Mono
+ThetaIntra 0.5
+DTCell 1e-5
+DTIntra 1e-5
+MembraneCapacitance .01
+SurfaceToVolume 140000
+Condition ../stimFiles/0_25mm.acnd
+CellModelFile ../cellmodelFiles/CellModelFile.cmf
+MatrixIntra ../geoFiles/cube_0.25mm.mat
+MassMatrixIntra ../geoFiles/cube_0.25mm.mass.mat
+Material ../geoFiles/cube_0.25mm.vec
+Resprefix ../Results/EP/r
+Protocol ../Results/EP/protocol.log
+Sensor ../sensorFiles/sensorfile.txt

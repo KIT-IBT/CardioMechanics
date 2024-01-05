@@ -1,0 +1,89 @@
+<settings>Mechanics Benchmark Problem 1</settings>
+
+<General>
+    <LogFile>./Problem1/Bar.log</LogFile>
+</General>
+
+<Mesh>
+    <Type>T10</Type>
+    <Format>Tetgen</Format>
+    <Sorting>PCA</Sorting>
+
+    <Tetgen>
+        <Unit>1e-3</Unit>
+        <Nodes>./tetgen/bar.node</Nodes>
+        <Elements>./tetgen/bar.ele</Elements>
+        <Surfaces>./tetgen/bar.sur</Surfaces>
+        <Bases>./tetgen/bar.bases</Bases>
+    </Tetgen>
+    
+    <Surfaces>
+        <Surface_130><Type>T6</Type></Surface_130>
+    </Surfaces>
+</Mesh>
+
+<Materials>
+    <Mat_30>
+        <Type>Guccione</Type>
+        <Density>1082</Density>
+        <Guccione>
+            <C>2000.0</C>
+            <bf>8.</bf>
+            <bt>2.</bt>
+            <bfs>4.</bfs>
+            <K>1e5</K>
+        </Guccione>
+        <TensionMax>0</TensionMax>
+    </Mat_30>
+</Materials>
+
+<Export>
+    <Format>VTK</Format>
+    <Prefix>./Problem1/Bar</Prefix>
+    <TimeStep>1e-2</TimeStep>
+</Export>
+
+<Solver>
+    <NonZeros>2000</NonZeros>
+    <DomainDecomposition>false</DomainDecomposition>
+    <Precision>1e-8</Precision>
+    <Verbose>true</Verbose>
+    <LU>true</LU>
+
+    <Type>Static</Type>
+
+    <Formulation>TotalLagrangian</Formulation>
+
+    <StartTime>0</StartTime>
+    <StopTime>0.1</StopTime>
+    <TimeStep>1e-3</TimeStep>
+
+    <Plugins>
+        <ApplyPressureFromFunction>true</ApplyPressureFromFunction>
+    </Plugins>
+
+</Solver>
+
+<Plugins>
+
+	<ApplyPressureFromFunction>
+		<ExportFile>./Problem1/Pressure.dat</ExportFile>
+		<Groups>
+			<RampUp>
+				<!-- constant pressure of 0.004 kPa -->
+                <Surfaces>130</Surfaces>
+                <Intervals>
+                    <Interval_1>
+                        <Type>Linear</Type>
+                        <Invert>false</Invert>
+                        <StartTime>0.0</StartTime>
+                        <StopTime>0.1</StopTime>
+                        <Offset>0</Offset>
+                        <Amplitude>4</Amplitude>
+                    </Interval_1>
+                </Intervals>
+            </RampUp>
+        </Groups>
+    </ApplyPressureFromFunction>
+
+</Plugins>

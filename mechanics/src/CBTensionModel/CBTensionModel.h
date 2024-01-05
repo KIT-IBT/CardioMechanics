@@ -44,6 +44,9 @@ public:
         
         return activeStress *
         Matrix3<TFloat> {1./sqrt(I4_f), 0, 0,  0, 1./sqrt(I4_s), 0,  0, 0, 1./sqrt(I4_n)} *stressCoefficients_;
+
+        // For benchmark problems/examples to be correct
+        // return activeStress * Matrix3<TFloat> {1, 0, 0, 0, 0, 0, 0, 0, 0};
     }
     
     virtual CBStatus SetActiveTensionAtQuadraturePoint(int indexQP, TFloat activeTension) {

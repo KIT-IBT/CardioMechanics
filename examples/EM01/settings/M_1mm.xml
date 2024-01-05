@@ -1,0 +1,112 @@
+<settings>Electromechanics Test 01</settings>
+
+<General>
+    <LogFile>../Results/Cube.log</LogFile>
+</General>
+
+<Mesh>
+    <Type>T4</Type>
+    <Format>Tetgen</Format>
+    <Sorting>PCA</Sorting>
+
+    <Tetgen>
+        <Unit>1e-3</Unit>
+        <Nodes>../tetgen/cube_1mm.node</Nodes>
+        <Elements>../tetgen/cube_1mm.ele</Elements>
+        <Bases>../tetgen/cube_1mm.bases</Bases>
+        <DetermineNeighbors>true</DetermineNeighbors>
+        <EnforceOrthonormalBases>true</EnforceOrthonormalBases>
+    </Tetgen>
+
+</Mesh>
+
+<Materials>
+    <Global>
+        <Damping>
+            <Rayleigh>
+                <Alpha>500.0</Alpha>
+                <Beta>0.01</Beta>
+            </Rayleigh>
+        </Damping>
+    </Global>
+
+    <Mat_Default>
+        <Density>1060</Density>
+        <Holzapfel>
+            <a>330.0</a> <!-- Pa -->
+            <af>18535.0</af>
+            <afs>417.0</afs>
+            <as>2564.0</as>
+            <b>9.242</b>
+            <bf>15.972</bf>
+            <bfs>11.602</bfs>
+            <bs>10.446</bs>
+            <k>0</k>
+            <kappa>1e6</kappa> <!-- Pa -->
+        </Holzapfel>
+    </Mat_Default>
+
+    <Mat_30> 
+        <Type>Holzapfel</Type>
+        <TensionMax>1e3</TensionMax>
+        <TensionModel>Land17</TensionModel>
+        <Land17>
+            <CalciumTransientType>Elphy</CalciumTransientType>
+            <rateDependancy>ON</rateDependancy>
+            <cycleLength>1.0</cycleLength>
+            <Tref>120</Tref>
+        </Land17>
+    </Mat_30>
+
+</Materials>
+
+<Export>
+    <Format>VTK</Format>
+    <Prefix>../Results/Cube</Prefix>
+    <TimeStep>1e-2</TimeStep>
+</Export>
+
+<Solver>
+    <NonZeros>2000</NonZeros>
+    <DomainDecomposition>false</DomainDecomposition>
+    <Precision>1e-8</Precision>
+    <Verbose>true</Verbose>
+    <LU>true</LU>
+
+    <Type>NewmarkBeta</Type>
+
+    <NewmarkBeta>
+        <!-- Dissipation of higher frequencies for Gamma >= 0.5 -->
+        <!-- Unconditional stability for 2*Beta >= Gamma >= 0.5 -->
+        <Beta>0.3</Beta>
+        <Gamma>0.6</Gamma>
+        <ConsistentMassMatrix>true</ConsistentMassMatrix>
+    </NewmarkBeta>
+
+    <Formulation>TotalLagrangian</Formulation>
+
+    <StartTime>0</StartTime>
+    <StopTime>1.0</StopTime>
+    <TimeStep>1e-3</TimeStep>
+
+    <Plugins>
+        <acCELLerate>true</acCELLerate>
+    </Plugins>
+
+</Solver>
+
+<Plugins>
+    <acCELLerate>
+        <ProjectFile>./ep_0.25mm.aclt</ProjectFile>
+        <acCELLerateMesh>../geoFiles/cube_0.25mm.vtu</acCELLerateMesh>
+        <MaterialFile>../materialFiles/materialIntra.def</MaterialFile>
+        <ResultPreFix>EP</ResultPreFix>
+        <ResultFolder>../Results/EP</ResultFolder>
+        <PvdFileName>EP</PvdFileName>
+        <constStretchRate>false</constStretchRate>
+        <MEF>FULL</MEF>
+        <Material>30</Material>
+        <TissuePriority>30,31</TissuePriority>
+        <Export>true</Export>
+    </acCELLerate>
+</Plugins>

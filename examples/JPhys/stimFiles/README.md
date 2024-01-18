@@ -6,8 +6,9 @@ The fascicular approach was used to stimulate the ventricles.
 This means that nodes within a certain radius of five root points on the endocardial layer of the ventricles were stimulated.
 These root points are given in terms of [Cobiveco](https://github.com/KIT-IBT/Cobiveco) coordinates in the following table.
 
-| ab | tm | rt | tv | radius (mm) | $\delta$ tm | LAT (s) | description |
-| --- | --- | --- | --- | --- | --- | --- |
+
+| ab | tm | rt | tv | radius (mm) | $\Delta$ tm | LAT (s) | description |
+| --- | --- | --- | --- | --- | --- | --- | --- |
 | 0.46 | 0.99 | 0.101 | 0 | 3 | 0.05 | 0.16  | lv posterior |
 | 0.90 | 0.99 | 0.528 | 0 | 3 | 0.05 | 0.16  | lv anterior |
 | 0.33 | 0.99 | 0.821 | 0 | 3 | 0.05 | 0.16  | lv septal |

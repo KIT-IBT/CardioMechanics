@@ -1,0 +1,20 @@
+Condition ../stimFiles/stimulation.acnd
+CellModelFile ../cellmodelFiles/IV/CellModel.cmf
+MatrixIntra ../geoFiles/heart.mat
+MassMatrixIntra ../geoFiles/heart.mass.mat
+Material ../geoFiles/heart.vec
+Sensor ../sensorFiles/sensorfile_IV.txt
+Verbose
+CalcLength 2.4
+DTSave 1e-3
+BeginSave 0.0
+ActivationThreshold -0.02
+Domain Mono
+ThetaIntra 0.5
+DTCell 1e-5
+DTIntra 1e-5
+MembraneCapacitance .01
+SurfaceToVolume 140000
+Results AT
+Resprefix ../Results/IV/EP/r
+Protocol ../Results/IV/EP/protocol.log

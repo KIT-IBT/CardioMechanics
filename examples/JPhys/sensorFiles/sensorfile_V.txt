@@ -1,0 +1,17 @@
+464953 ../Results/V/EP/464953_Vm.txt 0 0.00001 Vm
+464953 ../Results/V/EP/464953_Cai.txt 0 0.00001 Ca_i
+404009 ../Results/V/EP/404009_Vm.txt 0 0.00001 Vm
+404009 ../Results/V/EP/404009_Cai.txt 0 0.00001 Ca_i
+391370 ../Results/V/EP/391370_Vm.txt 0 0.00001 Vm
+391370 ../Results/V/EP/391370_Cai.txt 0 0.00001 Ca_i
+1039990 ../Results/V/EP/1039990_Vm.txt 0 0.00001 Vm
+1039990 ../Results/V/EP/1039990_Cai.txt 0 0.00001 Ca_i
+1329480 ../Results/V/EP/1329480_Vm.txt 0 0.00001 Vm
+1329480 ../Results/V/EP/1329480_Cai.txt 0 0.00001 Ca_i
+998844 ../Results/V/EP/998844_Vm.txt 0 0.00001 Vm
+998844 ../Results/V/EP/998844_Cai.txt 0 0.00001 Ca_i
+976692 ../Results/V/EP/976692_Vm.txt 0 0.00001 Vm
+976692 ../Results/V/EP/976692_Cai.txt 0 0.00001 Ca_i
+717892 ../Results/V/EP/717892_Vm.txt 0 0.00001 Vm
+717892 ../Results/V/EP/717892_Cai.txt 0 0.00001 Ca_i
+717892 ../Results/V/EP/717892_Ii.txt 0 0.00001 Ii

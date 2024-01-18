@@ -1,0 +1,109 @@
+[Bath 0 0]
+
+Kappa           0       1E-12
+StretchX 0 
+
+[Ventricle_myo 100 100]
+
+Kappa           0	0.28
+AnisotropyX     1.0
+AnisotropyY		0.65
+AnisotropyZ		0.35
+StretchX 1 
+StretchY 1 
+StretchZ 1
+
+[Atria_myo 200 200]
+
+Kappa           0	0.1823
+AnisotropyX     3.75
+StretchX 1 
+StretchY 1 
+StretchZ 1
+
+[Ventricle_endo 101 101]
+
+Kappa           0	0.84
+AnisotropyX     1.0
+AnisotropyY		0.65
+AnisotropyZ		0.35
+StretchX 1 
+StretchY 1 
+StretchZ 1
+
+[Ventrikel_endo 1 000]
+#101
+
+[Ventrikel_rechts 2 000]
+#100
+
+[Ventrikel_links 3 000]
+#100
+
+[right_atrium 32 000]
+#200
+
+[left_atrium 33 000]
+#200
+
+[Crista_terminalis 72 000]
+
+Kappa           0	0.1823
+AnisotropyX     6.56
+StretchX 1 
+StretchY 1 
+StretchZ 1
+
+[Sinus_node 73 000]
+#200
+
+[Pectinate_muscle 74 000]
+
+Kappa           0	0.1215
+AnisotropyX     10.52
+StretchX 1 
+StretchY 1 
+StretchZ 1
+
+[Bachmann_bundle 75 000]
+
+Kappa           0	0.2116
+AnisotropyX     9.0
+StretchX 1 
+StretchY 1 
+StretchZ 1
+
+[Middle_bridge 76 000]
+
+Kappa           0	0.2116
+AnisotropyX     9.0
+StretchX 1 
+StretchY 1 
+StretchZ 1
+
+[CS_bridge 77 000]
+
+Kappa           0	0.2116
+AnisotropyX     9.0
+StretchX 1 
+StretchY 1 
+StretchZ 1
+
+[Coronary_Sinus_Birdge_Left 78 0]
+
+Kappa           0	0.2116
+AnisotropyX     9.0
+StretchX 1 
+StretchY 1 
+StretchZ 1
+
+[Appendages 79 000]
+#200
+
+[Isthmus 80 000]
+
+Kappa           0	0.1571
+AnisotropyX     1.0
+StretchX 1 
+StretchY 1 
+StretchZ 1

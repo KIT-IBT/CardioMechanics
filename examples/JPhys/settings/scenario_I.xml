@@ -1,0 +1,395 @@
+<settings>M</settings>
+<General>
+    <LogFile>../Results/I/I.log</LogFile>
+</General>
+
+<Mesh>
+    <Type>T4</Type>
+    <Format>Tetgen</Format>
+    <Sorting>None</Sorting>
+    <Tetgen>
+        <Unit>1e-3</Unit>
+        <Nodes>../tetgen/heartT4.node</Nodes>
+        <Elements>../tetgen/heartT4.ele</Elements>
+        <Surfaces>../tetgen/heartT4.sur</Surfaces>
+        <Bases>../tetgen/heartT4.bases</Bases>
+        <DetermineNeighbors>true</DetermineNeighbors>
+        <EnforceOrthonormalBases>true</EnforceOrthonormalBases>
+    </Tetgen>
+    
+    <Surfaces>
+        <!-- LV --> <Surface_131> <Type>CAVITY</Type> </Surface_131>
+        <!-- RV --> <Surface_130> <Type>CAVITY</Type> </Surface_130>
+        <!-- LA --> <Surface_133> <Type>CAVITY</Type> </Surface_133>
+        <!-- RA --> <Surface_132> <Type>CAVITY</Type> </Surface_132>
+        <!-- ART--> <Surface_159> <Type>CONTACT_ROBIN</Type> </Surface_159>
+        <!-- MASTER --><Surface_160> <Type>CONTACT_MASTER</Type> </Surface_160>
+        <!-- SLAVE --><Surface_161> <Type>CONTACT_SLAVE</Type> </Surface_161>
+    </Surfaces>
+
+</Mesh>
+
+<Materials>
+    <Global>
+        <Damping>
+            <Rayleigh>
+                <Alpha>500</Alpha>
+                <Beta>0.005</Beta>
+            </Rayleigh>
+        </Damping>
+    </Global>
+
+    <Mat_Default>
+        <IgnoreCorruptElements>false</IgnoreCorruptElements>
+        <Density>1082</Density>
+        <Usyk>
+            <a>880</a> <!-- Pa -->
+            <bff>8</bff>
+            <bss>6</bss>
+            <bnn>3</bnn>
+            <bfs>12</bfs>
+            <bfn>3</bfn>
+            <bns>3</bns>
+            <k>650e3</k> <!-- Pa -->
+        </Usyk>
+    </Mat_Default>
+
+    <!-- Right Ventrikel -->
+    <Mat_30> 
+        <Type>Usyk</Type>
+        <Usyk>
+            <aScale>0.07</aScale>
+            <bScale>3.55</bScale>
+        </Usyk>
+
+        <TensionMax>1e3</TensionMax>
+        <TensionModel>Land17</TensionModel>
+        <Land17>
+            <CalciumTransientType>Elphy</CalciumTransientType>
+            <rateDependancy>ON</rateDependancy>
+            <cycleLength>0.8</cycleLength>
+            <beta0>0.7</beta0>
+            <beta1>-1.2</beta1>
+            <Ca50>0.805</Ca50>
+            <Tref>440</Tref>
+        </Land17>
+    </Mat_30>
+    <!-- Left Ventrikel -->
+    <Mat_31> 
+        <Type>Usyk</Type>
+        <Usyk>
+            <aScale>0.042</aScale>
+            <bScale>3.55</bScale>
+        </Usyk>
+
+        <TensionMax>1e3</TensionMax>
+        <TensionModel>Land17</TensionModel>
+        <Land17>
+            <CalciumTransientType>Elphy</CalciumTransientType>
+            <rateDependancy>ON</rateDependancy>
+            <cycleLength>0.8</cycleLength>
+            <beta0>0.7</beta0>
+            <beta1>-1.2</beta1>
+            <Ca50>0.805</Ca50>
+            <Tref>400</Tref>
+        </Land17>
+    </Mat_31>
+    <!-- Right Atrium -->
+    <Mat_32> 
+        <Type>Usyk</Type>
+        <Usyk>
+            <aScale>0.07</aScale>
+            <bScale>3.55</bScale>
+        </Usyk>
+
+        <TensionMax>1e3</TensionMax>
+        <TensionModel>Land17</TensionModel>
+        <Land17>
+            <CalciumTransientType>Elphy</CalciumTransientType>
+            <rateDependancy>ON</rateDependancy>
+            <cycleLength>0.8</cycleLength>
+            <beta0>0.7</beta0>
+            <beta1>-1.2</beta1>
+            <Ca50>0.86</Ca50>
+            <Tref>160</Tref>
+            <xi>2.0</xi>
+        </Land17>
+    </Mat_32>
+    <!-- Left Atrium -->
+    <Mat_33> 
+        <Type>Usyk</Type>
+        <Usyk>
+            <aScale>0.084</aScale>
+            <bScale>3.55</bScale>
+        </Usyk>
+
+        <TensionMax>1e3</TensionMax>
+        <TensionModel>Land17</TensionModel>
+        <Land17>
+            <CalciumTransientType>Elphy</CalciumTransientType>
+            <rateDependancy>ON</rateDependancy>
+            <cycleLength>0.8</cycleLength>
+            <beta0>0.7</beta0>
+            <beta1>-1.2</beta1>
+            <Ca50>0.86</Ca50>
+            <Tref>220</Tref>
+            <xi>2.0</xi>
+        </Land17>
+    </Mat_33>
+    <!-- PA Valve -->
+    <Mat_34> 
+        <Type>NeoHooke</Type>
+        <NeoHooke>
+            <a>1e6</a>
+            <k>650e3</k>
+        </NeoHooke>
+    </Mat_34>
+    <!-- Aortic Valve -->
+    <Mat_35> 
+        <Type>NeoHooke</Type>
+        <NeoHooke>
+            <a>1e6</a>
+            <k>650e3</k>
+        </NeoHooke>
+    </Mat_35>
+    <!-- Tricuspid Valve -->
+    <Mat_36> 
+        <Type>NeoHooke</Type>
+        <NeoHooke>
+            <a>1e6</a>
+            <k>650e3</k>
+        </NeoHooke>
+    </Mat_36>
+    <!-- Mitral Valve -->
+    <Mat_37> 
+        <Type>NeoHooke</Type>
+        <NeoHooke>
+            <a>1e6</a>
+            <k>650e3</k>
+        </NeoHooke>
+    </Mat_37>
+    <!-- PV and CS closure  -->
+    <Mat_38> 
+        <Type>NeoHooke</Type>
+        <NeoHooke>
+            <a>7.45e3</a>
+            <k>650e3</k>
+        </NeoHooke>
+    </Mat_38>
+    <!-- Truncated Aortas and Veins  -->
+    <Mat_39> 
+        <Type>NeoHooke</Type>
+        <NeoHooke>
+            <a>15.18e3</a>
+            <k>650e3</k>
+        </NeoHooke>
+    </Mat_39>
+    <!-- Surrounding Tissue -->
+    <Mat_60> <!-- basal region -->
+        <Type>NeoHooke</Type>
+        <NeoHooke>
+            <a>1e4</a>
+            <k>1e3</k>
+        </NeoHooke>
+    </Mat_60>
+    <Mat_61> <!-- apical region -->
+        <Type>NeoHooke</Type>
+        <NeoHooke>
+            <a>1e4</a>
+            <k>650e3</k>
+        </NeoHooke>
+    </Mat_61>
+</Materials>
+
+<Export>
+    <Format>VTK</Format>
+    <Prefix>../Results/I/I</Prefix>
+    <TimeStep>1e-3</TimeStep>
+    <Options>
+        <PK2Stress>false</PK2Stress>
+        <GreenLagrangeStrain>false</GreenLagrangeStrain>
+        <Velocity>false</Velocity>
+        <Acceleration>false</Acceleration>
+    </Options>
+</Export>
+
+<Solver>
+    <NonZeros>2000</NonZeros>
+    <DomainDecomposition>false</DomainDecomposition>
+    <Precision>1e-6</Precision>
+    <Verbose>true</Verbose>
+    <LU>true</LU>
+    <Type>NewmarkBeta</Type>
+    <NewmarkBeta>
+        <!-- Dissipation of higher frequencies for Gamma >= 0.5 -->
+        <!-- Unconditional stability for 2*Beta >= Gamma >= 0.5 -->
+        <Beta>0.3</Beta>
+        <Gamma>0.6</Gamma>
+        <ConsistentMassMatrix>true</ConsistentMassMatrix>
+        <Type>superlu</Type>
+    </NewmarkBeta>
+    <Formulation>TotalLagrangian</Formulation>
+    <StartTime>0</StartTime>
+    <StopTime>2.4</StopTime>
+    <TimeStep>1e-3</TimeStep>
+
+    <Plugins>
+        <Circulation>true</Circulation>
+        <ContactHandling>true</ContactHandling>
+        <LoadUnloadedState>true</LoadUnloadedState>
+        <acCELLerate>true</acCELLerate>
+    </Plugins>
+</Solver>
+
+<Plugins>
+
+    <LoadUnloadedState>
+        <unloadedNodes>../tetgen/UnloadedState_Final.node</unloadedNodes>
+        <inflatedNodes>../tetgen/InflatedState.node</inflatedNodes>
+    </LoadUnloadedState>
+
+    <ContactHandling>
+        <Export>false</Export>
+        <ExportPath>../Results/I/I_data/Contact.dat</ExportPath>
+        <MaxDistance>8e-3</MaxDistance>
+        <TransitionDistance>1e-4</TransitionDistance>
+        <MaxAngle>90</MaxAngle>
+        <Alpha>1e7</Alpha>
+        <Beta>1</Beta>
+        <InitType>Linear</InitType>
+        <Steps>5</Steps>
+        <FlipSlaveNormals>false</FlipSlaveNormals>
+        <SurfaceNormalDirection>unidirectional</SurfaceNormalDirection>
+    </ContactHandling>
+
+    <acCELLerate>
+        <ProjectFile>./I.aclt</ProjectFile>
+        <acCELLerateMesh>../geoFiles/EP.vtu</acCELLerateMesh>
+        <MaterialFile>../materialFiles/materialIntra.def</MaterialFile>
+        <ResultPreFix>EP</ResultPreFix>
+        <ResultFolder>../Results/I/EP</ResultFolder>
+        <PvdFileName>EP</PvdFileName>
+        <constStretchRate>false</constStretchRate>
+        <MEF>NONE</MEF>
+        <Material>30,31,32,33</Material>
+        <OffsetTime>0.0</OffsetTime>
+        <Export>true</Export>
+        <TissuePriority>1,2,3,72,73,74,75,76,77,78,79,80,32,33</TissuePriority>
+    </acCELLerate>
+
+    <Circulation>
+        <Tolerance>1e-7</Tolerance>
+        <MaxIterations>250</MaxIterations>
+        <Perturbation>false</Perturbation>
+        <SecantIterations>0</SecantIterations>
+        <IterationsFile>../Results/I/I_data/CirculationIterations.dat</IterationsFile>
+
+        <PreloadingTime1>0.0</PreloadingTime1>
+        <PreloadingTime2>0.0</PreloadingTime2>
+
+        <PressureUnit>mmHg</PressureUnit>
+        <VolumeUnit>ml</VolumeUnit>
+
+        <CouplingDamping>
+            <InitialFactor> 0.5 </InitialFactor>
+            <DeclineFactor> 0.9 </DeclineFactor>
+        </CouplingDamping>
+
+        <Circs>
+
+            <Circ_1>
+                <Active>true</Active>
+                <Type>CircWholeHeartValvesDynamic</Type>
+                <ExportFile>../Results/I/I_data/Circ_1.dat</ExportFile>
+                <MaxIntegrationTimeStep>1e-4</MaxIntegrationTimeStep>
+
+                <SteadyStateCheck>
+                    <Active>true</Active>
+                    <Mode>StrokeVolumeDifference</Mode>
+                    <StartTime>0.0</StartTime>
+                    <Period>0.8</Period>
+                    <Threshold>1.0</Threshold>
+                </SteadyStateCheck>
+
+                <CircParameters>
+                    <!-- CircWholeHeart -->
+                    <SysArtValveResist>   0.006</SysArtValveResist>
+                    <SysArtResist>        0.05 </SysArtResist>
+                    <SysArtCompli>        2.5  </SysArtCompli>
+                    <SysArtVolumeUnstr> 800.0  </SysArtVolumeUnstr>
+                    <SysPerResist>        0.60 </SysPerResist>
+                    <SysVenResist>        0.03 </SysVenResist>
+                    <SysVenCompli>      100.0  </SysVenCompli>
+                    <SysVenVolumeUnstr>2850.0  </SysVenVolumeUnstr>
+                    <RavValveResist>      0.003</RavValveResist>
+                    <PulArtValveResist>   0.003</PulArtValveResist>
+                    <PulArtResist>        0.02 </PulArtResist>
+                    <PulArtCompli>       10.0  </PulArtCompli>
+                    <PulArtVolumeUnstr> 150.0  </PulArtVolumeUnstr>
+                    <PulPerResist>        0.07 </PulPerResist>
+                    <PulVenResist>        0.03 </PulVenResist>
+                    <PulVenCompli>       15.0  </PulVenCompli>
+                    <PulVenVolumeUnstr> 200.0  </PulVenVolumeUnstr>
+                    <LavValveResist>      0.003</LavValveResist>
+
+                    <!-- CircWholeHeartValves -->
+                    <BloodDensity>7.95e-4</BloodDensity>
+                    <SysArtValveMax>         0.95 </SysArtValveMax>
+                    <SysArtValveMin>         0.001</SysArtValveMin>
+                    <SysArtValveAreaRef>     7.0  </SysArtValveAreaRef>
+                    <RavValveMax>            0.7  </RavValveMax>
+                    <RavValveMin>            0.001</RavValveMin>
+                    <RavValveAreaRef>       15.0  </RavValveAreaRef>
+                    <PulArtValveMax>         0.95 </PulArtValveMax>
+                    <PulArtValveMin>         0.001</PulArtValveMin>
+                    <PulArtValveAreaRef>     7.0  </PulArtValveAreaRef>
+                    <LavValveMax>            0.7  </LavValveMax>
+                    <LavValveMin>            0.001</LavValveMin>
+                    <LavValveAreaRef>       15.0  </LavValveAreaRef>
+
+                    <!-- CircWholeHeartValvesDynamic -->
+                    <SysArtValveRateOpening>10.0  </SysArtValveRateOpening>
+                    <SysArtValveRateClosing> 6.0  </SysArtValveRateClosing>
+                    <RavValveRateOpening>   20.0  </RavValveRateOpening>
+                    <RavValveRateClosing>    6.0  </RavValveRateClosing>
+                    <PulArtValveRateOpening>10.0  </PulArtValveRateOpening>
+                    <PulArtValveRateClosing> 6.0  </PulArtValveRateClosing>
+                    <LavValveRateOpening>   20.0  </LavValveRateOpening>
+                    <LavValveRateClosing>    6.0  </LavValveRateClosing>
+                </CircParameters>
+
+                <InitialConditions>
+                    <TotalVolume>    5500.0  </TotalVolume>
+                    <SysArtVolume>    985.0  </SysArtVolume>
+                    <PulArtVolume>    301.0  </PulArtVolume>
+                    <PulVenVolume>    310.0  </PulVenVolume>
+                    <SysArtFlow>        0.0  </SysArtFlow>
+                    <RavFlow>          50.0  </RavFlow>
+                    <PulArtFlow>        0.0  </PulArtFlow>
+                    <LavFlow>         100.0  </LavFlow>
+                    <SysArtValveState>  0.0  </SysArtValveState>
+                    <RavValveState>     0.1  </RavValveState>
+                    <PulArtValveState>  0.0  </PulArtValveState>
+                    <LavValveState>     0.1  </LavValveState>
+                    <RvPressure>        3.75 </RvPressure>
+                    <LvPressure>        7.50 </LvPressure>
+                    <RaPressure>        4.50 </RaPressure>
+                    <LaPressure>        8.25 </LaPressure>
+                </InitialConditions>
+
+                <Cavities>
+                    <RvSurface>130</RvSurface>
+                    <LvSurface>131</LvSurface>
+                    <RaSurface>132</RaSurface>
+                    <LaSurface>133</LaSurface>
+
+                    <RvPreloading>0.0</RvPreloading>
+                    <LvPreloading>0.0</LvPreloading>
+                    <RaPreloading>0.0</RaPreloading>
+                    <LaPreloading>0.0</LaPreloading>
+                </Cavities>
+            </Circ_1>
+        </Circs>
+    </Circulation>
+
+</Plugins>

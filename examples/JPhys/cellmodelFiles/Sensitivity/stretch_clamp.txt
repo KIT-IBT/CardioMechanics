@@ -1,0 +1,13 @@
+stretch 0.45 1.0
+stretch 0.05 1.08
+stretch 0.45 1.0 
+stretch 0.05 1.12
+stretch 0.45 1.0
+stretch 0.05 1.16
+stretch 0.45 1.0
+stretch 0.05 1.2
+stretch 0.45 1.0
+stretch 0.05 1.24
+stretch 0.45 1.0
+stretch 0.05 1.28
+stretch 0.5 1.0

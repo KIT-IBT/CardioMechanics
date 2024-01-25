@@ -189,8 +189,12 @@ class CellParameters {
         tmp.type = 1;
       } else if (!strcasecmp(buf, "Cai")) {
         tmp.type = 2;
-      } else if (!strcasecmp(buf, "Cai+"))
-      {tmp.type = 3; currentClampIndex = 1;} else {
+      } else if (!strcasecmp(buf, "Cai+")) {
+        tmp.type = 3; 
+        currentClampIndex = 1;
+      } else if (!strcasecmp(buf, "stretch")) {
+        tmp.type = 4;
+      } else {
         throw kaBaseException("Unknown clamp type %s", buf);
       }
 
@@ -394,6 +398,8 @@ class CellParameters {
       } else if (vClamp[currentClampIndex].type == 3) {
         Vm = vClamp[currentClampIndex-1].val;
         pem->SetCai(vClamp[currentClampIndex].val);
+      } else if (vClamp[currentClampIndex].type == 4) {
+        stretch = vClamp[currentClampIndex].val;
       }
     }
     CalcType i_external;

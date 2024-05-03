@@ -176,7 +176,7 @@ macro ( IBTProject )
     set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${IBT_LIB_PREFIX} )
 
     set ( CMAKE_PREFIX_PATH "${kaRootDir}" )
-    set ( CMAKE_LIBRARY_ARCHITECTURE ${KAPREFIX} )
+    #set ( CMAKE_LIBRARY_ARCHITECTURE ${KAPREFIX} )
     #foreach ( prefix ${CMAKE_PREFIX_PATH} )
     #    link_directories( ${prefix}/lib/${CMAKE_LIBRARY_ARCHITECTURE} )
     #    link_directories( ${prefix}/${CMAKE_LIBRARY_ARCHITECTURE}/lib )

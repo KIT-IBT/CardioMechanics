@@ -21,6 +21,6 @@ RUN mkdir -p ${THIRDPARTY_HOME}/src
 ENV prefixPath=${THIRDPARTY_HOME}/install
 
 COPY --from=vtkImage ${prefixPath}/vtk-${VTK_VERSION} ${prefixPath}/vtk-${VTK_VERSION}
-COPY --from=openmpiPetscImage ${prefixPath}/openMPI-64bit ${prefixPath}/${prefixPath}/openMPI-64bit
+COPY --from=openmpiPetscImage ${prefixPath}/openMPI-64bit ${prefixPath}/openMPI-64bit
 COPY --from=openmpiPetscImage ${prefixPath}/petsc-${PETSC_VERSION} ${prefixPath}/petsc-${PETSC_VERSION}
 

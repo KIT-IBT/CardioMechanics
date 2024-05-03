@@ -17,7 +17,7 @@ ENV THIRDPARTY_HOME=$kaRootDir/thirdparty
 RUN mkdir -p ${THIRDPARTY_HOME}/src
 ENV prefixPath=${THIRDPARTY_HOME}/install
 
-COPY --from=$VTK_IMAGE ${prefixPath}/vtk-${VTK_VERSION} ${prefixPath}/vtk-${VTK_VERSION}
-COPY --from=$OPENMPI_PETSC_IMAGE ${prefixPath}/openMPI-64bit ${prefixPath}/${prefixPath}/openMPI-64bit
-COPY --from=$OPENMPI_PETSC_IMAGE ${prefixPath}/petsc-${PETSC_VERSION} ${prefixPath}/petsc-${PETSC_VERSION}
+COPY --from=${VTK_IMAGE} ${prefixPath}/vtk-${VTK_VERSION} ${prefixPath}/vtk-${VTK_VERSION}
+COPY --from=${OPENMPI_PETSC_IMAGE} ${prefixPath}/openMPI-64bit ${prefixPath}/${prefixPath}/openMPI-64bit
+COPY --from=${OPENMPI_PETSC_IMAGE} ${prefixPath}/petsc-${PETSC_VERSION} ${prefixPath}/petsc-${PETSC_VERSION}
 

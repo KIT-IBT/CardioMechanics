@@ -24,9 +24,10 @@ COPY --from=vtkImage ${prefixPath}/vtk-${VTK_VERSION} ${prefixPath}/vtk-${VTK_VE
 COPY --from=openmpiPetscImage ${prefixPath}/openMPI-64bit ${prefixPath}/openMPI-64bit
 COPY --from=openmpiPetscImage ${prefixPath}/petsc-${PETSC_VERSION} ${prefixPath}/petsc-${PETSC_VERSION}
 
-ENV VTK_DIR=/CardioMechanics/thirdparty/install/vtk-v9.2.6
-ENV PETSC_DIR=/CardioMechanics/thirdparty/install/petsc-v3.19.1
-ENV PATH=$PATH:/CardioMechanics/thirdparty/install/openMPI-64bit/bin
+ENV VTK_DIR=${prefixPath}/vtk-${VTK_VERSION}
+ENV PETSC_DIR=${prefixPath}/petsc-${PETSC_VERSION}
+ENV PATH=$PATH:${prefixPath}/openMPI-64bit/bin
+ENV export LD_LIBRARY_PATH=${prefixPath}/openMPI-64bit/lib:${prefixPath}/vtk-${VTK_VERSION}/lib
 
 RUN apt install -y pkg-config mesa-common-dev libopenblas-dev zlib1g-dev freeglut3-dev
 RUN cmake -S. -B_build

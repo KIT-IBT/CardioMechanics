@@ -32,3 +32,6 @@ ENV LD_LIBRARY_PATH=${prefixPath}/openMPI-64bit/lib:${prefixPath}/vtk-${VTK_VERS
 RUN apt install -y pkg-config mesa-common-dev libopenblas-dev zlib1g-dev freeglut3-dev
 RUN cmake -S. -B_build
 RUN cmake --build _build --parallel 4
+
+WORKDIR /CardioMechanics/_build/bin/linux
+ENV PATH=$PATH:$PWD

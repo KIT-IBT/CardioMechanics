@@ -28,6 +28,6 @@ ENV VTK_DIR=/CardioMechanics/thirdparty/install/vtk-v9.2.6
 ENV PETSC_DIR=/CardioMechanics/thirdparty/install/petsc-v3.19.1
 ENV PATH=$PATH:/CardioMechanics/thirdparty/install/openMPI-64bit/bin
 
-RUN apt install -y pkg-config mesa-common-dev libopenblas-dev zlib1g-dev
+RUN apt install -y pkg-config mesa-common-dev libopenblas-dev zlib1g-dev freeglut3-dev
 RUN cmake -S. -B_build
 RUN cmake --build _build

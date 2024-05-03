@@ -27,8 +27,8 @@ COPY --from=openmpiPetscImage ${prefixPath}/petsc-${PETSC_VERSION} ${prefixPath}
 ENV VTK_DIR=${prefixPath}/vtk-${VTK_VERSION}
 ENV PETSC_DIR=${prefixPath}/petsc-${PETSC_VERSION}
 ENV PATH=$PATH:${prefixPath}/openMPI-64bit/bin
-ENV export LD_LIBRARY_PATH=${prefixPath}/openMPI-64bit/lib:${prefixPath}/vtk-${VTK_VERSION}/lib
+ENV LD_LIBRARY_PATH=${prefixPath}/openMPI-64bit/lib:${prefixPath}/vtk-${VTK_VERSION}/lib
 
 RUN apt install -y pkg-config mesa-common-dev libopenblas-dev zlib1g-dev freeglut3-dev
 RUN cmake -S. -B_build
-RUN cmake --build _build
+RUN cmake --build _build --parallel 4

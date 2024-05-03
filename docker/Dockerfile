@@ -34,4 +34,4 @@ RUN cmake -S. -B_build
 RUN cmake --build _build --parallel 4
 
 WORKDIR /CardioMechanics/_build/bin/linux
-ENV PATH=$PATH:$PWD
+ENV PATH=$PATH:/CardioMechanics/_build/bin/linux

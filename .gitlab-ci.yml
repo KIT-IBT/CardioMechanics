@@ -74,12 +74,11 @@ build-docker-image:
   before_script:
   - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin registry.hzdr.de
   script:
-  - docker pull $DOCKER_THIRDPARTY_VTK
-  - docker tag $DOCKER_THIRDPARTY_VTK cardiomechanics/thirdparty-vtk
-  - docker pull $DOCKER_THIRDPARTY_OPENMPI_PETSC
-  - docker tag $DOCKER_THIRDPARTY_OPENMPI_PETSC cardiomechanics/thirdparty-openmpi-petsc
   - docker pull $DOCKER_IMAGE || true
-  - docker build --pull --no-cache -t $DOCKER_IMAGE . -f docker/Dockerfile
+  - |
+    docker build --pull --no-cache -t $DOCKER_IMAGE -f docker/Dockerfile \
+      --build-arg VTK_IMAGE=$DOCKER_THIRDPARTY_VTK \
+      --build-arg OPENMPI_PETSC_IMAGE=$DOCKER_THIRDPARTY_OPENMPI_PETSC .
   - docker push $DOCKER_IMAGE
   after_script:
   - docker logout registry.hzdr.de

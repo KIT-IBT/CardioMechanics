@@ -1,3 +1,6 @@
+ARG VTK_IMAGE=cardiomechanics/thirdparty-vtk
+ARG OPENMPI_PETSC_IMAGE=cardiomechanics/thirdparty-openmpi-petsc
+
 FROM ubuntu:22.04
 
 WORKDIR /CardioMechanics
@@ -14,7 +17,7 @@ ENV THIRDPARTY_HOME=$kaRootDir/thirdparty
 RUN mkdir -p ${THIRDPARTY_HOME}/src
 ENV prefixPath=${THIRDPARTY_HOME}/install
 
-COPY --from=cardiomechanics/thirdparty-vtk ${prefixPath}/vtk-${VTK_VERSION} ${prefixPath}/vtk-${VTK_VERSION}
-COPY --from=cardiomechanics/thirdparty-openmpi-petsc ${prefixPath}/openMPI-64bit ${prefixPath}/${prefixPath}/openMPI-64bit
-COPY --from=cardiomechanics/thirdparty-openmpi-petsc ${prefixPath}/petsc-${PETSC_VERSION} ${prefixPath}/petsc-${PETSC_VERSION}
+COPY --from=$VTK_IMAGE ${prefixPath}/vtk-${VTK_VERSION} ${prefixPath}/vtk-${VTK_VERSION}
+COPY --from=$OPENMPI_PETSC_IMAGE ${prefixPath}/openMPI-64bit ${prefixPath}/${prefixPath}/openMPI-64bit
+COPY --from=$OPENMPI_PETSC_IMAGE ${prefixPath}/petsc-${PETSC_VERSION} ${prefixPath}/petsc-${PETSC_VERSION}
 

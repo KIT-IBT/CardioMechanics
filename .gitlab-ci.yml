@@ -1,0 +1,44 @@
+variables:
+  # When using dind service, you must instruct docker to talk with the
+  # daemon started inside of the service. The daemon is available with
+  # a network connection instead of the default /var/run/docker.sock socket.
+  #
+  # The 'docker' hostname is the alias of the service container as described at
+  # https://docs.gitlab.com/ee/ci/docker/using_docker_images.html#accessing-the-services
+  #
+  # If you're using GitLab Runner 12.7 or earlier with the Kubernetes executor and Kubernetes 1.6 or earlier,
+  # the variable must be set to tcp://localhost:2375 because of how the
+  # Kubernetes executor connects services to the job container
+  # DOCKER_HOST: tcp://localhost:2375
+  #
+  DOCKER_HOST: tcp://docker:2375
+  #
+  # This instructs Docker not to start over TLS.
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_IMAGE: "registry.hzdr.de/marie.houillon/cardiomechanics/cardiomechanics"
+
+stages:
+  - build
+  - test
+  - deploy
+
+
+build-docker-image:
+  stage: build
+  image: docker:20.10.17-dind
+  only:
+  - main
+  services:
+  - docker:dind
+  before_script:
+  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin registry.hzdr.de
+  script:
+  - docker build -t cardiomechanics/thirdparty-vtk -f docker/Dockerfile-thirdparty-vtk .
+  - docker build -t cardiomechanics/thirdparty-openmpi-petsc -f docker/Dockerfile-thirdparty-openmpi-petsc .
+  - docker pull $DOCKER_IMAGE || true
+  - docker build --pull --no-cache -t $DOCKER_IMAGE . -f docker/Dockerfile
+  - docker push $DOCKER_IMAGE
+  after_script:
+  - docker logout registry.hzdr.de
+  tags:
+  - docker,dind

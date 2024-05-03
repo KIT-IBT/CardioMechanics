@@ -16,12 +16,53 @@ variables:
   # This instructs Docker not to start over TLS.
   DOCKER_TLS_CERTDIR: ""
   DOCKER_IMAGE: "registry.hzdr.de/marie.houillon/cardiomechanics/cardiomechanics"
+  DOCKER_THIRDPARTY_VTK: "registry.hzdr.de/marie.houillon/cardiomechanics/thirdparty-vtk"
+  DOCKER_THIRDPARTY_OPENMPI_PETSC: "registry.hzdr.de/marie.houillon/cardiomechanics/thirdparty-openmpi-petsc"
 
 stages:
   - build
   - test
   - deploy
 
+build-docker-thirdparty-vtk:
+  stage: build
+  image: docker:20.10.17-dind
+  rules:
+  - if: $CI_COMMIT_BRANCH == 'main'
+    changes:
+      - docker/Dockerfile-thirdparty-vtk
+  services:
+  - docker:dind
+  before_script:
+  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin registry.hzdr.de
+  script:
+  - docker pull $DOCKER_THIRDPARTY_VTK || true
+  - docker build --pull --no-cache -t $DOCKER_THIRDPARTY_VTK -f docker/Dockerfile-thirdparty-vtk .
+  - docker push $DOCKER_THIRDPARTY_VTK
+  after_script:
+  - docker logout registry.hzdr.de
+  tags:
+  - docker,dind
+
+build-docker-thirdparty-openmpi-petsc:
+  stage: build
+  image: docker:20.10.17-dind
+  rules:
+  - if: $CI_COMMIT_BRANCH == 'main'
+    changes:
+      - docker/Dockerfile-thirdparty-openmpi-petsc
+  services:
+  - docker:dind
+  before_script:
+  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin registry.hzdr.de
+  script:
+  - docker pull $DOCKER_THIRDPARTY_OPENMPI_PETSC || true
+  - docker build --pull --no-cache -t $DOCKER_THIRDPARTY_OPENMPI_PETSC -f docker/Dockerfile-thirdparty-openmpi-petsc .
+  - docker push $DOCKER_THIRDPARTY_OPENMPI_PETSC
+  after_script:
+  - docker logout registry.hzdr.de
+  tags:
+  - docker,dind
 
 build-docker-image:
   stage: build
@@ -33,8 +74,10 @@ build-docker-image:
   before_script:
   - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin registry.hzdr.de
   script:
-  - docker build -t cardiomechanics/thirdparty-vtk -f docker/Dockerfile-thirdparty-vtk .
-  - docker build -t cardiomechanics/thirdparty-openmpi-petsc -f docker/Dockerfile-thirdparty-openmpi-petsc .
+  - docker pull $DOCKER_THIRDPARTY_VTK
+  - docker tag $DOCKER_THIRDPARTY_VTK cardiomechanics/thirdparty-vtk
+  - docker pull $DOCKER_THIRDPARTY_OPENMPI_PETSC
+  - docker tag $DOCKER_THIRDPARTY_OPENMPI_PETSC cardiomechanics/thirdparty-openmpi-petsc
   - docker pull $DOCKER_IMAGE || true
   - docker build --pull --no-cache -t $DOCKER_IMAGE . -f docker/Dockerfile
   - docker push $DOCKER_IMAGE

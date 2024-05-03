@@ -1,7 +1,7 @@
+FROM ubuntu:22.04
+
 ARG VTK_IMAGE=cardiomechanics/thirdparty-vtk
 ARG OPENMPI_PETSC_IMAGE=cardiomechanics/thirdparty-openmpi-petsc
-
-FROM ubuntu:22.04
 
 WORKDIR /CardioMechanics
 COPY . .

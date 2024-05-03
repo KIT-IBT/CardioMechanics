@@ -20,12 +20,11 @@ variables:
   DOCKER_THIRDPARTY_OPENMPI_PETSC: "registry.hzdr.de/marie.houillon/cardiomechanics/thirdparty-openmpi-petsc"
 
 stages:
+  - prepare
   - build
-  - test
-  - deploy
 
 build-docker-thirdparty-vtk:
-  stage: build
+  stage: prepare
   image: docker:20.10.17-dind
   rules:
   - if: $CI_COMMIT_BRANCH == 'main'
@@ -45,7 +44,7 @@ build-docker-thirdparty-vtk:
   - docker,dind
 
 build-docker-thirdparty-openmpi-petsc:
-  stage: build
+  stage: prepare
   image: docker:20.10.17-dind
   rules:
   - if: $CI_COMMIT_BRANCH == 'main'

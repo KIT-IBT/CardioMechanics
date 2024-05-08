@@ -1,3 +1,8 @@
+# This CI pipeline builds and pushes the following Docker images to the project's container registry:
+#   - thirdparty-vtk: contains VTK installation
+#   - thirdparty-openmpi-petsc: contains OpenMPI and PETSc installations
+#   - cardiomechanics: main image, contains the CardioMechanics source code and binaries.
+
 variables:
   # When using dind service, you must instruct docker to talk with the
   # daemon started inside of the service. The daemon is available with

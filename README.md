@@ -20,6 +20,9 @@ The following features are available:
 ## Building from Source
 See [docs/BUILD.md](./docs/BUILD.md)
 
+## Building Docker image
+See [docker/README.md](./docker/README.md)
+
 ## Examples
 See [examples](./examples)
 

@@ -16,7 +16,9 @@ variables:
   # This instructs Docker not to start over TLS.
   DOCKER_TLS_CERTDIR: ""
   DOCKER_REGISTRY: "registry.hzdr.de/marie.houillon/cardiomechanics"
+  # Main Docker image
   DOCKER_IMAGE: "${DOCKER_REGISTRY}/cardiomechanics"
+  # Docker images for dependencies, necessary for building the main Docker image.
   DOCKER_THIRDPARTY_VTK: "${DOCKER_REGISTRY}/thirdparty-vtk"
   DOCKER_THIRDPARTY_OPENMPI_PETSC: "${DOCKER_REGISTRY}/thirdparty-openmpi-petsc"
 
@@ -67,6 +69,8 @@ build-docker-thirdparty-openmpi-petsc:
   tags:
   - docker,dind
 
+# Build main Docker image, using Docker images of dependencies built on the main branch
+# The Docker image is then available at registry.hzdr.de/marie.houillon/cardiomechanics/cardiomechanics:<branch-name>
 build-docker-image:
   stage: build
   image: docker:20.10.17-dind
@@ -88,6 +92,7 @@ build-docker-image:
   tags:
   - docker,dind
 
+# Tags the Docker image built on main branch as "latest"
 tag-latest-docker-image:
   stage: release
   image: docker:20.10.17-dind

@@ -15,12 +15,11 @@ variables:
   #
   # This instructs Docker not to start over TLS.
   DOCKER_TLS_CERTDIR: ""
-  DOCKER_REGISTRY: "registry.hzdr.de/marie.houillon/cardiomechanics"
   # Main Docker image
-  DOCKER_IMAGE: "${DOCKER_REGISTRY}/cardiomechanics"
+  DOCKER_IMAGE: "${CI_REGISTRY_IMAGE}/cardiomechanics"
   # Docker images for dependencies, necessary for building the main Docker image.
-  DOCKER_THIRDPARTY_VTK: "${DOCKER_REGISTRY}/thirdparty-vtk"
-  DOCKER_THIRDPARTY_OPENMPI_PETSC: "${DOCKER_REGISTRY}/thirdparty-openmpi-petsc"
+  DOCKER_THIRDPARTY_VTK: "${CI_REGISTRY_IMAGE}/thirdparty-vtk"
+  DOCKER_THIRDPARTY_OPENMPI_PETSC: "${CI_REGISTRY_IMAGE}/thirdparty-openmpi-petsc"
 
 stages:
   - prepare
@@ -33,19 +32,19 @@ build-docker-thirdparty-vtk:
   stage: prepare
   image: docker:20.10.17-dind
   rules:
-  - if: $CI_COMMIT_BRANCH == 'main'
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     changes:
       - docker/Dockerfile-thirdparty-vtk
   services:
   - docker:dind
   before_script:
-  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin registry.hzdr.de
+  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin ${CI_REGISTRY}
   script:
   - docker pull $DOCKER_THIRDPARTY_VTK || true
   - docker build --pull --no-cache -t $DOCKER_THIRDPARTY_VTK -f docker/Dockerfile-thirdparty-vtk .
   - docker push $DOCKER_THIRDPARTY_VTK
   after_script:
-  - docker logout registry.hzdr.de
+  - docker logout ${CI_REGISTRY}
   tags:
   - docker,dind
 
@@ -53,24 +52,25 @@ build-docker-thirdparty-openmpi-petsc:
   stage: prepare
   image: docker:20.10.17-dind
   rules:
-  - if: $CI_COMMIT_BRANCH == 'main'
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     changes:
       - docker/Dockerfile-thirdparty-openmpi-petsc
   services:
   - docker:dind
   before_script:
-  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin registry.hzdr.de
+  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin ${CI_REGISTRY}
   script:
   - docker pull $DOCKER_THIRDPARTY_OPENMPI_PETSC || true
   - docker build --pull --no-cache -t $DOCKER_THIRDPARTY_OPENMPI_PETSC -f docker/Dockerfile-thirdparty-openmpi-petsc .
   - docker push $DOCKER_THIRDPARTY_OPENMPI_PETSC
   after_script:
-  - docker logout registry.hzdr.de
+  - docker logout ${CI_REGISTRY}
   tags:
   - docker,dind
 
 # Build main Docker image, using Docker images of dependencies built on the main branch
-# The Docker image is then available at registry.hzdr.de/marie.houillon/cardiomechanics/cardiomechanics:<branch-name>
+# The Docker image is then available at ${CI_REGISTRY_IMAGE}/cardiomechanics:${CI_COMMIT_BRANCH}
+# For example: registry.hzdr.de/marie.houillon/cardiomechanics/cardiomechanics:main
 build-docker-image:
   stage: build
   image: docker:20.10.17-dind
@@ -79,7 +79,7 @@ build-docker-image:
   services:
   - docker:dind
   before_script:
-  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin registry.hzdr.de
+  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin ${CI_REGISTRY}
   script:
   - docker pull $DOCKER_IMAGE:${CI_COMMIT_BRANCH} || true
   - |
@@ -88,7 +88,7 @@ build-docker-image:
       --build-arg OPENMPI_PETSC_IMAGE=$DOCKER_THIRDPARTY_OPENMPI_PETSC .
   - docker push $DOCKER_IMAGE:${CI_COMMIT_BRANCH}
   after_script:
-  - docker logout registry.hzdr.de
+  - docker logout ${CI_REGISTRY}
   tags:
   - docker,dind
 
@@ -97,16 +97,16 @@ tag-latest-docker-image:
   stage: release
   image: docker:20.10.17-dind
   rules:
-  - if: $CI_COMMIT_BRANCH == 'main'
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   services:
   - docker:dind
   before_script:
-  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin registry.hzdr.de
+  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin ${CI_REGISTRY}
   script:
   - docker pull $DOCKER_IMAGE:${CI_COMMIT_BRANCH}
   - docker tag $DOCKER_IMAGE:${CI_COMMIT_BRANCH} $DOCKER_IMAGE:latest
   - docker push $DOCKER_IMAGE:latest
   after_script:
-  - docker logout registry.hzdr.de
+  - docker logout ${CI_REGISTRY}
   tags:
   - docker,dind

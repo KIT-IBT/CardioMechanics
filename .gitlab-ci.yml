@@ -15,14 +15,18 @@ variables:
   #
   # This instructs Docker not to start over TLS.
   DOCKER_TLS_CERTDIR: ""
-  DOCKER_IMAGE: "registry.hzdr.de/marie.houillon/cardiomechanics/cardiomechanics"
-  DOCKER_THIRDPARTY_VTK: "registry.hzdr.de/marie.houillon/cardiomechanics/thirdparty-vtk"
-  DOCKER_THIRDPARTY_OPENMPI_PETSC: "registry.hzdr.de/marie.houillon/cardiomechanics/thirdparty-openmpi-petsc"
+  DOCKER_REGISTRY: "registry.hzdr.de/marie.houillon/cardiomechanics"
+  DOCKER_IMAGE: "${DOCKER_REGISTRY}/cardiomechanics"
+  DOCKER_THIRDPARTY_VTK: "${DOCKER_REGISTRY}/thirdparty-vtk"
+  DOCKER_THIRDPARTY_OPENMPI_PETSC: "${DOCKER_REGISTRY}/thirdparty-openmpi-petsc"
 
 stages:
   - prepare
   - build
+  - release
 
+# Thirdparty Docker images are only built on the main branch,
+# and these images are used from all other branches to build the main image.
 build-docker-thirdparty-vtk:
   stage: prepare
   image: docker:20.10.17-dind
@@ -67,18 +71,36 @@ build-docker-image:
   stage: build
   image: docker:20.10.17-dind
   only:
-  - main
+  - branches
   services:
   - docker:dind
   before_script:
   - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin registry.hzdr.de
   script:
-  - docker pull $DOCKER_IMAGE || true
+  - docker pull $DOCKER_IMAGE:${CI_COMMIT_BRANCH} || true
   - |
-    docker build --pull --no-cache -t $DOCKER_IMAGE -f docker/Dockerfile \
+    docker build --pull --no-cache -t $DOCKER_IMAGE:${CI_COMMIT_BRANCH} -f docker/Dockerfile \
       --build-arg VTK_IMAGE=$DOCKER_THIRDPARTY_VTK \
       --build-arg OPENMPI_PETSC_IMAGE=$DOCKER_THIRDPARTY_OPENMPI_PETSC .
-  - docker push $DOCKER_IMAGE
+  - docker push $DOCKER_IMAGE:${CI_COMMIT_BRANCH}
+  after_script:
+  - docker logout registry.hzdr.de
+  tags:
+  - docker,dind
+
+tag-latest-docker-image:
+  stage: release
+  image: docker:20.10.17-dind
+  rules:
+  - if: $CI_COMMIT_BRANCH == 'main'
+  services:
+  - docker:dind
+  before_script:
+  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin registry.hzdr.de
+  script:
+  - docker pull $DOCKER_IMAGE:${CI_COMMIT_BRANCH}
+  - docker tag $DOCKER_IMAGE:${CI_COMMIT_BRANCH} $DOCKER_IMAGE:latest
+  - docker push $DOCKER_IMAGE:latest
   after_script:
   - docker logout registry.hzdr.de
   tags:

@@ -28,18 +28,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
   
-      # - name: Extract metadata (tags, labels) for Docker
-      #   id: meta
-      #   uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
-      #   with:
-      #     images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       
-      # - name: Build and push VTK Docker image
-      #   id: push-vtk
-      #   uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
-      #   with:
-      #     file: ./docker/Dockerfile-thirdparty-vtk
-      #     tags: cardiomechanics/thirdparty-vtk
+      - name: Build and push VTK Docker image
+        id: push-vtk
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          file: ./docker/Dockerfile-thirdparty-vtk
+          tags: ${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-vtk
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-vtk:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-vtk:buildcache,mode=max
+          push: true
         
       - name: Build and push OpenMPI and PETSc Docker image
         id: push-petsc
@@ -50,5 +53,17 @@ jobs:
           cache-from: type=registry,ref=${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-openmpi-petsc:buildcache
           cache-to: type=registry,ref=${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-openmpi-petsc:buildcache,mode=max
           push: true
-          # tags: ${{ steps.meta.outputs.tags }}
-          # labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Build and push main Docker image
+        id: push-main
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          file: ./docker/Dockerfile
+          build-args: |
+            VTK_IMAGE=${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-vtk
+            OPENMPI_PETSC_IMAGE=${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-openmpi-petsc
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/mariehouillon/cardiomechanics:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/mariehouillon/cardiomechanics:buildcache,mode=max
+          push: true

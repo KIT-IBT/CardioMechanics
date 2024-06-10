@@ -25,11 +25,18 @@ jobs:
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      - name: Build and push Docker image
-        id: push
+      - name: Build and push VTK Docker image
+        id: push-vtk
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
-          context: .
+          file: ./docker/Dockerfile-thirdparty-vtk
+          tags: cardiomechanics/thirdparty-vtk
+      - name: Build and push Docker image
+        id: push-petsc
+        uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
+        with:
+          file: ./docker/Dockerfile-thirdparty-openmpi-petsc
+          tags: cardiomechanics/thirdparty-openmpi-petsc
           # push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          # tags: ${{ steps.meta.outputs.tags }}
+          # labels: ${{ steps.meta.outputs.labels }}

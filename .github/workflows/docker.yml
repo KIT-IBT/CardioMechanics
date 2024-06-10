@@ -1,6 +1,9 @@
-name: Create Docker Image
+name: Build and push Docker image
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 env:
   REGISTRY: ghcr.io
@@ -21,14 +24,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         
-      - name: Log in to the container registry
+      - name: Log in to the GitHub container registry
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
   
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Extract metadata (tags, labels) for main Docker image
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
@@ -39,9 +42,9 @@ jobs:
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           file: ./docker/Dockerfile-thirdparty-vtk
-          tags: ${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-vtk
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-vtk:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-vtk:buildcache,mode=max
+          tags: ${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-vtk
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-vtk:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-vtk:buildcache,mode=max
           push: true
         
       - name: Build and push OpenMPI and PETSc Docker image
@@ -49,9 +52,9 @@ jobs:
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           file: ./docker/Dockerfile-thirdparty-openmpi-petsc
-          tags: ${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-openmpi-petsc
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-openmpi-petsc:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-openmpi-petsc:buildcache,mode=max
+          tags: ${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-openmpi-petsc
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-openmpi-petsc:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-openmpi-petsc:buildcache,mode=max
           push: true
 
       - name: Build and push main Docker image
@@ -60,10 +63,10 @@ jobs:
         with:
           file: ./docker/Dockerfile
           build-args: |
-            VTK_IMAGE=${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-vtk
-            OPENMPI_PETSC_IMAGE=${{ env.REGISTRY }}/mariehouillon/cardiomechanics/thirdparty-openmpi-petsc
+            VTK_IMAGE=${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-vtk
+            OPENMPI_PETSC_IMAGE=${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-openmpi-petsc
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/mariehouillon/cardiomechanics:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/mariehouillon/cardiomechanics:buildcache,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/kit-ibt/cardiomechanics:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/kit-ibt/cardiomechanics:buildcache,mode=max
           push: true

@@ -46,9 +46,9 @@ jobs:
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           file: ./docker/Dockerfile-thirdparty-openmpi-petsc
-          tags: cardiomechanics/thirdparty-openmpi-petsc
-          cache-from: type=registry,ref=cardiomechanics/thirdparty-openmpi-petsc:buildcache
-          cache-to: type=registry,ref=cardiomechanics/thirdparty-openmpi-petsc:buildcache,mode=max
+          tags: ${{ env.REGISTRY }}/cardiomechanics/thirdparty-openmpi-petsc
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/cardiomechanics/thirdparty-openmpi-petsc:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/cardiomechanics/thirdparty-openmpi-petsc:buildcache,mode=max
           push: true
           # tags: ${{ steps.meta.outputs.tags }}
           # labels: ${{ steps.meta.outputs.labels }}

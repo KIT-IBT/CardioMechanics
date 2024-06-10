@@ -1,0 +1,117 @@
+# This CI pipeline builds and pushes the following Docker images to the project's container registry:
+#   - thirdparty-vtk: contains VTK installation
+#   - thirdparty-openmpi-petsc: contains OpenMPI and PETSc installations
+#   - cardiomechanics: main image, contains the CardioMechanics source code and binaries.
+
+variables:
+  # When using dind service, you must instruct docker to talk with the
+  # daemon started inside of the service. The daemon is available with
+  # a network connection instead of the default /var/run/docker.sock socket.
+  #
+  # The 'docker' hostname is the alias of the service container as described at
+  # https://docs.gitlab.com/ee/ci/docker/using_docker_images.html#accessing-the-services
+  #
+  # If you're using GitLab Runner 12.7 or earlier with the Kubernetes executor and Kubernetes 1.6 or earlier,
+  # the variable must be set to tcp://localhost:2375 because of how the
+  # Kubernetes executor connects services to the job container
+  # DOCKER_HOST: tcp://localhost:2375
+  #
+  DOCKER_HOST: tcp://docker:2375
+  #
+  # This instructs Docker not to start over TLS.
+  DOCKER_TLS_CERTDIR: ""
+  # Main Docker image
+  DOCKER_IMAGE: "${CI_REGISTRY_IMAGE}/cardiomechanics"
+  # Docker images for dependencies, necessary for building the main Docker image.
+  DOCKER_THIRDPARTY_VTK: "${CI_REGISTRY_IMAGE}/thirdparty-vtk"
+  DOCKER_THIRDPARTY_OPENMPI_PETSC: "${CI_REGISTRY_IMAGE}/thirdparty-openmpi-petsc"
+
+stages:
+  - prepare
+  - build
+  - release
+
+# Thirdparty Docker images are only built on the main branch,
+# and these images are used from all other branches to build the main image.
+build-docker-thirdparty-vtk:
+  stage: prepare
+  image: docker:20.10.17-dind
+  rules:
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    changes:
+      - docker/Dockerfile-thirdparty-vtk
+  services:
+  - docker:dind
+  before_script:
+  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin ${CI_REGISTRY}
+  script:
+  - docker pull $DOCKER_THIRDPARTY_VTK || true
+  - docker build --pull --no-cache -t $DOCKER_THIRDPARTY_VTK -f docker/Dockerfile-thirdparty-vtk .
+  - docker push $DOCKER_THIRDPARTY_VTK
+  after_script:
+  - docker logout ${CI_REGISTRY}
+  tags:
+  - docker,dind
+
+build-docker-thirdparty-openmpi-petsc:
+  stage: prepare
+  image: docker:20.10.17-dind
+  rules:
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    changes:
+      - docker/Dockerfile-thirdparty-openmpi-petsc
+  services:
+  - docker:dind
+  before_script:
+  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin ${CI_REGISTRY}
+  script:
+  - docker pull $DOCKER_THIRDPARTY_OPENMPI_PETSC || true
+  - docker build --pull --no-cache -t $DOCKER_THIRDPARTY_OPENMPI_PETSC -f docker/Dockerfile-thirdparty-openmpi-petsc .
+  - docker push $DOCKER_THIRDPARTY_OPENMPI_PETSC
+  after_script:
+  - docker logout ${CI_REGISTRY}
+  tags:
+  - docker,dind
+
+# Build main Docker image, using Docker images of dependencies built on the main branch
+# The Docker image is then available at ${CI_REGISTRY_IMAGE}/cardiomechanics:${CI_COMMIT_BRANCH}
+# For example: registry.hzdr.de/marie.houillon/cardiomechanics/cardiomechanics:main
+build-docker-image:
+  stage: build
+  image: docker:20.10.17-dind
+  only:
+  - branches
+  services:
+  - docker:dind
+  before_script:
+  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin ${CI_REGISTRY}
+  script:
+  - docker pull $DOCKER_IMAGE:${CI_COMMIT_BRANCH} || true
+  - |
+    docker build --pull --no-cache -t $DOCKER_IMAGE:${CI_COMMIT_BRANCH} -f docker/Dockerfile \
+      --build-arg VTK_IMAGE=$DOCKER_THIRDPARTY_VTK \
+      --build-arg OPENMPI_PETSC_IMAGE=$DOCKER_THIRDPARTY_OPENMPI_PETSC .
+  - docker push $DOCKER_IMAGE:${CI_COMMIT_BRANCH}
+  after_script:
+  - docker logout ${CI_REGISTRY}
+  tags:
+  - docker,dind
+
+# Tags the Docker image built on main branch as "latest"
+tag-latest-docker-image:
+  stage: release
+  image: docker:20.10.17-dind
+  rules:
+  - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  services:
+  - docker:dind
+  before_script:
+  - echo $CI_JOB_TOKEN | docker login -u gitlab-ci-token --password-stdin ${CI_REGISTRY}
+  script:
+  - docker pull $DOCKER_IMAGE:${CI_COMMIT_BRANCH}
+  - docker tag $DOCKER_IMAGE:${CI_COMMIT_BRANCH} $DOCKER_IMAGE:latest
+  - docker push $DOCKER_IMAGE:latest
+  after_script:
+  - docker logout ${CI_REGISTRY}
+  tags:
+  - docker,dind

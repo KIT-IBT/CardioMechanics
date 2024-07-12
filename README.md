@@ -21,7 +21,10 @@ The following features are available:
 See [docs/BUILD.md](./docs/BUILD.md)
 
 ## Building Docker image
-See [docker/README.md](./docker/README.md)
+
+A Docker image of CardioMechanics is available in the Package Registry of this repository. 
+
+See [docker/README.md](./docker/README.md) for compiling the Docker image yourself.
 
 ## Examples
 See [examples](./examples)

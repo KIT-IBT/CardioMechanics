@@ -12,7 +12,7 @@ COPY . .
 RUN apt update && apt install -y build-essential gfortran python3 git cmake autoconf libtool
 ENV MPI_VERSION=v4.1.5
 ENV VTK_VERSION=v9.2.6
-ENV PETSC_VERSION=v3.19.1
+ENV PETSC_VERSION=v3.20.5
 
 # env variables for CardioMechanics
 ENV kaRootDir=/CardioMechanics
@@ -30,6 +30,11 @@ ENV PATH=$PATH:${prefixPath}/openMPI-64bit/bin
 ENV LD_LIBRARY_PATH=${prefixPath}/openMPI-64bit/lib:${prefixPath}/vtk-${VTK_VERSION}/lib
 
 RUN apt install -y pkg-config mesa-common-dev libopenblas-dev zlib1g-dev freeglut3-dev
+
+RUN apt install -y clang
+ENV CC=clang
+ENV CXX=clang++
+
 RUN cmake -S. -B_build
 RUN cmake --build _build --parallel 4
 

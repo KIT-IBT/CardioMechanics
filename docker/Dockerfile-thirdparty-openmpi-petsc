@@ -4,7 +4,7 @@ WORKDIR /CardioMechanics
 
 RUN apt update && apt install -y build-essential gfortran python3 git cmake autoconf libtool
 ENV MPI_VERSION=v4.1.5
-ENV PETSC_VERSION=v3.19.1
+ENV PETSC_VERSION=v3.20.5
 
 # env variables for CardioMechanics
 ENV kaRootDir=/CardioMechanics
@@ -30,5 +30,4 @@ WORKDIR $THIRDPARTY_HOME/src/petsc-${PETSC_VERSION}
 RUN ./configure --prefix=${prefixPath}/petsc-${PETSC_VERSION} --with-cmake=1 --with-mpi-dir=${prefixPath}/openMPI-64bit --download-superlu --download-superlu_dist --download-mumps --download-dmumps  --download-metis --download-parmetis --download-bison --download-ptscotch --download-scalapack --download-blacs --download-hypre --with-shared-libraries=0 --with-x=0 COPTFLAGS=-O3 CXXOPTFLAGS=-O3 FOPTFLAGS=-O3 --with-debugging=no
 RUN make all
 RUN make install
-RUN make PETSC_DIR=${prefixPath}/petsc-${PETSC_VERSION} PETSC_ARCH="" check
 

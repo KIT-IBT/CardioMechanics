@@ -135,12 +135,6 @@ protected:
     // Cd
     TFloat Cd_ = 0.0;
     
-    // lambda
-    TFloat lambda_ = 1.0;
-    
-    // dlambdadt
-    TFloat dlambdadt_ = 0.0;
-    
     // Ta
     TFloat Ta_ = 0.0;
     

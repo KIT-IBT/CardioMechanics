@@ -319,8 +319,8 @@ CBTensionModelLand17::CBTensionModelLand17(CBElementSolid *e, ParameterMap *para
     S_.ZetaS      = ZetaS_;
     S_.ZetaW      = ZetaW_;
     S_.Cd         = Cd_;
-    S_.lambda     = lambda_;
-    S_.dlambdadt  = dlambdadt_;
+    S_.lambda     = sqrt(deformationTensor.GetCol(0)*deformationTensor.GetCol(0));
+    S_.dlambdadt  = 0.0;
     S_.Ta         = Ta_;
     S_.Tension    = Tension_;
     
@@ -483,8 +483,6 @@ void CBTensionModelLand17::InitParamsFromXml(ParameterMap *parameters, std::stri
     ZetaS_        = InitKey(parameters, parameterKey, parameterKeyFallback, ".ZetaS", 0.0);
     ZetaW_        = InitKey(parameters, parameterKey, parameterKeyFallback, ".ZetaW", 0.0);
     Cd_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".Cd", 0.0);
-    lambda_       = InitKey(parameters, parameterKey, parameterKeyFallback, ".lambda", sqrt(deformationTensor.GetCol(0)*deformationTensor.GetCol(0)));
-    dlambdadt_    = InitKey(parameters, parameterKey, parameterKeyFallback, ".dlambdadt", 0.0);
     Ta_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".Ta", 0.0);
     Tension_      = InitKey(parameters, parameterKey, parameterKeyFallback, ".Tension", 0.0);
     

@@ -114,7 +114,38 @@ protected:
     TFloat cw_, cs_, kwu_, ksu_, A_, XSSS_, XWSS_, ktm_block_;
     
     // Initial values of state variables
-    // t 
+    // XS
+    TFloat XS_ = 0.0;
+    
+    // XW
+    TFloat XW_ = 0.0;
+    
+    // TRPN
+    TFloat TRPN_ = 0.0;
+    
+    // TmBlocked
+    TFloat TmBlocked_ = 1.0;
+    
+    // ZetaS
+    TFloat ZetaS_ = 0.0;
+    
+    // ZetaW
+    TFloat ZetaW_ = 0.0;
+    
+    // Cd
+    TFloat Cd_ = 0.0;
+    
+    // lambda
+    TFloat lambda_ = 1.0;
+    
+    // dlambdadt
+    TFloat dlambdadt_ = 0.0;
+    
+    // Ta
+    TFloat Ta_ = 0.0;
+    
+    // Tension
+    TFloat Tension_ = 0.0;
     
     
     /// initialize all constant / parameter values from a given xml file, fallback  is used to evaluate "Mat_Default" cases

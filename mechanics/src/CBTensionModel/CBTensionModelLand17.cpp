@@ -310,19 +310,19 @@ CBTensionModelLand17::CBTensionModelLand17(CBElementSolid *e, ParameterMap *para
     InitParamsFromXml(params, key+".Land17", keyFallback+".Land17");
     
     // set initial values for the state variables
-    S_.t          = 0.0;
-    S_.delta_t    = 0.0;
-    S_.XS         = 0.0;
-    S_.XW         = 0.0;
-    S_.TRPN       = 0.0;
-    S_.TmBlocked  = 1.0;
-    S_.ZetaS      = 0.0;
-    S_.ZetaW      = 0.0;
-    S_.Cd         = 0.0;
-    S_.lambda     = sqrt(deformationTensor.GetCol(0)*deformationTensor.GetCol(0));
-    S_.dlambdadt  = 0.0;
-    S_.Ta         = 0.0;
-    S_.Tension    = 0.0;
+    S_.t          = t_;
+    S_.delta_t    = delta_t_;
+    S_.XS         = XS_;
+    S_.XW         = XW_;
+    S_.TRPN       = TRPN_;
+    S_.TmBlocked  = TmBlocked_;
+    S_.ZetaS      = ZetaS_;
+    S_.ZetaW      = ZetaW_;
+    S_.Cd         = Cd_;
+    S_.lambda     = lambda_;
+    S_.dlambdadt  = dlambdadt_;
+    S_.Ta         = Ta_;
+    S_.Tension    = Tension_;
     
     S_curr_ = S_;
     S_prev_ = S_;
@@ -474,6 +474,22 @@ void CBTensionModelLand17::InitParamsFromXml(ParameterMap *parameters, std::stri
     eta_l_        = InitKey(parameters, parameterKey, parameterKeyFallback, ".eta_l", 200.0);
     eta_s_        = InitKey(parameters, parameterKey, parameterKeyFallback, ".eta_s", 20.0);
     xi_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".xi", 1.0);
+    
+    // initial values for the state variables as parameters from xml file
+    t_            = InitKey(parameters, parameterKey, parameterKeyFallback, ".t", 0.0);
+    delta_t_      = InitKey(parameters, parameterKey, parameterKeyFallback, ".delta_t", 0.0);
+    XS_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".XS", 0.0);
+    XW_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".XW", 0.0);
+    TRPN_         = InitKey(parameters, parameterKey, parameterKeyFallback, ".TRPN", 0.0);
+    TmBlocked_    = InitKey(parameters, parameterKey, parameterKeyFallback, ".TmBlocked", 1.0);
+    ZetaS_        = InitKey(parameters, parameterKey, parameterKeyFallback, ".ZetaS", 0.0);
+    ZetaW_        = InitKey(parameters, parameterKey, parameterKeyFallback, ".ZetaW", 0.0);
+    Cd_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".Cd", 0.0);
+    lambda_       = InitKey(parameters, parameterKey, parameterKeyFallback, ".lambda", sqrt(deformationTensor.GetCol(0)*deformationTensor.GetCol(0)));
+    dlambdadt_    = InitKey(parameters, parameterKey, parameterKeyFallback, ".dlambdadt", 0.0);
+    Ta_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".Ta", 0.0);
+    Tension_      = InitKey(parameters, parameterKey, parameterKeyFallback, ".Tension", 0.0);
+    
     
     // init variables for exporting
     std::vector<TInt> elementIndicesVec = parameters->GetArray<TInt>(parameterKey+".ExportIndices", std::vector<TInt>());

@@ -113,6 +113,10 @@ protected:
     // constants that will be calculated once during initialize
     TFloat cw_, cs_, kwu_, ksu_, A_, XSSS_, XWSS_, ktm_block_;
     
+    // Initial values of state variables
+    // t 
+    
+    
     /// initialize all constant / parameter values from a given xml file, fallback  is used to evaluate "Mat_Default" cases
     void InitParamsFromXml(ParameterMap *params, std::string parameterKey, std::string parameterKeyFallback);
     

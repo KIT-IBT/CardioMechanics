@@ -310,8 +310,8 @@ CBTensionModelLand17::CBTensionModelLand17(CBElementSolid *e, ParameterMap *para
     InitParamsFromXml(params, key+".Land17", keyFallback+".Land17");
     
     // set initial values for the state variables
-    S_.t          = t_;
-    S_.delta_t    = delta_t_;
+    S_.t          = 0.0;
+    S_.delta_t    = 0.0;
     S_.XS         = XS_;
     S_.XW         = XW_;
     S_.TRPN       = TRPN_;
@@ -476,8 +476,6 @@ void CBTensionModelLand17::InitParamsFromXml(ParameterMap *parameters, std::stri
     xi_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".xi", 1.0);
     
     // initial values for the state variables as parameters from xml file
-    t_            = InitKey(parameters, parameterKey, parameterKeyFallback, ".t", 0.0);
-    delta_t_      = InitKey(parameters, parameterKey, parameterKeyFallback, ".delta_t", 0.0);
     XS_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".XS", 0.0);
     XW_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".XW", 0.0);
     TRPN_         = InitKey(parameters, parameterKey, parameterKeyFallback, ".TRPN", 0.0);

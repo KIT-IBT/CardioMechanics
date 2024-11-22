@@ -1,2 +1,0 @@
-/usr/bin/ar qc ../../../lib/macosx/libLattice.a CMakeFiles/Lattice.dir/kaMachineOS.cpp.o CMakeFiles/Lattice.dir/kaBasicIO.cpp.o
-/usr/bin/ranlib ../../../lib/macosx/libLattice.a

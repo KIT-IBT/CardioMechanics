@@ -32,6 +32,8 @@
 #include <FabbriEtAl.h>
 #include <Himeno.h>
 #include <OHaraRudy.h>
+#include <OHaraRudyIso.h>
+#include <Tomek.h>
 #include <MitchellSchaeffer.h>
 #include <FitzhughNagumo.h>
 
@@ -126,6 +128,12 @@ inline void initElphyParameters(vbElphyParameters<CalcType> **pep, const char *i
     case EMT_OHaraRudy:
       *pep = new OHaraRudyParameters(initEVFile, tinc); return;
 
+    case EMT_OHaraRudyIso:
+      *pep = new OHaraRudyIsoParameters(initEVFile, tinc); return;
+
+    case EMT_Tomek:
+      *pep = new TomekParameters(initEVFile, tinc); return;
+
     case EMT_MitchellSchaeffer:
       *pep = new MitchellSchaefferParameters(initEVFile); return;
 
@@ -200,6 +208,14 @@ inline void initElphyModel(vbElphyModel<CalcType> **pem, vbElphyParameters<CalcT
 
     case EMT_OHaraRudy:
       *pem = new OHaraRudy((OHaraRudyParameters *)pep);
+      break;
+
+    case EMT_OHaraRudyIso:
+      *pem = new OHaraRudyIso((OHaraRudyIsoParameters *)pep);
+      break;
+
+    case EMT_Tomek:
+      *pem = new Tomek((TomekParameters *)pep);
       break;
 
     case EMT_MitchellSchaeffer:

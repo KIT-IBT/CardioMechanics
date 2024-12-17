@@ -10,7 +10,7 @@ K_o 5.4
 INaF_Multiplier 1.0
 INaL_Multiplier 1.0
 Ito_Multiplier 4.0
-PCa_Multiplier 1.8
+PCa_Multiplier 2.5
 IKr_Multiplier 0.8
 IKs_Multiplier 1.0
 IK1_Multiplier 1.3

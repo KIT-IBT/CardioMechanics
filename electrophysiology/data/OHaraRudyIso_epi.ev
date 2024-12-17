@@ -1,6 +1,6 @@
 CELLMODEL*IBT*KA
 OHaraRudyIso
-98
+106
 amplitude -50.0
 duration 0.001
 celltype 0.0
@@ -35,6 +35,14 @@ beta1 -1.2
 Ca_T50 0.805
 k_TRPN 0.1
 n_TRPN 2
+ICaL_P_frac 0.0
+IKs_P_frac 0.0
+IKb_P_frac 0.0
+INaK_P_frac 0.0
+INa_P_frac 0.0
+RyR_P_frac 0.0
+SERCA_P_frac 0.0
+TnI_P_frac 0.0
 ISAC_SWITCH 0
 alpha 3
 G_sac 0.27

@@ -147,6 +147,17 @@ void OHaraRudyIsoParameters::Init(const char *initFile, ML_CalcType tinc) {
   P[VT_k_TRPN].name       = "k_TRPN";
   P[VT_n_TRPN].name       = "n_TRPN";
   #endif  // if TRPN
+    
+  /// parameters for isoprenaline implementation
+  P[VT_ICaL_P_frac].name    = "ICaL_P_frac";
+  P[VT_IKs_P_frac].name     = "IKs_P_frac";
+  P[VT_IKb_P_frac].name     = "IKb_P_frac";
+  P[VT_INaK_P_frac].name    = "INaK_P_frac";
+  P[VT_INa_P_frac].name     = "INa_P_frac";
+  P[VT_RyR_P_frac].name     = "RyR_P_frac";
+  P[VT_SERCA_P_frac].name   = "SERCA_P_frac";
+  P[VT_TnI_P_frac].name     = "TnI_P_frac";
+
 
   /// Parameters that are not read from .ev file
   P[VT_R].name              = "R";
@@ -203,14 +214,7 @@ void OHaraRudyIsoParameters::Init(const char *initFile, ML_CalcType tinc) {
   P[VT_alpha_rel_both].name = "alpha_rel_both";
   P[VT_tau_h_LCaMK].name    = "tau_h_LCaMK";
   P[VT_RToverF].name        = "RToverF";
-  P[VT_ICaL_P_frac].name    = "VT_ICaL_P_frac";
-  P[VT_IKs_P_frac].name     = "VT_IKs_P_frac";
-  P[VT_IKb_P_frac].name     = "VT_IKb_P_frac";
-  P[VT_INaK_P_frac].name    = "VT_INaK_P_frac";
-  P[VT_INa_P_frac].name     = "VT_INa_P_frac";
-  P[VT_RyR_P_frac].name     = "VT_RyR_P_frac";
-  P[VT_SERCA_P_frac].name   = "VT_SERCA_P_frac";
-  P[VT_TnI_P_frac].name     = "VT_TnI_P_frac";
+
 
   P[VT_R].readFromFile              = false;
   P[VT_T].readFromFile              = false;
@@ -266,14 +270,6 @@ void OHaraRudyIsoParameters::Init(const char *initFile, ML_CalcType tinc) {
   P[VT_alpha_rel_both].readFromFile = false;
   P[VT_tau_h_LCaMK].readFromFile    = false;
   P[VT_RToverF].readFromFile        = false;
-  P[VT_ICaL_P_frac].readFromFile    = false;
-  P[VT_IKs_P_frac].readFromFile     = false;
-  P[VT_IKb_P_frac].readFromFile     = false;
-  P[VT_INaK_P_frac].readFromFile    = false;
-  P[VT_INa_P_frac].readFromFile     = false;
-  P[VT_RyR_P_frac].readFromFile     = false;
-  P[VT_SERCA_P_frac].readFromFile   = false;
-  P[VT_TnI_P_frac].readFromFile     = false;
 
   ParameterLoader EPL(initFile, EMT_OHaraRudyIso);
   for (int x = 0; x < vtLast; x++)
@@ -363,14 +359,14 @@ void OHaraRudyIsoParameters::Calculate() {
   P[VT_RToverF].value = (P[VT_R].value * P[VT_T].value) / P[VT_F].value;
     
   // PKA fraction
-  P[VT_ICaL_P_frac].value  = 0.987823373540079;
-  P[VT_IKs_P_frac].value   = 0.812755770314738;
-  P[VT_IKb_P_frac].value   = 0.923065573125144;
-  P[VT_INaK_P_frac].value  = 0.994814030106065;
-  P[VT_INa_P_frac].value   = 0.971061526577469;
-  P[VT_RyR_P_frac].value   = 0.895997393179179;
-  P[VT_SERCA_P_frac].value = 0.984512494599474;
-  P[VT_TnI_P_frac].value   = 0.743932013739792;
+  //P[VT_ICaL_P_frac].value  = 0.987823373540079;
+  //P[VT_IKs_P_frac].value   = 0.812755770314738;
+  //P[VT_IKb_P_frac].value   = 0.923065573125144;
+  //P[VT_INaK_P_frac].value  = 0.994814030106065;
+  //P[VT_INa_P_frac].value   = 0.971061526577469;
+  //P[VT_RyR_P_frac].value   = 0.895997393179179;
+  //P[VT_SERCA_P_frac].value = 0.984512494599474;
+  //P[VT_TnI_P_frac].value   = 0.743932013739792;
 }  // OHaraRudyIsoParameters::Calculate
 
 void OHaraRudyIsoParameters::InitTable(ML_CalcType tinc) {

@@ -177,14 +177,6 @@ enum varType {
   VT_alpha_rel_both,
   VT_tau_h_LCaMK,
   VT_RToverF,
-  VT_ICaL_P_frac,
-  VT_IKs_P_frac,
-  VT_IKb_P_frac,
-  VT_INaK_P_frac,
-  VT_INa_P_frac,
-  VT_RyR_P_frac,
-  VT_SERCA_P_frac,
-  VT_TnI_P_frac,
 
   #ifdef ISAC
   VT_ISAC_SWITCH,
@@ -215,6 +207,14 @@ enum varType {
   VT_HF_Gomez_9,
   VT_HF_Gomez_0,
   #endif // ifdef HF
+  VT_ICaL_P_frac,
+  VT_IKs_P_frac,
+  VT_IKb_P_frac,
+  VT_INaK_P_frac,
+  VT_INa_P_frac,
+  VT_RyR_P_frac,
+  VT_SERCA_P_frac,
+  VT_TnI_P_frac,
   vtLast
 };
 }  // namespace NS_OHaraRudyIsoParameters

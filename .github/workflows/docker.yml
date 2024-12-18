@@ -42,9 +42,9 @@ jobs:
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           file: ./docker/Dockerfile-thirdparty-vtk
-          tags: ${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-vtk
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-vtk:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-vtk:buildcache,mode=max
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}/thirdparty-vtk
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}/thirdparty-vtk:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}/thirdparty-vtk:buildcache,mode=max
           push: true
         
       - name: Build and push OpenMPI and PETSc Docker image
@@ -52,9 +52,9 @@ jobs:
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           file: ./docker/Dockerfile-thirdparty-openmpi-petsc
-          tags: ${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-openmpi-petsc
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-openmpi-petsc:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-openmpi-petsc:buildcache,mode=max
+          tags: ${{ env.REGISTRY }}/${{ github.repository }}/thirdparty-openmpi-petsc
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}/thirdparty-openmpi-petsc:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}/thirdparty-openmpi-petsc:buildcache,mode=max
           push: true
 
       - name: Build and push main Docker image
@@ -63,10 +63,10 @@ jobs:
         with:
           file: ./docker/Dockerfile
           build-args: |
-            VTK_IMAGE=${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-vtk
-            OPENMPI_PETSC_IMAGE=${{ env.REGISTRY }}/kit-ibt/cardiomechanics/thirdparty-openmpi-petsc
+            VTK_IMAGE=${{ env.REGISTRY }}/${{ github.repository }}/thirdparty-vtk
+            OPENMPI_PETSC_IMAGE=${{ env.REGISTRY }}/${{ github.repository }}/thirdparty-openmpi-petsc
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/kit-ibt/cardiomechanics:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/kit-ibt/cardiomechanics:buildcache,mode=max
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ github.repository }}:buildcache,mode=max
           push: true

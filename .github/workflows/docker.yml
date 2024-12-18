@@ -40,9 +40,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           file: ./docker/Dockerfile-thirdparty-vtk
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-vtk
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-vtk:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-vtk:buildcache,mode=max
           push: true
         
       - name: Build and push OpenMPI and PETSc Docker image

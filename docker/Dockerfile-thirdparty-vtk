@@ -19,5 +19,5 @@ WORKDIR $THIRDPARTY_HOME/src/vtk-${VTK_VERSION}
 # we have to rename a variable to avoid a redeclaration under Linux
 RUN echo "Replacing HZ with H_Z in VTK..."
 RUN grep -rl HZ . | xargs sed -i 's/HZ/H_Z/g'
-# RUN mkdir build && cd build && cmake .. -D CMAKE_INSTALL_PREFIX=${prefixPath}/vtk-${VTK_VERSION} && make && make install
+RUN mkdir build && cd build && cmake .. -D CMAKE_INSTALL_PREFIX=${prefixPath}/vtk-${VTK_VERSION} && make && make install
 

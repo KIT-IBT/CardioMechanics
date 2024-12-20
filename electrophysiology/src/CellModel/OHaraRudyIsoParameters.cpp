@@ -357,16 +357,7 @@ void OHaraRudyIsoParameters::Calculate() {
   P[VT_tau_h_LCaMK].value = 3.0 * P[VT_tau_h_L].value;
 
   P[VT_RToverF].value = (P[VT_R].value * P[VT_T].value) / P[VT_F].value;
-    
-  // PKA fraction
-  //P[VT_ICaL_P_frac].value  = 0.987823373540079;
-  //P[VT_IKs_P_frac].value   = 0.812755770314738;
-  //P[VT_IKb_P_frac].value   = 0.923065573125144;
-  //P[VT_INaK_P_frac].value  = 0.994814030106065;
-  //P[VT_INa_P_frac].value   = 0.971061526577469;
-  //P[VT_RyR_P_frac].value   = 0.895997393179179;
-  //P[VT_SERCA_P_frac].value = 0.984512494599474;
-  //P[VT_TnI_P_frac].value   = 0.743932013739792;
+  
 }  // OHaraRudyIsoParameters::Calculate
 
 void OHaraRudyIsoParameters::InitTable(ML_CalcType tinc) {

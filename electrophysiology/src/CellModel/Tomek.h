@@ -1,20 +1,16 @@
-/* -------------------------------------------------------
+/*
+ * File: Tomek.h
+ *
+ * Institute of Biomedical Engineering, 
+ * Karlsruhe Institute of Technology (KIT)
+ * https://www.ibt.kit.edu
+ * 
+ * Repository: https://github.com/KIT-IBT/CardioMechanics
+ *
+ * License: GPL-3.0 (See accompanying file LICENSE or visit https://www.gnu.org/licenses/gpl-3.0.html)
+ *
+ */
 
-   Tomek.h
-
-   Ver. 1.0.0
-
-   Created:       Jan-Erik Duhme (12.2023)
-   Last modified: Jan-Erik Duhme (04.12.2023)
-
-   Institute of Biomedical Engineering
-   Karlsruhe Institute of Technology (KIT)
-
-   http://www.ibt.kit.edu
-
-   Copyright 2000-2009 - All rights reserved.
-
-   ------------------------------------------------------ */
 
 #ifndef TOMEK
 #define TOMEK

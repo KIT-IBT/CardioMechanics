@@ -78,7 +78,6 @@ Init_f_Ca_slow 0.998840
 Init_j_Ca 0.999717
 Init_f_CaMK_fast 1.000000
 Init_f_Ca_CaMK_fast 1.000000
-Init_n 0.001876
 Init_d_PKA 0.0
 Init_f_PKA_fast 0.0
 Init_f_PKA_slow 0.0
@@ -86,6 +85,7 @@ Init_f_Ca_PKA_fast 0.0
 Init_f_Ca_PKA_slow 0.0
 Init_f_both_fast 0.0
 Init_f_Ca_both_fast 0.0
+Init_n 0.001876
 Init_x_r_fast 0.000012
 Init_x_r_slow 0.551134
 Init_x_s1 0.322839

@@ -198,6 +198,7 @@ protected:
     void         ExportSheetNormal();
     void         ExportBasesAtAllQuadraturePoints();
     void         ExportDeformation();
+    void         ExportLocalDeformationEnergy();
     void         ExportJacobian();
     void         ExportLambda();
     void         ExportCauchy();

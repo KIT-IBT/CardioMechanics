@@ -576,6 +576,7 @@ void CBSolver::Export(TFloat timeStep) {
     ExportSheetNormal();
     ExportBasesAtAllQuadraturePoints();
     ExportDeformation();
+    ExportLocalDeformationEnergy();
     ExportLambda();
     ExportCauchy();
     ExportPK2Stress();
@@ -1013,6 +1014,33 @@ void CBSolver::ExportDeformation() {
         VecDestroy(&deformOff);
     }
 } // CBSolver::ExportDeformation
+
+/// export localDeformationEnergy
+void CBSolver::ExportLocalDeformationEnergy() {
+    if (model_->GetExporter()->GetExportOption("LocalDeformationEnergy", false)) {
+        Vec localDeformationEnergy;
+        PetscInt from, to;
+        if (DCCtrl::IsParallel())
+            VecCreateMPI(Petsc::Comm(), numLocalElements_, PETSC_DETERMINE, &localDeformationEnergy);
+        else
+            VecCreateSeq(PETSC_COMM_SELF, numElements_, &localDeformationEnergy);
+        
+        VecGetOwnershipRange(localDeformationEnergy, &from, &to);
+        VecZeroEntries(localDeformationEnergy);
+
+        for (auto &it : solidElements_) {
+            PetscScalar localEnergy = it->GetDeformationEnergy();
+            
+            int i = it->GetLocalIndex();
+            PetscInt index = from + i;
+            VecSetValue(localDeformationEnergy, index, localEnergy, INSERT_VALUES);
+        }
+        VecAssemblyBegin(localDeformationEnergy);
+        VecAssemblyEnd(localDeformationEnergy);
+        ExportElementsScalarData("LocalDeformationEnergy", localDeformationEnergy);
+        VecDestroy(&localDeformationEnergy);
+    }
+} // CBSolver::ExportLocalDeformationEnergy
 
 void CBSolver::ExportLambda() {
     if (model_->GetExporter()->GetExportOption("Lambda", true)) {

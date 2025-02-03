@@ -2,6 +2,21 @@
 Changes to the project are listed in this file and are listed chronologically, with the most recent entries at the top.
 
 ## Latest updates
+### 2025-01-29
+**Author:** @Jan-ErikDuhme 
+
+**New:**
+
+**Improved:**
+- It is now possible to export the local deformation energy.
+- Sequence of variables in the ev-Files of Tomek and OHaraIso now match the sequence of the output.
+
+**Fixed:**
+
+**Known issues:**
+
+## Previous Updates
+
 ### 2024-12-23
 **Author:** @Jan-ErikDuhme 
 
@@ -18,8 +33,6 @@ The fractions of PKA phosphorylation can be specified in the corresponding ev-Fi
 - Changed PCa Multiplier in OHaraRudy mid ev-File from 1.8 to original value 2.5.
 
 **Known issues:**
-
-## Previous Updates
 
 ### 2024-12-19
 **Author:** @MarieHouillon

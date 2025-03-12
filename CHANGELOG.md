@@ -2,6 +2,22 @@
 Changes to the project are listed in this file and are listed chronologically, with the most recent entries at the top.
 
 ## Latest updates
+
+### 2025-03-10
+**Author:** @Jan-ErikDuhme 
+
+**New:**
+
+**Improved:**
+
+**Fixed:**
+- Changed init_d to from e-132 to 0.0 in Tomek_endo.ev, Tomek_mid.ev and Tomek_epi.ev as simulation would stall otherwise.
+
+**Known issues:**
+
+
+## Previous Updates
+
 ### 2025-01-29
 **Author:** @Jan-ErikDuhme 
 
@@ -14,8 +30,6 @@ Changes to the project are listed in this file and are listed chronologically, w
 **Fixed:**
 
 **Known issues:**
-
-## Previous Updates
 
 ### 2024-12-23
 **Author:** @Jan-ErikDuhme 

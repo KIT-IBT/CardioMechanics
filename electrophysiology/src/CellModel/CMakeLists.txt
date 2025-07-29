@@ -1,6 +1,6 @@
 # Created on Feb 4 2014 by ew095
 
-cmake_minimum_required( VERSION 2.8 )
+cmake_minimum_required( VERSION 3.5 )
 
 if( DEFINED ENV{kaRootDir} )
     set( kaRootDir $ENV{kaRootDir} )

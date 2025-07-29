@@ -55,7 +55,7 @@
 
 
 
-cmake_minimum_required( VERSION 2.8.4 )
+cmake_minimum_required( VERSION 3.5 )
 
 # Set the preferred C and C++ compilers
 

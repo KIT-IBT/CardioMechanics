@@ -35,8 +35,23 @@ If you installed the requirements with homebrew add:
 ```
 export kaRootDir=$HOME/CardioMechanics
 export THIRDPARTY_HOME=$kaRootDir/thirdparty
-export PETSC_DIR=/opt/homebrew/opt/petsc
 ```
+
+Additionally, you need to build PETSc from source. This can be done using the following commands (which are a modified version of the way it is done in installRequirements.sh](/installRequirements.sh))
+
+```
+# compile PETSc
+cd {SOFTWARE_HOME}
+git clone --depth 1 --branch ${PETSC_VERSION} https://gitlab.com/petsc/petsc.git petsc-${PETSC_VERSION} 
+cd petsc-${PETSC_VERSION}
+unset PETSC_DIR
+unset PETSC_ARCH
+./configure --download-superlu --download-superlu_dist --download-mumps --download-dmumps --download-bison --download-ptscotch --download-scalapack --download-blacs --with-shared-libraries=0 --with-x=0  --prefix=$HOME/software/petsc --download-fblaslapack --download-metis --download-parmetis --download-hypre --with-debugging=0 COPTFLAGS='-O2' CXXOPTFLAGS='-O2' FOPTFLAGS='-O2'
+make PETSC_DIR={SOFTWARE_HOME}/petsc-${PETSC_VERSION} PETSC_ARCH=arch-darwin-c-opt all
+make PETSC_DIR={SOFTWARE_HOME}/petsc-${PETSC_VERSION} PETSC_ARCH=arch-darwin-c-opt install
+make PETSC_DIR=${prefixPath}/petsc-${PETSC_VERSION} PETSC_ARCH="" check
+```
+
 If you are using [installRequirements.sh](/installRequirements.sh) add:
 ```
 export kaRootDir=$HOME/CardioMechanics

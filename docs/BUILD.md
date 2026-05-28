@@ -19,9 +19,7 @@ We recommend using a package manager (e.g. [Homebrew](https://brew.sh) on macOS 
 * [Open MPI](https://www.open-mpi.org)
 * [Python3](https://www.python.org) (optional, for the tools in `tools/python/`)
 
-With [installRequirements.sh](/installRequirements.sh) we provide a script to compile [Open MPI](https://www.open-mpi.org), [PETSc](https://petsc.org/), and [VTK](https://vtk.org) from source with tested versions.
-By default the script uses a single process, which is slow.
-Speed it up by passing `-j X` to `make` and setting `export AUTOMAKE_JOBS=X` for Open MPI.
+The `docker/` directory contains Dockerfiles that build Open MPI, PETSc, and VTK from source with tested versions and can serve as a reference for building dependencies manually.
 
 ## Environment variables
 

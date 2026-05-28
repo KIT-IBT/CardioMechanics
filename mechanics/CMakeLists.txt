@@ -1,67 +1,6 @@
-cmake_minimum_required(VERSION 3.5)
-
-if( DEFINED ENV{kaRootDir} )
-    set( kaRootDir $ENV{kaRootDir} )
-else ( )
-    message( WARNING "Environment variable kaRootDir should be defined.")
-endif( DEFINED ENV{kaRootDir} )
-
-include( ${kaRootDir}/cmake/IBTDefault.cmake )
-set ( OLD_OPT_LOCAL_VALUE ${IBT_USE_OPT_LOCAL} )
-set ( IBT_USE_OPT_LOCAL OFF CACHE BOOL "abc" FORCE )
-
-project(CardioMechanics)
-IBTProject()
-
-add_definitions( -DUSE_MUMPS -Wno-c++11-narrowing -DACLT_NO_MAIN)
-
-
-find_package(VTK REQUIRED)
-if (${VTK_MAJOR_VERSION} GREATER 8)
-    include_directories(${VTK_PREFIX_PATH}/include/vtk-${VTK_MAJOR_VERSION}.${VTK_MINOR_VERSION})
-else ()
-    include(${VTK_USE_FILE})
-endif ()
-
-find_package(PETSC REQUIRED)
-kaAddLibdirs(${PETSC_LIBDIRS})
-
-find_package(MPI REQUIRED)
-
-include_directories(
-    ./src/CBCavity
-    ./src/CBConstitutiveModel
-    ./src/CBData
-    ./src/CBElement
-    ./src/CBTensionModel
-    ./src/CBFormulation
-    ./src/CBMaterial
-    ./src/CBModel
-    ./src/CBSolver
-    ./src/CBSolverPlugins
-    ./src/CBStatus
-    ./src/CardioMechanics
-    ./src/DCTK
-    ./src/Frizzle
-    ./src/MathPack
-    ./src/ParameterMap
-    ../electrophysiology/src/Lattice
-    ../electrophysiology/src/MathBasics
-    ../electrophysiology/src/CellModel
-    ../electrophysiology/src/acCELLerate
-    /opt/local/include/
-    ${MPI_INCLUDE_PATH}
-    ${PETSC_INCLUDES}
-)
-
-kaBuildLinkLibrariesString(PETSC_LIBRARIES_STRING "${PETSC_LIBRARIES}")
-kaBuildLinkLibrariesString(VTK_LIBRARIES_STRING "${VTK_LIBRARIES}")
-kaBuildLinkLibrariesString(MPI_LIBRARIES_STRING "${MPI_LIBRARIES}")
-
-
-SET( SRCS
+set(SRCS
     src/CardioMechanics/CardioMechanics.cpp
-    src/CBCavity/CBCircLeftHeart.cpp    
+    src/CBCavity/CBCircLeftHeart.cpp
     src/CBCavity/CBCircOneVentricle.cpp
     src/CBCavity/CBCircIsovolumetric.cpp
     src/CBCavity/CBCircTwoVentricles.cpp
@@ -135,35 +74,51 @@ SET( SRCS
     src/Frizzle/stringtools.cpp
     src/ParameterMap/ParameterMap.cpp
     ../electrophysiology/src/acCELLerate/acCELLerate.cpp
-    ../electrophysiology/src/acCELLerate/acltConditions.h
-    ../electrophysiology/src/acCELLerate/acltProjectFile.h
-    ../electrophysiology/src/acCELLerate/acltSensors.h
-    ../electrophysiology/src/acCELLerate/PETScConditions.h
     ../electrophysiology/src/acCELLerate/PETScLSE.cpp
-    ../electrophysiology/src/acCELLerate/timer.h
     ../electrophysiology/src/acCELLerate/acltCellModel.cpp
     ../electrophysiology/src/Lattice/kaMachineOS.cpp
     ../electrophysiology/src/Lattice/kaBasicIO.cpp
 )
 
-
-if (NOT ${CMAKE_GENERATOR} STREQUAL "Xcode")
-    kaMakeObject( Common ${SRCS} )
-else (NOT ${CMAKE_GENERATOR} STREQUAL "Xcode")
-    file(GLOB_RECURSE all_headers RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
-    kaMakeObject( Common ${SRCS} ${all_headers} )
-    message(STATUS " generate Xcode " )
-endif (NOT ${CMAKE_GENERATOR} STREQUAL "Xcode")
-
-kaBuildLinkLibrariesString( CommonLibs "${PETSC_LIBRARIES};${VTK_LIBRARIES};z" )
-
-kaBuildLinkLibrariesString( CELLMODEL_LIBS "CellModel" )
-
-kaMakeTool( CardioMechanics
-    ./src/CardioMechanics/main.cpp
-    ${Common}
-    ${CommonLibs}
-    ${CELLMODEL_LIBS}
+add_library(CardioMechanicsCore STATIC ${SRCS})
+target_include_directories(CardioMechanicsCore PUBLIC
+    src/CBCavity
+    src/CBConstitutiveModel
+    src/CBData
+    src/CBElement
+    src/CBTensionModel
+    src/CBFormulation
+    src/CBMaterial
+    src/CBModel
+    src/CBSolver
+    src/CBSolverPlugins
+    src/CBStatus
+    src/CardioMechanics
+    src/DCTK
+    src/Frizzle
+    src/MathPack
+    src/ParameterMap
+    ../electrophysiology/src/Lattice
+    ../electrophysiology/src/MathBasics
+    ../electrophysiology/src/CellModel
+    ../electrophysiology/src/acCELLerate
+)
+# USE_MUMPS: required by PETSc MUMPS solver integration (compiled into PETSc via --download-mumps).
+# ACLT_NO_MAIN: suppress acCELLerate's main() since its sources are compiled into this library.
+target_compile_definitions(CardioMechanicsCore PRIVATE USE_MUMPS ACLT_NO_MAIN)
+target_compile_options(CardioMechanicsCore PRIVATE -Wno-c++11-narrowing)
+target_link_libraries(CardioMechanicsCore PUBLIC
+    CellModel
+    Lattice
+    PkgConfig::PETSc
+    MPI::MPI_CXX
+    ${VTK_LIBRARIES}
+    z
+    cm_common_flags
 )
 
-set ( IBT_USE_OPT_LOCAL ${OLD_OPT_LOCAL_VALUE} CACHE BOOL "abc" FORCE )
+add_executable(CardioMechanics src/CardioMechanics/main.cpp)
+target_link_libraries(CardioMechanics PRIVATE CardioMechanicsCore)
+if(VTK_VERSION VERSION_GREATER_EQUAL "9.0")
+    vtk_module_autoinit(TARGETS CardioMechanics MODULES ${VTK_LIBRARIES})
+endif()

@@ -226,8 +226,8 @@ void acCELLerate::LoadProject(const char *projectFile) {
         args = args.substr(0, args.find_first_of('#'));
         
         // trim trailing whitespace
-        args.erase(std::find_if(args.rbegin(), args.rend(), std::not1(std::ptr_fun<int, int>(
-                                                                                             std::isspace))).base(), args.end());
+        args.erase(std::find_if(args.rbegin(), args.rend(),
+                               [](unsigned char c){ return !std::isspace(c); }).base(), args.end());
         
 #if KADEBUG
         if (!mpirank) {

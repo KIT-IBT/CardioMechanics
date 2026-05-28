@@ -14,9 +14,7 @@ ENV MPI_VERSION=v4.1.5
 ENV VTK_VERSION=v9.2.6
 ENV PETSC_VERSION=v3.20.5
 
-# env variables for CardioMechanics
-ENV kaRootDir=/CardioMechanics
-ENV THIRDPARTY_HOME=$kaRootDir/thirdparty
+ENV THIRDPARTY_HOME=/CardioMechanics/thirdparty
 RUN mkdir -p ${THIRDPARTY_HOME}/src
 ENV prefixPath=${THIRDPARTY_HOME}/install
 
@@ -38,5 +36,5 @@ ENV CXX=clang++
 RUN cmake -S. -B_build
 RUN cmake --build _build --parallel 4
 
-WORKDIR /CardioMechanics/_build/bin/linux
-ENV PATH=$PATH:/CardioMechanics/_build/bin/linux
+WORKDIR /CardioMechanics/_build/bin
+ENV PATH=$PATH:/CardioMechanics/_build/bin

@@ -1,33 +1,7 @@
-# Created on Feb 4 2014 by ew095
-
-cmake_minimum_required( VERSION 3.5 )
-
-if( DEFINED ENV{kaRootDir} )
-    set( kaRootDir $ENV{kaRootDir} )
-else ( )
-    message( WARNING "Environment variable kaRootDir should be defined.")
-endif( DEFINED ENV{kaRootDir} )
-
-include( ${kaRootDir}/cmake/IBTDefault.cmake )
-
-project( CellModel )
-IBTProject()
-
-add_definitions( -Wno-unused-private-field -Wno-unused-variable )
-add_definitions( -Wno-unneeded-internal-declaration -Wno-unused-function )
-
-# Tell compiler where to look for header files
-include_directories(. ../Lattice)
-
-kaMakeObject( ParameterHandling
-    Parameter.cpp ParameterSwitch.cpp
+add_library(CellModel STATIC
+    Parameter.cpp
+    ParameterSwitch.cpp
     ParameterLoader.cpp
-)
-
-# While it is possible to use GLOB *Parameters.cpp here, please don't.
-# If a code file changes, the icmake build system would have no way of knowing
-# that it should re-generate.
-kaMakeObject ( Parameters
     CourtemancheParameters.cpp
     TenTusscherEtAlParameters.cpp
     TenTusscher2Parameters.cpp
@@ -46,9 +20,6 @@ kaMakeObject ( Parameters
     TomekParameters.cpp
     MitchellSchaefferParameters.cpp
     FitzhughNagumoParameters.cpp
-)
-
-kaMakeObject( CellModels
     CourtemancheEtAl.cpp
     TenTusscher.cpp
     TenTusscher2.cpp
@@ -67,21 +38,34 @@ kaMakeObject( CellModels
     Tomek.cpp
     MitchellSchaeffer.cpp
     FitzhughNagumo.cpp
-    )
-
-kaMakeObject( kaVersion ../Lattice/kaVersion.cpp )
-kaMakeObject( kaParser ../Lattice/kaParser.cpp )
-kaMakeObject( nrutil nrutil.cpp )
-
-kaMakeLib( CellModel ${Parameters} ${CellModels} ${ParameterHandling})
-kaAddLibs(
-    ${CellModel}
-    Lattice
-    z
 )
-
-kaMakeTools(
-    ElphyModelTest.cpp,-DUSE_EMT,${kaVersion},../Lattice/kaMachineOS.cpp
-    CellModelTest.cpp,-DUSE_EMT,-DUSE_FMT,${kaVersion},../Lattice/kaMachineOS.cpp
-    ForceModelTest.cpp,-DUSE_FMT,${kaVersion},../Lattice/kaMachineOS.cpp
+target_include_directories(CellModel PUBLIC . ../Lattice)
+target_compile_options(CellModel PRIVATE
+    -Wno-unused-private-field -Wno-unused-variable
+    -Wno-unneeded-internal-declaration -Wno-unused-function
 )
+target_link_libraries(CellModel PUBLIC Lattice z cm_common_flags)
+
+add_executable(ElphyModelTest
+    ElphyModelTest.cpp
+    ../Lattice/kaVersion.cpp
+    ../Lattice/kaMachineOS.cpp
+)
+target_compile_definitions(ElphyModelTest PRIVATE USE_EMT)
+target_link_libraries(ElphyModelTest PRIVATE CellModel)
+
+add_executable(CellModelTest
+    CellModelTest.cpp
+    ../Lattice/kaVersion.cpp
+    ../Lattice/kaMachineOS.cpp
+)
+target_compile_definitions(CellModelTest PRIVATE USE_EMT USE_FMT)
+target_link_libraries(CellModelTest PRIVATE CellModel)
+
+add_executable(ForceModelTest
+    ForceModelTest.cpp
+    ../Lattice/kaVersion.cpp
+    ../Lattice/kaMachineOS.cpp
+)
+target_compile_definitions(ForceModelTest PRIVATE USE_FMT)
+target_link_libraries(ForceModelTest PRIVATE CellModel)

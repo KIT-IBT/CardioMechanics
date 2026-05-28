@@ -5,9 +5,7 @@ WORKDIR /CardioMechanics
 RUN apt update && apt install -y build-essential gfortran python3 git cmake autoconf libtool
 ENV VTK_VERSION=v9.2.6
 
-# env variables for CardioMechanics
-ENV kaRootDir=/CardioMechanics
-ENV THIRDPARTY_HOME=$kaRootDir/thirdparty
+ENV THIRDPARTY_HOME=/CardioMechanics/thirdparty
 RUN mkdir -p ${THIRDPARTY_HOME}/src
 ENV prefixPath=${THIRDPARTY_HOME}/install
 

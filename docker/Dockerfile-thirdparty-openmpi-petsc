@@ -6,9 +6,7 @@ RUN apt update && apt install -y build-essential gfortran python3 git cmake auto
 ENV MPI_VERSION=v4.1.5
 ENV PETSC_VERSION=v3.20.5
 
-# env variables for CardioMechanics
-ENV kaRootDir=/CardioMechanics
-ENV THIRDPARTY_HOME=$kaRootDir/thirdparty
+ENV THIRDPARTY_HOME=/CardioMechanics/thirdparty
 RUN mkdir -p ${THIRDPARTY_HOME}/src
 ENV prefixPath=${THIRDPARTY_HOME}/install
 

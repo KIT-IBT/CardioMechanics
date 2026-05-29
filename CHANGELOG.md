@@ -16,6 +16,7 @@
 - Restructured `CMakePresets.json`: `default` is now a hidden base preset; `release` and `debug` are the user-facing configure/build presets, each with its own build directory (`_build/release/`, `_build/debug/`); `CMAKE_EXPORT_COMPILE_COMMANDS` enabled by default.
 
 ### Fixed
+- Suppress spurious PETSc "options left" warning for CardioMechanics' own CLI flags (`-settings`, `-verbose`, etc.). PETSc 3.21+ reports unused options at finalize by default; since the app parses its flags directly from `argv` rather than through the PETSc options API, they were never marked used. The fix removes them from PETSc's options database after parsing via a new `DCCtrl::ClearOption` abstraction backed by `PetscOptionsClearValue`.
 - Renamed `typedef DCCtrlPETSc Petsc` to `typedef DCCtrlPETSc DCPetsc` in `mechanics/src/DCTK/DCCtrlPETSc.h` and updated all call sites. The name `Petsc` collided with PETSc's own `::Petsc` C++ namespace, which is exposed in private headers included by debug PETSc builds, causing compilation failures.
 
 ### Known Issues

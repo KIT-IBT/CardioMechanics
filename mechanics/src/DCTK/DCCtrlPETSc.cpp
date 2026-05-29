@@ -457,6 +457,11 @@ void DCCtrlPETSc::CreateSeqMatrix(PetscInt N, PetscInt M, PetscInt numNonZeros, 
     MatCreateSeqAIJ(PETSC_COMM_WORLD, N, M,numNonZeros, PETSC_NULL, v);
 }
 
+void DCCtrlPETSc::ClearOptionImpl(const std::string& name)
+{
+    PetscOptionsClearValue(PETSC_NULL, name.c_str());
+}
+
 std::string DCCtrlPETSc::SNESReasonToString(int i)
 {
     if (snesReasonStr_.count(i)==1)

@@ -73,6 +73,7 @@ private:
     void CopyFromZeroToAllImpl(std::vector<double>& a)override;
     
     void WeightedAverageImpl(double& localAverage, double& localWeight, double& globalAverage)override;
+    void ClearOptionImpl(const std::string& name) override;
     
     typedef DCCtrl  Base;
     

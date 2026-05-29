@@ -344,8 +344,8 @@ void CBacCELLerate::Export(TFloat time) {
         Vec potential;
         Vec calcium;
         
-        Petsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &potential);
-        Petsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &calcium);
+        DCPetsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &potential);
+        DCPetsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &calcium);
         
         PetscInt from1, to1;
         PetscInt from2, to2;
@@ -1112,7 +1112,7 @@ void CBacCELLerate::InitPetscVec() {
     PetscErrorCode ierr;
     
     if (DCCtrl::IsParallel())
-        VecCreateMPI(Petsc::Comm(), 9 * numLocalElements_, PETSC_DETERMINE, &deformation_);
+        VecCreateMPI(DCPetsc::Comm(), 9 * numLocalElements_, PETSC_DETERMINE, &deformation_);
     else
         VecCreateSeq(PETSC_COMM_SELF, 9 * nCells_, &deformation_);
     

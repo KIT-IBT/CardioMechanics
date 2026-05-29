@@ -179,7 +179,7 @@ void CardioMechanics::DomainDecomposition()
     solver_->GetDomainDecomposition(parameters_,model_,mapping);
     model_->ApplyDomainDecomposition(mapping);
     
-    MPI_Barrier(Petsc::Comm());
+    MPI_Barrier(DCPetsc::Comm());
 }
 
 

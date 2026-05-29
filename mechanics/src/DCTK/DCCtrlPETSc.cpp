@@ -408,7 +408,7 @@ void DCCtrlPETSc::WeightedAverageImpl(double& localAverage, double& localWeight,
         std::vector<double> t;
         t.push_back(localAverage);
         t.push_back(localWeight);
-        Petsc::GatherToZero(t);
+        DCPetsc::GatherToZero(t);
         globalAverage = 0;
         
         if(DCCtrl::IsProcessZero())

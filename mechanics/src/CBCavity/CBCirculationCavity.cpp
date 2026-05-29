@@ -87,7 +87,7 @@ TFloat CBCirculationCavity::CalcVolume(TFloat *referenceCoords) {
     for (auto &element : targetElementsVolume_)
         localVolume += element->CalcContributionToVolume(referenceCoords);
     
-    MPI_Allreduce(&localVolume, &volume, 1, MPI_DOUBLE, MPI_SUM, Petsc::Comm());
+    MPI_Allreduce(&localVolume, &volume, 1, MPI_DOUBLE, MPI_SUM, DCPetsc::Comm());
     
     volume_ = volume;
     return volume_;

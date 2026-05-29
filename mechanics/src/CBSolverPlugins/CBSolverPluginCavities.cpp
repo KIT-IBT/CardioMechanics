@@ -103,7 +103,7 @@ void CBSolverPluginCavities::SyncCavities()
             localCavities[i] = 0;
     }
     
-    MPI_Allreduce(localCavities, globalCavities, DCCtrl::GetNumberOfProcesses(), MPI_INT, MPI_SUM, Petsc::Comm());
+    MPI_Allreduce(localCavities, globalCavities, DCCtrl::GetNumberOfProcesses(), MPI_INT, MPI_SUM, DCPetsc::Comm());
     
     PetscInt numIndices = 0;
     for (PetscInt i = 0; i < DCCtrl::GetNumberOfProcesses(); i++)
@@ -125,7 +125,7 @@ void CBSolverPluginCavities::SyncCavities()
         pos++;
     }
     
-    MPI_Allreduce(localCavitiesIndices, globalCavitiesIndices, numIndices, MPI_INT, MPI_SUM, Petsc::Comm());
+    MPI_Allreduce(localCavitiesIndices, globalCavitiesIndices, numIndices, MPI_INT, MPI_SUM, DCPetsc::Comm());
     
     for (PetscInt i = 0; i < numIndices; i++)
     {

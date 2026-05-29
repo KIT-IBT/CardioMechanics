@@ -237,12 +237,12 @@ void CBSolverNewmarkBeta::InitDampingMatrix() {
         
         if (DCCtrl::IsParallel()) {
             MatCreateAIJ(
-                         Petsc::Comm(), 3 * numLocalNodes_, 3 * numLocalNodes_, PETSC_DETERMINE, PETSC_DETERMINE, 0,
+                         DCPetsc::Comm(), 3 * numLocalNodes_, 3 * numLocalNodes_, PETSC_DETERMINE, PETSC_DETERMINE, 0,
                          model_->GetNodeNeighborsForNnz().data() + localNodesFrom_*3, 0,
                          model_->GetNodeNeighborsForNnz().data() + localNodesFrom_*3, &dampingMatrix_);
             MatSetLocalToGlobalMapping(dampingMatrix_, Base::nodesIndicesMapping_, Base::nodesIndicesMapping_);
         } else {
-            MatCreateSeqAIJ(Petsc::Comm(), 3 * Base::numNodes_, 3 * Base::numNodes_, 0,
+            MatCreateSeqAIJ(DCPetsc::Comm(), 3 * Base::numNodes_, 3 * Base::numNodes_, 0,
                             model_->GetNodeNeighborsForNnz().data(), &dampingMatrix_);
             MatSetLocalToGlobalMapping(dampingMatrix_, Base::nodesIndicesMapping_, Base::nodesIndicesMapping_);
         }
@@ -410,7 +410,7 @@ CBStatus CBSolverNewmarkBeta::CalcNodalForces(Vec displacement, Vec forces) {
     else
         localSuccess = true;
     
-    MPI_Allreduce(&localSuccess, &globalSuccess, 1, MPI_INT, MPI_LAND, Petsc::Comm());
+    MPI_Allreduce(&localSuccess, &globalSuccess, 1, MPI_INT, MPI_LAND, DCPetsc::Comm());
     
     if (!globalSuccess)
         return CBStatus::FAILED;
@@ -550,7 +550,7 @@ CBStatus CBSolverNewmarkBeta::CalcNodalForcesJacobianAndDamping(Vec displacement
     else
         localSuccess = true;
     
-    MPI_Allreduce(&localSuccess, &globalSuccess, 1, MPI_INT, MPI_LAND, Petsc::Comm());
+    MPI_Allreduce(&localSuccess, &globalSuccess, 1, MPI_INT, MPI_LAND, DCPetsc::Comm());
     
     if (!globalSuccess)
         return CBStatus::FAILED;
@@ -646,7 +646,7 @@ CBStatus CBSolverNewmarkBeta::CalcNodalForcesJacobian(Vec displacement, Mat jaco
     else
         localSuccess = true;
     
-    MPI_Allreduce(&localSuccess, &globalSuccess, 1, MPI_INT, MPI_LAND, Petsc::Comm());
+    MPI_Allreduce(&localSuccess, &globalSuccess, 1, MPI_INT, MPI_LAND, DCPetsc::Comm());
     
     if (!globalSuccess)
         return CBStatus::FAILED;
@@ -704,12 +704,12 @@ CBStatus CBSolverNewmarkBeta::CalcDampingMatrix() {
 void CBSolverNewmarkBeta::InitMassMatrixLumped() {
     if (DCCtrl::IsParallel()) {
         MatCreateAIJ(
-                     Petsc::Comm(), 3 * Base::numLocalNodes_, 3 * Base::numLocalNodes_, PETSC_DETERMINE, PETSC_DETERMINE, 0,
+                     DCPetsc::Comm(), 3 * Base::numLocalNodes_, 3 * Base::numLocalNodes_, PETSC_DETERMINE, PETSC_DETERMINE, 0,
                      model_->GetNodeNeighborsForNnz().data() + localNodesFrom_*3, 0,
                      model_->GetNodeNeighborsForNnz().data() + localNodesFrom_*3, &massMatrix_);
         MatSetLocalToGlobalMapping(massMatrix_, Base::nodesIndicesMapping_, Base::nodesIndicesMapping_);
     } else {
-        MatCreateSeqAIJ(Petsc::Comm(), 3 * Base::numNodes_, 3 * Base::numNodes_, 0,
+        MatCreateSeqAIJ(DCPetsc::Comm(), 3 * Base::numNodes_, 3 * Base::numNodes_, 0,
                         model_->GetNodeNeighborsForNnz().data(), &massMatrix_);
         MatSetLocalToGlobalMapping(massMatrix_, Base::nodesIndicesMapping_, Base::nodesIndicesMapping_);
     }
@@ -748,12 +748,12 @@ void CBSolverNewmarkBeta::InitMassMatrixLumped() {
 void CBSolverNewmarkBeta::InitMassMatrixConsistent() {
     if (DCCtrl::IsParallel()) {
         MatCreateAIJ(
-                     Petsc::Comm(), 3 * Base::numLocalNodes_, 3 * Base::numLocalNodes_, PETSC_DETERMINE, PETSC_DETERMINE, 0,
+                     DCPetsc::Comm(), 3 * Base::numLocalNodes_, 3 * Base::numLocalNodes_, PETSC_DETERMINE, PETSC_DETERMINE, 0,
                      model_->GetNodeNeighborsForNnz().data() + localNodesFrom_*3, 0,
                      model_->GetNodeNeighborsForNnz().data() + localNodesFrom_*3, &massMatrix_);
         MatSetLocalToGlobalMapping(massMatrix_, Base::nodesIndicesMapping_, Base::nodesIndicesMapping_);
     } else {
-        MatCreateSeqAIJ(Petsc::Comm(), 3 * Base::numNodes_, 3 * Base::numNodes_, 0,
+        MatCreateSeqAIJ(DCPetsc::Comm(), 3 * Base::numNodes_, 3 * Base::numNodes_, 0,
                         model_->GetNodeNeighborsForNnz().data(), &massMatrix_);
         MatSetLocalToGlobalMapping(massMatrix_, Base::nodesIndicesMapping_, Base::nodesIndicesMapping_);
     }
@@ -895,9 +895,9 @@ CBStatus CBSolverNewmarkBeta::SolverStep(PetscScalar time, bool forceJacobianAnd
     KSPGetConvergedReason(ksp_, &kspReason);
     
     DCCtrl::debug << "\n--- --- Solver step finished --- ---\n";
-    DCCtrl::debug << "SNES Reason: "     << Petsc::SNESReasonToString(snesReason) << "\n";
+    DCCtrl::debug << "SNES Reason: "     << DCPetsc::SNESReasonToString(snesReason) << "\n";
     DCCtrl::debug << "SNES Iterations: " << snesIts_    << "\n";
-    DCCtrl::debug << "KSP  Reason: "     << Petsc::KSPReasonToString(kspReason)  << "\n";
+    DCCtrl::debug << "KSP  Reason: "     << DCPetsc::KSPReasonToString(kspReason)  << "\n";
     DCCtrl::debug << "KSP  Iterations: " << kspIts     << "\n\n";
     Base::convergedReason_ = snesReason;
     Base::snesIterations_ += snesIts_;

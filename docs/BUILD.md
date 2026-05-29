@@ -62,27 +62,60 @@ make all && make install
 Configure and build using presets (recommended):
 
 ```sh
-cmake --preset default   # RelWithDebInfo, build dir _build
-cmake --build --preset default -j
+cmake --preset release   # Release build, output in _build/release/
+cmake --build --preset release -j
+
+cmake --preset debug     # Debug build, output in _build/debug/
+cmake --build --preset debug -j
 ```
 
 Or without presets:
 
 ```sh
-cmake -S . -B _build
-cmake --build _build -j
+cmake -S . -B _build/release -DCMAKE_BUILD_TYPE=Release
+cmake --build _build/release -j
 ```
 
-Binaries are placed in `_build/bin/`.
+Binaries are placed in `_build/<preset>/bin/`.
 
 Add the binaries and Python tools to your PATH:
 
 ```sh
-export PATH="$PATH:/path/to/CardioMechanics/_build/bin"
+export PATH="$PATH:/path/to/CardioMechanics/_build/release/bin"
 export PATH="$PATH:/path/to/CardioMechanics/tools/python"
 ```
 
-Available build presets: `default` (RelWithDebInfo), `debug`, `release`.
+### Pinning PETSC_DIR per preset
+
+If you maintain multiple PETSc builds (e.g. optimized and debug), create a local
+`CMakeUserPresets.json` at the repo root to pin `PETSC_DIR` per preset without
+modifying the committed `CMakePresets.json`:
+
+```json
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "local-release",
+      "inherits": "release",
+      "binaryDir": "${sourceDir}/_build/release",
+      "environment": { "PETSC_DIR": "/path/to/petsc-opt", "PETSC_ARCH": "" }
+    },
+    {
+      "name": "local-debug",
+      "inherits": "debug",
+      "binaryDir": "${sourceDir}/_build/debug",
+      "environment": { "PETSC_DIR": "/path/to/petsc-deb", "PETSC_ARCH": "" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "local-release", "configurePreset": "local-release", "configuration": "Release" },
+    { "name": "local-debug",   "configurePreset": "local-debug",   "configuration": "Debug" }
+  ]
+}
+```
+
+Add `CMakeUserPresets.json` to `.gitignore` to keep machine-local paths out of version control.
 
 ## Troubleshooting
 

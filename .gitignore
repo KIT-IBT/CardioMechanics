@@ -10,6 +10,9 @@ CMakeFiles/
 cmake_install.cmake
 install_manifest.txt
 
+# CMake user presets (machine-local paths)
+CMakeUserPresets.json
+
 # editor / IDE
 .vscode/
 .idea/

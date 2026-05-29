@@ -29,9 +29,6 @@
 #include "CBSolverPluginFactory.h"
 #include "CBDataPerMaterial.h"
 #include "CBDataCtrl.h"
-#include "CBStatus.h"
-#include "CBSolver.h"
-#include "CBSolverPluginFactory.h"
 #include "CBTiming.h"
 #include "CBData.h"
 

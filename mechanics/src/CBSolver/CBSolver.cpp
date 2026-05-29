@@ -124,7 +124,7 @@ void CBSolver::InitActiveStress() {
         if (DCCtrl::GetNumberOfProcesses() == 1)
             VecCreateSeq(PETSC_COMM_SELF, model_->GetElements().size(), &activeStress_);
         else
-            VecCreateMPI(Petsc::Comm(), numLocalElements_, PETSC_DECIDE, &activeStress_);
+            VecCreateMPI(DCPetsc::Comm(), numLocalElements_, PETSC_DECIDE, &activeStress_);
         
         VecGetOwnershipRange(activeStress_, &activeStressLowerIndex_, &activeStressUpperIndex_);
         
@@ -147,7 +147,7 @@ void CBSolver::InitActiveStress() {
         if (DCCtrl::GetNumberOfProcesses() == 1)
             VecCreateSeq(PETSC_COMM_SELF, model_->GetElements().size(), &exportActiveStress_);
         else
-            VecCreateMPI(Petsc::Comm(), numLocalElements_, PETSC_DECIDE, &exportActiveStress_);
+            VecCreateMPI(DCPetsc::Comm(), numLocalElements_, PETSC_DECIDE, &exportActiveStress_);
         
         VecGetOwnershipRange(exportActiveStress_, &activeStressLowerIndex_, &activeStressUpperIndex_);
         
@@ -183,7 +183,7 @@ void CBSolver::InitTensionModels() {
         if (DCCtrl::GetNumberOfProcesses() == 1)
             VecCreateSeq(PETSC_COMM_SELF, model_->GetElements().size(), &activeStress_);
         else
-            VecCreateMPI(Petsc::Comm(), numLocalElements_, PETSC_DECIDE, &activeStress_);
+            VecCreateMPI(DCPetsc::Comm(), numLocalElements_, PETSC_DECIDE, &activeStress_);
         
         VecGetOwnershipRange(activeStress_, &activeStressLowerIndex_, &activeStressUpperIndex_);
         
@@ -228,7 +228,7 @@ void CBSolver::Init(ParameterMap *parameters, CBModel *model) {
     model_->SetMaxNnz(numNonZeros_);
     LoadMesh();
     
-    MPI_Barrier(Petsc::Comm());
+    MPI_Barrier(DCPetsc::Comm());
     
     InitFormulation();
     
@@ -267,7 +267,7 @@ void CBSolver::Init(ParameterMap *parameters, CBModel *model) {
         LoadActiveStress();
     }
     
-    MPI_Barrier(Petsc::Comm());
+    MPI_Barrier(DCPetsc::Comm());
 } // CBSolver::Init
 
 void CBSolver::LoadVelocityAndAcceleration() {
@@ -366,7 +366,7 @@ void CBSolver::GetDomainDecomposition(ParameterMap *parameters, CBModel *model, 
     
     MatPartitioning part;
     
-    MatPartitioningCreate(Petsc::Comm(), &part);
+    MatPartitioningCreate(DCPetsc::Comm(), &part);
     MatPartitioningSetAdjacency(part, adj);
     MatPartitioningSetFromOptions(part);
     MatPartitioningApply(part, &is);
@@ -439,7 +439,7 @@ void CBSolver::InitNodalForces() {
         throw std::runtime_error("CBSolver::InitNodes() has to be run before CBSolver::InitNodalForces()");
     
     if (DCCtrl::IsParallel())
-        VecCreateMPI(Petsc::Comm(), 3 * numLocalNodes_, PETSC_DECIDE, &nodalForces_);
+        VecCreateMPI(DCPetsc::Comm(), 3 * numLocalNodes_, PETSC_DECIDE, &nodalForces_);
     else
         VecCreateSeq(PETSC_COMM_SELF, 3 * numNodes_, &nodalForces_);
     
@@ -627,7 +627,7 @@ void CBSolver::ExportCauchy() {
         PetscInt from, to;
         
         if (DCCtrl::IsParallel())
-            VecCreateMPI(Petsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &cauchyDiag);
+            VecCreateMPI(DCPetsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &cauchyDiag);
         else
             VecCreateSeq(PETSC_COMM_SELF, 3*numElements_, &cauchyDiag);
         
@@ -669,7 +669,7 @@ void CBSolver::ExportJacobian() {
         Vec jacobian;
         PetscInt from, to;
         if (DCCtrl::IsParallel())
-            VecCreateMPI(Petsc::Comm(), numLocalElements_, PETSC_DETERMINE, &jacobian);
+            VecCreateMPI(DCPetsc::Comm(), numLocalElements_, PETSC_DETERMINE, &jacobian);
         else
             VecCreateSeq(PETSC_COMM_SELF, numElements_, &jacobian);
         
@@ -699,7 +699,7 @@ void CBSolver::ExportFiber() {
         PetscInt from, to;
         
         if (DCCtrl::IsParallel())
-            VecCreateMPI(Petsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &fiberRotated);
+            VecCreateMPI(DCPetsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &fiberRotated);
         else
             VecCreateSeq(PETSC_COMM_SELF, 3*numElements_, &fiberRotated);
         
@@ -732,7 +732,7 @@ void CBSolver::ExportSheet() {
         PetscInt from, to;
         
         if (DCCtrl::IsParallel())
-            VecCreateMPI(Petsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &sheetRotated);
+            VecCreateMPI(DCPetsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &sheetRotated);
         else
             VecCreateSeq(PETSC_COMM_SELF, 3*numElements_, &sheetRotated);
         
@@ -765,7 +765,7 @@ void CBSolver::ExportSheetNormal() {
         PetscInt from, to;
         
         if (DCCtrl::IsParallel())
-            VecCreateMPI(Petsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &sheetnormalRotated);
+            VecCreateMPI(DCPetsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &sheetnormalRotated);
         else
             VecCreateSeq(PETSC_COMM_SELF, 3*numElements_, &sheetnormalRotated);
         
@@ -806,7 +806,7 @@ void CBSolver::ExportBasesAtAllQuadraturePoints() {
             PetscInt from3, to3;
             
             if (DCCtrl::IsParallel())
-                VecCreateMPI(Petsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &fVec);
+                VecCreateMPI(DCPetsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &fVec);
             else
                 VecCreateSeq(PETSC_COMM_SELF, 3*numElements_, &fVec);
             VecDuplicate(fVec, &sVec);
@@ -869,7 +869,7 @@ void CBSolver::ExportPK2Stress() {
         PetscInt from, to;
         
         if (DCCtrl::IsParallel()) {
-            VecCreateMPI(Petsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &diagonalElements);
+            VecCreateMPI(DCPetsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &diagonalElements);
         } else {
             VecCreateSeq(PETSC_COMM_SELF, 3*numElements_, &diagonalElements);
         }
@@ -918,7 +918,7 @@ void CBSolver::ExportGreenLagrangeStrain() {
         PetscInt from, to;
         
         if (DCCtrl::IsParallel()) {
-            VecCreateMPI(Petsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &diagonalElements);
+            VecCreateMPI(DCPetsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &diagonalElements);
         } else {
             VecCreateSeq(PETSC_COMM_SELF, 3*numElements_, &diagonalElements);
         }
@@ -970,7 +970,7 @@ void CBSolver::ExportDeformation() {
         PetscInt from, to;
         
         if (DCCtrl::IsParallel()) {
-            VecCreateMPI(Petsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &deformDiag);
+            VecCreateMPI(DCPetsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &deformDiag);
         } else {
             VecCreateSeq(PETSC_COMM_SELF, 3*numElements_, &deformDiag);
         }
@@ -1021,7 +1021,7 @@ void CBSolver::ExportLocalDeformationEnergy() {
         Vec localDeformationEnergy;
         PetscInt from, to;
         if (DCCtrl::IsParallel())
-            VecCreateMPI(Petsc::Comm(), numLocalElements_, PETSC_DETERMINE, &localDeformationEnergy);
+            VecCreateMPI(DCPetsc::Comm(), numLocalElements_, PETSC_DETERMINE, &localDeformationEnergy);
         else
             VecCreateSeq(PETSC_COMM_SELF, numElements_, &localDeformationEnergy);
         
@@ -1049,7 +1049,7 @@ void CBSolver::ExportLambda() {
         PetscInt from, to;
         
         if (DCCtrl::IsParallel()) {
-            VecCreateMPI(Petsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &lambda);
+            VecCreateMPI(DCPetsc::Comm(), 3 * numLocalElements_, PETSC_DETERMINE, &lambda);
         } else {
             VecCreateSeq(PETSC_COMM_SELF, 3*numElements_, &lambda);
         }
@@ -1125,7 +1125,7 @@ void CBSolver::ExportLocalActivationTime() {
         // Create the Petsc vector to store the LAT values in (it is needed for the export-method)
         Vec localActivationTime;
         if (DCCtrl::IsParallel()) {
-            VecCreateMPI(Petsc::Comm(), numLocalElements_, PETSC_DETERMINE, &localActivationTime);
+            VecCreateMPI(DCPetsc::Comm(), numLocalElements_, PETSC_DETERMINE, &localActivationTime);
         } else {
             VecCreateSeq(PETSC_COMM_SELF, numElements_, &localActivationTime);
         }
@@ -1462,15 +1462,15 @@ void CBSolver::InitNodes(CBModel *fromModel, bool isRefNode) {
             ghostNodesCoordsIndices[3 * i + 1] = 3 * n + 1;
             ghostNodesCoordsIndices[3 * i + 2] = 3 * n + 2;
         }
-        VecCreateGhost(Petsc::Comm(), 3 * numLocalNodes_, PETSC_DECIDE, 3 * numGhostNodes_, ghostNodesCoordsIndices,
+        VecCreateGhost(DCPetsc::Comm(), 3 * numLocalNodes_, PETSC_DECIDE, 3 * numGhostNodes_, ghostNodesCoordsIndices,
                        &nodes_);
         VecCreateGhost(
-                       Petsc::Comm(), 3 * numLocalNodes_, PETSC_DECIDE, 3 * numGhostNodes_, ghostNodesCoordsIndices, &refNodes_);
+                       DCPetsc::Comm(), 3 * numLocalNodes_, PETSC_DECIDE, 3 * numGhostNodes_, ghostNodesCoordsIndices, &refNodes_);
         
         // delete[] ghostNodesCoordsIndices;
     } else {
-        VecCreateSeq(Petsc::Comm(), 3 * numNodes_, &nodes_);
-        VecCreateSeq(Petsc::Comm(), 3 * numNodes_, &refNodes_);
+        VecCreateSeq(DCPetsc::Comm(), 3 * numNodes_, &nodes_);
+        VecCreateSeq(DCPetsc::Comm(), 3 * numNodes_, &refNodes_);
     }
     
     
@@ -1541,13 +1541,13 @@ void CBSolver::InitNodesComponentsBoundaryConditions() {
     
     if (DCCtrl::IsParallel()) {
         MatCreateAIJ(
-                     Petsc::Comm(), 3 * numLocalNodes_, 3 * numLocalNodes_, PETSC_DETERMINE, PETSC_DETERMINE, 3, PETSC_NULL, 1, PETSC_NULL,
+                     DCPetsc::Comm(), 3 * numLocalNodes_, 3 * numLocalNodes_, PETSC_DETERMINE, PETSC_DETERMINE, 3, PETSC_NULL, 1, PETSC_NULL,
                      &boundaryConditionsNodalForcesJacobianDiagonalComponents_);
         MatSetLocalToGlobalMapping(boundaryConditionsNodalForcesJacobianDiagonalComponents_, nodesIndicesMapping_,
                                    nodesIndicesMapping_);
     } else {
         MatCreateSeqAIJ(
-                        Petsc::Comm(), 3 * numNodes_, 3 * numNodes_, 3, PETSC_NULL,
+                        DCPetsc::Comm(), 3 * numNodes_, 3 * numNodes_, 3, PETSC_NULL,
                         &boundaryConditionsNodalForcesJacobianDiagonalComponents_);
         MatSetLocalToGlobalMapping(boundaryConditionsNodalForcesJacobianDiagonalComponents_, nodesIndicesMapping_,
                                    nodesIndicesMapping_);
@@ -1579,7 +1579,7 @@ void CBSolver::InitNodesIndicesMapping() {
     }
     
     ISLocalToGlobalMappingCreate(
-                                 Petsc::Comm(), 1, 3 * numTotalNodes, globalNodesCoordsIndices, PETSC_COPY_VALUES, &nodesIndicesMapping_);
+                                 DCPetsc::Comm(), 1, 3 * numTotalNodes, globalNodesCoordsIndices, PETSC_COPY_VALUES, &nodesIndicesMapping_);
     
     adapter_->LinkLocalToGlobalMapping(nodesIndicesMapping_);
     delete[] globalNodesCoordsIndices;
@@ -1601,7 +1601,7 @@ void CBSolver::InitNodesIndicesMappingNonGhosted() {
     }
     
     ISLocalToGlobalMappingCreate(
-                                 Petsc::Comm(), 1, 3 * numLocalNodes_, globalNodesCoordsIndices, PETSC_COPY_VALUES, &nodesIndicesMappingNonGhosted_);
+                                 DCPetsc::Comm(), 1, 3 * numLocalNodes_, globalNodesCoordsIndices, PETSC_COPY_VALUES, &nodesIndicesMappingNonGhosted_);
     
     adapter_->LinkLocalToGlobalMappingNonGhosted(nodesIndicesMappingNonGhosted_);
     delete[] globalNodesCoordsIndices;
@@ -1630,12 +1630,12 @@ void CBSolver::CreateNodesJacobianAndLinkToAdapter() {
     
     if (DCCtrl::IsParallel()) {
         MatCreateAIJ(
-                     Petsc::Comm(), 3 * numLocalNodes_, 3 * numLocalNodes_, PETSC_DETERMINE, PETSC_DETERMINE, 0,
+                     DCPetsc::Comm(), 3 * numLocalNodes_, 3 * numLocalNodes_, PETSC_DETERMINE, PETSC_DETERMINE, 0,
                      model_->GetNodeNeighborsForNnz().data() + localNodesFrom_*3, 0,
                      model_->GetNodeNeighborsForNnz().data() + localNodesFrom_*3, &nodalForcesJacobian_);
         MatSetLocalToGlobalMapping(nodalForcesJacobian_, nodesIndicesMapping_, nodesIndicesMapping_);
     } else {
-        PetscErrorCode ierr = MatCreateSeqAIJ(Petsc::Comm(), 3 * numNodes_, 3 * numNodes_, 0,
+        PetscErrorCode ierr = MatCreateSeqAIJ(DCPetsc::Comm(), 3 * numNodes_, 3 * numNodes_, 0,
                                               model_->GetNodeNeighborsForNnz().data(), &nodalForcesJacobian_);
         ierr = MatSetLocalToGlobalMapping(nodalForcesJacobian_, nodesIndicesMapping_, nodesIndicesMapping_);
     }
@@ -1903,7 +1903,7 @@ TFloat CBSolver::GetVolumeOfSolidElements() {
     
     for (auto &it : adapter_->GetSolver()->GetSolidElementVector())
         localModelVolume += it->GetVolume();
-    MPI_Allreduce(&localModelVolume, &modelVolume_, 1, MPI_DOUBLE, MPI_SUM, Petsc::Comm());
+    MPI_Allreduce(&localModelVolume, &modelVolume_, 1, MPI_DOUBLE, MPI_SUM, DCPetsc::Comm());
     return modelVolume_;
 }
 
@@ -1913,7 +1913,7 @@ TFloat CBSolver::GetDeformationEnergy() {
     
     for (auto &it : adapter_->GetSolver()->GetSolidElementVector())
         localDeformationEnergy += it->GetDeformationEnergy();
-    MPI_Allreduce(&localDeformationEnergy, &deformationEnergy_, 1, MPI_DOUBLE, MPI_SUM, Petsc::Comm());
+    MPI_Allreduce(&localDeformationEnergy, &deformationEnergy_, 1, MPI_DOUBLE, MPI_SUM, DCPetsc::Comm());
     return deformationEnergy_;
 }
 

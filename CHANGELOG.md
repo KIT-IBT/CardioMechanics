@@ -13,8 +13,10 @@
 
 ### Changed
 - Modernized the CMake build system: removed `cmake/IBTDefault.cmake` and its `ka*` macros in favor of standard `target_*()` commands; bumped to CMake 3.20 and C++17; switched PETSc discovery to pkg-config (only `PETSC_DIR` env var required, `kaRootDir` no longer needed); added `CMakePresets.json`; binaries now land in `_build/bin/`.
+- Restructured `CMakePresets.json`: `default` is now a hidden base preset; `release` and `debug` are the user-facing configure/build presets, each with its own build directory (`_build/release/`, `_build/debug/`); `CMAKE_EXPORT_COMPILE_COMMANDS` enabled by default.
 
 ### Fixed
+- Renamed `typedef DCCtrlPETSc Petsc` to `typedef DCCtrlPETSc DCPetsc` in `mechanics/src/DCTK/DCCtrlPETSc.h` and updated all call sites. The name `Petsc` collided with PETSc's own `::Petsc` C++ namespace, which is exposed in private headers included by debug PETSc builds, causing compilation failures.
 
 ### Known Issues
 

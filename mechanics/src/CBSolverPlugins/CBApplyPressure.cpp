@@ -64,7 +64,7 @@ void CBApplyPressure::Apply(TFloat time)
     lastVolumeWork_ = volumeWork_;
     volumeWork_ += (currentVolume_ - lastVolume)*(currentPressure_ );
     
-    Petsc::debug << "ApplyPressure(p/V/W): " << currentPressure_ << " " << currentVolume_ << " " << volumeWork_ << "\n";
+    DCPetsc::debug << "ApplyPressure(p/V/W): " << currentPressure_ << " " << currentVolume_ << " " << volumeWork_ << "\n";
 }
 
 void CBApplyPressure::ApplyToNodalForces()
@@ -81,7 +81,7 @@ TFloat CBApplyPressure::CalcVolume()
     for (auto s : targetElements_)
         localVolume+=s->CalcContributionToVolume();
     
-    MPI_Allreduce(&localVolume, &volume, 1, MPI_DOUBLE, MPI_SUM, Petsc::Comm());
+    MPI_Allreduce(&localVolume, &volume, 1, MPI_DOUBLE, MPI_SUM, DCPetsc::Comm());
     return(volume);
 }
 

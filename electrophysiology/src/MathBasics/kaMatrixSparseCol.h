@@ -423,7 +423,9 @@ void kaMatrixSparseCol<T>::MatrixVectorProduct(const valarray<T> &x, valarray<T>
 #pragma omp parallel for private(j, xj)
   for (j = 0; j < MAXN; j++) {
     xj    = x[j];
-    r[j] += CDIAG[j]*xj;
+    T diag = CDIAG[j]*xj;
+#pragma omp atomic
+    r[j] += diag;
     int clptrbeg = CCLPTR[j];
     int clptrend = CCLPTR[j+1];
     int i, rnum;

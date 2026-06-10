@@ -146,7 +146,7 @@ void PETScLSE::MatVecScale(Vec scale) {
     
     ierr = MatGetOwnershipRange(A, &Istart, &Iend); CHKERRQ(ierr);
     PetscScalar *pscale;
-    VecGetArray(scale, &pscale);
+    ierr = VecGetArray(scale, &pscale); CHKERRQ(ierr);
     PetscInt i = Istart;
     for (; i < Iend; i++) {
         ierr = MatGetRow(A, i, &ncols, &cols, &vals); CHKERRQ(ierr);
@@ -154,19 +154,19 @@ void PETScLSE::MatVecScale(Vec scale) {
         vector<PetscScalar> values(ncols);
         for (PetscInt j = 0; j < ncols; j++) {
             indizes[j] = cols[j];
-            values[j]  = vals[j]*(*(pscale+i));
+            values[j]  = vals[j]*pscale[i-Istart];
             if (cols[j] == i) {
                 if (values[j] < 1e-9)
                     values[j] = 1e-9;
             }
         }
         ierr = MatRestoreRow(A, i, &ncols, &cols, &vals); CHKERRQ(ierr);
-        
+
         ierr = ::MatSetValues(A, 1, &i, ncols, indizes.data(), values.data(), INSERT_VALUES);  CHKERRQ(ierr);
-        ierr = MatAssemblyBegin(A, MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-        ierr = MatAssemblyEnd(A, MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
     }
-    VecRestoreArray(scale, &pscale);
+    ierr = MatAssemblyBegin(A, MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
+    ierr = MatAssemblyEnd(A, MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
+    ierr = VecRestoreArray(scale, &pscale); CHKERRQ(ierr);
 }  // PETScLSE::MatVecScale
 
 void PETScLSE::MatZeroColumns(PetscInt numRows, const PetscInt *rows) {

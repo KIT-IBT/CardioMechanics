@@ -253,10 +253,12 @@ void CBContactHandling::Init() {
             }
         }
         slaveNeighbors_.insert(std::pair<int, std::vector<int> *>(j, neighbors));
-        
+
         // DCCtrl::print << std::endl;
     }
-    
+
+    VecRestoreArray(slaveElementsNodesSeq_, &slaveNodes);
+
     // -----
     
     //    //----- find neighbors of slave elements

@@ -104,15 +104,16 @@ void DCCtrlPETSc::GatherToZeroImpl(std::vector<int>& a)
             }
             
             a.insert(a.end(),recv,recv+sizeGlobal);
+            delete[] recv;
         }
         else
         {
             int n=a.size();
-            
+
             for(int i=1; i < DCCtrl::GetNumberOfProcesses(); i++)
                 if(DCCtrl::GetProcessID()==i)
                     MPI_Send(&n, 1, MPI_INT, 0, i, PETSC_COMM_WORLD);
-            
+
             for(int i=1; i < DCCtrl::GetNumberOfProcesses(); i++)
                 if(DCCtrl::GetProcessID()==i)
                     MPI_Send(&a[0],n,MPI_INT,0,i,PETSC_COMM_WORLD);
@@ -130,41 +131,40 @@ void DCCtrlPETSc::GatherToZeroImpl(std::vector<long>& a)
     {
         if(DCCtrl::IsProcessZero())
         {
-            std::vector<long> totalSize;
-            totalSize.push_back(0); // Sum of all
-            totalSize.push_back(0); // from 0
-            
-            for(int i=1; i < DCCtrl::GetNumberOfProcesses(); i++)
+            std::vector<int> sizePerProcess;
+
+            for(int i=1; i < GetNumberOfProcesses(); i++)
             {
                 int n=0;
                 MPI_Status stat;
                 MPI_Recv(&n, 1, MPI_INT, i, i, PETSC_COMM_WORLD, &stat);
-                totalSize.push_back(n);
+                sizePerProcess.push_back(n);
             }
-            
-            for(auto i:totalSize)
-                totalSize.at(0)+=i;
-            for (int i=2; i<DCCtrl::GetNumberOfProcesses(); i++)
-                totalSize.at(i)+=totalSize.at(i-1);
-            
-            long* recv = new long[totalSize.at(0)];
-            
-            for(int i=1; i < DCCtrl::GetNumberOfProcesses(); i++)
+
+            int sizeGlobal = 0;
+            for(auto i:sizePerProcess)
+                sizeGlobal+=i;
+
+            long* recv = new long[sizeGlobal];
+            long* p = recv;
+            for(int i=1; i < GetNumberOfProcesses(); i++)
             {
                 MPI_Status stat;
-                MPI_Recv(&recv[totalSize.at(i)], totalSize.at(i+1), MPI_LONG, i, i, PETSC_COMM_WORLD, &stat);
+                MPI_Recv(p, sizePerProcess[i-1], MPI_LONG, i, i, PETSC_COMM_WORLD, &stat);
+                p += sizePerProcess[i-1];
             }
-            
-            a.insert(a.end(),recv,recv+totalSize.at(0));
+
+            a.insert(a.end(),recv,recv+sizeGlobal);
+            delete[] recv;
         }
         else
         {
             int n=a.size();
-            
+
             for(int i=1; i < DCCtrl::GetNumberOfProcesses(); i++)
                 if(DCCtrl::GetProcessID()==i)
                     MPI_Send(&n, 1, MPI_INT, 0, i, PETSC_COMM_WORLD);
-            
+
             for(int i=1; i < DCCtrl::GetNumberOfProcesses(); i++)
                 if(DCCtrl::GetProcessID()==i)
                     MPI_Send(&a[0],n,MPI_LONG,0,i,PETSC_COMM_WORLD);
@@ -181,46 +181,45 @@ void DCCtrlPETSc::GatherToZeroImpl(std::vector<float>& a)
     
     if(DCCtrl::IsProcessZero())
     {
-        std::vector<int> totalSize;
-        totalSize.push_back(0); // Sum of all
-        totalSize.push_back(0); // from 0
-        
-        for(int i=1; i < DCCtrl::GetNumberOfProcesses(); i++)
+        std::vector<int> sizePerProcess;
+
+        for(int i=1; i < GetNumberOfProcesses(); i++)
         {
             int n=0;
             MPI_Status stat;
             MPI_Recv(&n, 1, MPI_INT, i, i, PETSC_COMM_WORLD, &stat);
-            totalSize.push_back(n);
+            sizePerProcess.push_back(n);
         }
-        
-        for(auto i:totalSize)
-            totalSize.at(0)+=i;
-        for (int i=2; i<DCCtrl::GetNumberOfProcesses(); i++)
-            totalSize.at(i)+=totalSize.at(i-1);
-        
-        float* recv = new float[totalSize.at(0)];
-        
-        for(int i=1; i < DCCtrl::GetNumberOfProcesses(); i++)
+
+        int sizeGlobal = 0;
+        for(auto i:sizePerProcess)
+            sizeGlobal+=i;
+
+        float* recv = new float[sizeGlobal];
+        float* p = recv;
+        for(int i=1; i < GetNumberOfProcesses(); i++)
         {
             MPI_Status stat;
-            MPI_Recv(&recv[totalSize.at(i)], totalSize.at(i+1), MPI_FLOAT, i, i, PETSC_COMM_WORLD, &stat);
+            MPI_Recv(p, sizePerProcess[i-1], MPI_FLOAT, i, i, PETSC_COMM_WORLD, &stat);
+            p += sizePerProcess[i-1];
         }
-        
-        a.insert(a.end(),recv,recv+totalSize.at(0));
+
+        a.insert(a.end(),recv,recv+sizeGlobal);
+        delete[] recv;
     }
     else
     {
         int n=a.size();
-        
+
         for(int i=1; i < DCCtrl::GetNumberOfProcesses(); i++)
             if(DCCtrl::GetProcessID()==i)
                 MPI_Send(&n, 1, MPI_INT, 0, i, PETSC_COMM_WORLD);
-        
+
         for(int i=1; i < GetNumberOfProcesses(); i++)
             if(GetProcessID()==i)
                 MPI_Send(&a[0],n,MPI_FLOAT,0,i,PETSC_COMM_WORLD);
     }
-    
+
 }
 
 
@@ -229,46 +228,45 @@ void DCCtrlPETSc::GatherToZeroImpl(std::vector<double>& a)
     
     if(IsProcessZero())
     {
-        std::vector<int> totalSize;
-        totalSize.push_back(0); // Sum of all
-        totalSize.push_back(0); // from 0
-        
+        std::vector<int> sizePerProcess;
+
         for(int i=1; i < GetNumberOfProcesses(); i++)
         {
             int n=0;
             MPI_Status stat;
             MPI_Recv(&n, 1, MPI_INT, i, i, PETSC_COMM_WORLD, &stat);
-            totalSize.push_back(n);
+            sizePerProcess.push_back(n);
         }
-        
-        for(auto i:totalSize)
-            totalSize.at(0)+=i;
-        for (int i=2; i<DCCtrl::GetNumberOfProcesses(); i++)
-            totalSize.at(i)+=totalSize.at(i-1);
-        
-        double* recv = new double[totalSize.at(0)];
-        
+
+        int sizeGlobal = 0;
+        for(auto i:sizePerProcess)
+            sizeGlobal+=i;
+
+        double* recv = new double[sizeGlobal];
+        double* p = recv;
         for(int i=1; i < GetNumberOfProcesses(); i++)
         {
             MPI_Status stat;
-            MPI_Recv(&recv[totalSize.at(i)], totalSize.at(i+1), MPI_DOUBLE, i, i, PETSC_COMM_WORLD, &stat);
+            MPI_Recv(p, sizePerProcess[i-1], MPI_DOUBLE, i, i, PETSC_COMM_WORLD, &stat);
+            p += sizePerProcess[i-1];
         }
-        
-        a.insert(a.end(),recv,recv+totalSize.at(0));
+
+        a.insert(a.end(),recv,recv+sizeGlobal);
+        delete[] recv;
     }
     else
     {
         int n=a.size();
-        
+
         for(int i=1; i < GetNumberOfProcesses(); i++)
             if(GetProcessID()==i)
                 MPI_Send(&n, 1, MPI_INT, 0, i, PETSC_COMM_WORLD);
-        
+
         for(int i=1; i < GetNumberOfProcesses(); i++)
             if(GetProcessID()==i)
                 MPI_Send(&a[0],n,MPI_DOUBLE,0,i,PETSC_COMM_WORLD);
     }
-    
+
 }
 
 void DCCtrlPETSc::GatherToZeroImpl(std::vector<std::string>& a)
@@ -284,15 +282,15 @@ void DCCtrlPETSc::GatherToZeroImpl(std::vector<std::string>& a)
                 MPI_Status stat;
                 int n = 0;
                 MPI_Recv(&n, 1, MPI_INT, i, i, PETSC_COMM_WORLD, &stat);
-                
+
                 for(int j=0; j < n; j++)
                 {
                     int c = 0;
-                    MPI_Recv(&c,1,MPI_LONG, i, i, PETSC_COMM_WORLD, &stat);
-                    char* s = new char[c];
+                    MPI_Recv(&c,1,MPI_INT, i, i, PETSC_COMM_WORLD, &stat);
+                    char* s = new char[c+1];
                     MPI_Recv(s,c+1,MPI_CHAR, i, i, PETSC_COMM_WORLD, &stat);
                     a.push_back(std::string(s));
-                    delete s;
+                    delete[] s;
                 }
             }
             
@@ -303,12 +301,12 @@ void DCCtrlPETSc::GatherToZeroImpl(std::vector<std::string>& a)
                 if(GetProcessID()==i)
                 {
                     int n=a.size();
-                    MPI_Send(&n,1,MPI_LONG, 0, i, PETSC_COMM_WORLD);
-                    
+                    MPI_Send(&n,1,MPI_INT, 0, i, PETSC_COMM_WORLD);
+
                     for(int j=0; j < n; j++)
                     {
                         int c = a.at(j).length();
-                        MPI_Send(&c,1,MPI_LONG, 0, i, PETSC_COMM_WORLD);
+                        MPI_Send(&c,1,MPI_INT, 0, i, PETSC_COMM_WORLD);
                         MPI_Send((void*)(a.at(j).c_str()),c+1,MPI_CHAR, 0, i, PETSC_COMM_WORLD);
                     }
                 }
@@ -336,7 +334,8 @@ void DCCtrlPETSc::CopyFromZeroToAllImpl(std::vector<int>& a)
     
     MPI_Bcast(t, n, MPI_INT, 0, PETSC_COMM_WORLD);
     a = std::vector<int>(t,t+n);
-    
+    delete[] t;
+
 }
 
 void DCCtrlPETSc::CopyFromZeroToAllImpl(std::vector<long>& a)
@@ -356,7 +355,8 @@ void DCCtrlPETSc::CopyFromZeroToAllImpl(std::vector<long>& a)
     
     MPI_Bcast(t, n, MPI_LONG, 0, PETSC_COMM_WORLD);
     a = std::vector<long>(t,t+n);
-    
+    delete[] t;
+
 }
 
 void DCCtrlPETSc::CopyFromZeroToAllImpl(std::vector<float>& a)
@@ -376,7 +376,8 @@ void DCCtrlPETSc::CopyFromZeroToAllImpl(std::vector<float>& a)
     
     MPI_Bcast(t, n, MPI_FLOAT, 0, PETSC_COMM_WORLD);
     a = std::vector<float>(t,t+n);
-    
+    delete[] t;
+
 }
 
 
@@ -397,7 +398,8 @@ void DCCtrlPETSc::CopyFromZeroToAllImpl(std::vector<double>& a)
     
     MPI_Bcast(t, n, MPI_DOUBLE, 0, PETSC_COMM_WORLD);
     a = std::vector<double>(t,t+n);
-    
+    delete[] t;
+
 }
 
 /// copies a value from all processes to zero process and computes the average value under given weights, e.g. numLocalElements

@@ -73,7 +73,7 @@ jobs:
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
           push: true
 
-  run-in-container:
+  tests-in-container:
     runs-on: ubuntu-latest
     needs: build-and-push-image
     permissions:

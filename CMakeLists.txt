@@ -69,6 +69,10 @@ target_compile_definitions(cm_common_flags INTERFACE
     $<$<CONFIG:Debug>:KADEBUG=1;KAMATERIALDEBUG=1>
     $<$<NOT:$<CONFIG:Debug>>:KADEBUG=0;KAMATERIALDEBUG=0;NDEBUG>
 )
+# Default location of the bundled model parameter files (electrophysiology/data),
+# so binaries resolve them without a runtime kaRootDir env var. Setting kaRootDir
+# still overrides it.
+target_compile_definitions(cm_common_flags INTERFACE CM_SOURCE_DIR="${CMAKE_SOURCE_DIR}")
 if(APPLE)
     target_compile_definitions(cm_common_flags INTERFACE __DARWIN__)
 elseif(UNIX)

@@ -35,13 +35,11 @@ def repo_root():
 def cm_env():
     """Environment for every binary invocation.
 
-    kaRootDir must be set: the binaries resolve their bundled data files relative
-    to it at runtime and segfault (getenv returns NULL) when it is unset. The
-    CMake presets only set kaRootDir at build time, so a plain shell does not
-    have it. OMP_NUM_THREADS=1 keeps serial runs deterministic.
+    The binaries locate their bundled data files via the source directory baked
+    in at build time, so no kaRootDir env var is needed. OMP_NUM_THREADS=1 keeps
+    serial runs deterministic.
     """
     env = os.environ.copy()
-    env["kaRootDir"] = str(REPO_ROOT)
     env["OMP_NUM_THREADS"] = "1"
     return env
 

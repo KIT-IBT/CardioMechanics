@@ -44,6 +44,21 @@ if(DEFINED ENV{PETSC_DIR})
     set(ENV{PKG_CONFIG_PATH} "${_petsc_pc}:$ENV{PKG_CONFIG_PATH}")
 endif()
 pkg_check_modules(PETSc REQUIRED IMPORTED_TARGET PETSc)
+# PETSc's public Libs is only -lpetsc; its solver dependencies (MUMPS, ScaLAPACK,
+# BLAS/LAPACK, MPI-Fortran) live in Libs.private. Linking only -lpetsc lets those
+# symbols bind to other providers pulled in transitively (e.g. VTK's Accelerate
+# BLAS), which corrupts MUMPS's parallel distributed-RHS solve and segfaults.
+# Link the full static closure so they resolve against PETSc's own libraries.
+set_property(TARGET PkgConfig::PETSc APPEND PROPERTY
+    INTERFACE_LINK_LIBRARIES "${PETSc_STATIC_LDFLAGS}")
+# Some of those dependencies (e.g. HYPRE) have @rpath install names, so PETSc's
+# library directory must be on the runtime search path to resolve them.
+list(APPEND CMAKE_BUILD_RPATH ${PETSc_LIBRARY_DIRS})
+list(APPEND CMAKE_INSTALL_RPATH ${PETSc_LIBRARY_DIRS})
+if(APPLE)
+    list(APPEND CMAKE_BUILD_RPATH /opt/homebrew/lib)
+    list(APPEND CMAKE_INSTALL_RPATH /opt/homebrew/lib)
+endif()
 
 # Interface target that propagates compiler flags and debug macros to all targets
 add_library(cm_common_flags INTERFACE)

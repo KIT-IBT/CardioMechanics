@@ -1,0 +1,6 @@
+pytest>=7.0
+numpy
+
+# Optional, used only by Phase 2/3 field/matrix tests; those tests skip if absent:
+# meshio
+# petsc4py

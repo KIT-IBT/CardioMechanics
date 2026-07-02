@@ -10,6 +10,7 @@
 ## Unreleased
 
 ### Added
+- Regression test suite under `tests/`: pytest golden-file characterization tests covering `CellModelTest` (all ionic models, including Land17-coupled runs), the Land 2015 mechanics benchmark (Problem 1), and the EM01 electromechanics pipeline (`BidomainMatrixGenerator`, `acCELLerate`, and the coupled `CardioMechanics` run). Comparisons use numerical tolerances rather than byte-exact matching.
 
 ### Changed
 - Modernized the CMake build system: removed `cmake/IBTDefault.cmake` and its `ka*` macros in favor of standard `target_*()` commands; bumped to CMake 3.20 and C++17; switched PETSc discovery to pkg-config (only `PETSC_DIR` env var required, `kaRootDir` no longer needed); added `CMakePresets.json`; binaries now land in `_build/bin/`.
@@ -18,6 +19,7 @@
 ### Fixed
 - Suppress spurious PETSc "options left" warning for CardioMechanics' own CLI flags (`-settings`, `-verbose`, etc.). PETSc 3.21+ reports unused options at finalize by default; since the app parses its flags directly from `argv` rather than through the PETSc options API, they were never marked used. The fix removes them from PETSc's options database after parsing via a new `DCCtrl::ClearOption` abstraction backed by `PetscOptionsClearValue`.
 - Renamed `typedef DCCtrlPETSc Petsc` to `typedef DCCtrlPETSc DCPetsc` in `mechanics/src/DCTK/DCCtrlPETSc.h` and updated all call sites. The name `Petsc` collided with PETSc's own `::Petsc` C++ namespace, which is exposed in private headers included by debug PETSc builds, causing compilation failures.
+- Fixed segfaults on every parallel run (`np` ≥ 2). The target-based build linked only `-lpetsc` and omitted PETSc's private dependencies (MUMPS, ScaLAPACK, BLAS/LAPACK, MPI-Fortran); their symbols then bound to other providers pulled in transitively (e.g. VTK's Accelerate BLAS), corrupting MUMPS's distributed-RHS solve. The build now links PETSc's full pkg-config closure and adds PETSc's library directory to the rpath so `@rpath` dependencies (e.g. HYPRE) resolve at runtime.
 
 ### Known Issues
 

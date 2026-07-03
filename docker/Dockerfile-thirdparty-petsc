@@ -1,0 +1,27 @@
+FROM ubuntu:22.04
+
+RUN apt-get update && apt-get install -y \
+        build-essential gfortran python3 git cmake \
+        libopenmpi-dev openmpi-bin \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PETSC_VERSION=v3.24.0
+
+# PETSc is the only dependency built from source; the packaged builds do not ship
+# all the solvers CardioMechanics needs. Keep --download-fblaslapack: linking the
+# system OpenBLAS (0.3.20 on jammy) makes MUMPS report the tangent as numerically
+# singular on some CPUs.
+RUN git clone --depth 1 --branch ${PETSC_VERSION} https://gitlab.com/petsc/petsc.git /tmp/petsc \
+    && cd /tmp/petsc \
+    && ./configure --prefix=/opt/petsc-${PETSC_VERSION} \
+        --download-fblaslapack --download-mumps --download-scalapack \
+        --download-superlu --download-superlu_dist \
+        --download-metis --download-parmetis --download-hypre \
+        --with-shared-libraries=0 --with-x=0 --with-debugging=0 \
+        COPTFLAGS=-O2 CXXOPTFLAGS=-O2 FOPTFLAGS=-O2 \
+    && make PETSC_DIR=/tmp/petsc PETSC_ARCH=arch-linux-c-opt all \
+    && make PETSC_DIR=/tmp/petsc PETSC_ARCH=arch-linux-c-opt install \
+    && rm -rf /tmp/petsc
+
+ENV PETSC_DIR=/opt/petsc-${PETSC_VERSION}
+ENV PETSC_ARCH=

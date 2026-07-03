@@ -42,24 +42,14 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       
-      - name: Build and push VTK Docker image
-        id: push-vtk
-        uses: docker/build-push-action@v5
-        with:
-          file: ./docker/Dockerfile-thirdparty-vtk
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-vtk
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-vtk:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-vtk:buildcache,mode=max
-          push: true
-        
-      - name: Build and push OpenMPI and PETSc Docker image
+      - name: Build and push PETSc Docker image
         id: push-petsc
         uses: docker/build-push-action@v5
         with:
-          file: ./docker/Dockerfile-thirdparty-openmpi-petsc
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-openmpi-petsc
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-openmpi-petsc:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-openmpi-petsc:buildcache,mode=max
+          file: ./docker/Dockerfile-thirdparty-petsc
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-petsc
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-petsc:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-petsc:buildcache,mode=max
           push: true
 
       - name: Build and push main Docker image
@@ -68,8 +58,7 @@ jobs:
         with:
           file: ./docker/Dockerfile
           build-args: |
-            VTK_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-vtk
-            OPENMPI_PETSC_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-openmpi-petsc
+            PETSC_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-petsc
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache

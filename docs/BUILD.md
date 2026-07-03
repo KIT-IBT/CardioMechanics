@@ -22,9 +22,11 @@ We recommend using one whenever possible.
 On Debian/Ubuntu:
 ```sh
 sudo apt install build-essential gfortran cmake git zlib1g-dev \
-                 libopenmpi-dev openmpi-bin libvtk9-dev
+                 libopenmpi-dev openmpi-bin libvtk9-dev qtbase5-dev
 ```
-On macOS the equivalent packages come from Homebrew:
+`qtbase5-dev` is needed because Ubuntu's VTK is built with Qt modules, so
+`find_package(VTK)` resolves Qt5 even though CardioMechanics uses none of VTK's GUI
+modules. On macOS the equivalent packages come from Homebrew:
 ```sh
 brew install cmake open-mpi vtk gfortran nlohmann-json
 ```

@@ -33,6 +33,8 @@
 #include <vtkXMLPolyDataReader.h>
 #include <vtkDataSetReader.h>
 
+#include <cstdlib>
+#include <iostream>
 #include <string>
 
 using namespace std;
@@ -49,6 +51,23 @@ class VTKIOHelper {
   template<class T> static vtkSmartPointer<T> read(vtkSmartPointer<vtkXMLDataReader>, string);
 };
 
+// Abort with a clear message if a reader produced an empty dataset. Some VTK
+// builds (notably Ubuntu/apt VTK 9.1 with system expat) fail to parse XML VTK
+// files that store their arrays in an <AppendedData> block and then return an
+// empty dataset *without* an error, which downstream silently turns into empty
+// matrices. Fail loudly instead and point at the fix.
+static vtkSmartPointer<vtkDataSet> VTKIOHelperCheckNonEmpty(vtkSmartPointer<vtkDataSet> ds,
+                                                            std::string const &fn) {
+  if (!ds || ((ds->GetNumberOfPoints() == 0) && (ds->GetNumberOfCells() == 0))) {
+    std::cerr << "ERROR: read an empty dataset from '" << fn << "'.\n"
+              << "       This VTK build could not parse the file. If it uses an "
+                 "<AppendedData>\n       encoding (format=\"appended\"), re-save it "
+                 "as inline binary (format=\"binary\")." << std::endl;
+    exit(1);
+  }
+  return ds;
+}
+
 vtkSmartPointer<vtkDataSet> VTKIOHelper::Read(std::string fn) {
   std::string ext = fn.substr(fn.rfind('.')+1);
 
@@ -63,12 +82,12 @@ vtkSmartPointer<vtkDataSet> VTKIOHelper::Read(std::string fn) {
     vtkSmartPointer<vtkDataSetReader> rd = vtkSmartPointer<vtkDataSetReader>::New();
     rd->SetFileName(fn.c_str());
     rd->Update();
-    return rd->GetOutput();
+    return VTKIOHelperCheckNonEmpty(rd->GetOutput(), fn);
   } else {return NULL;}
 
   r->SetFileName(fn.c_str());
   r->Update();
-  return r->GetOutputAsDataSet();
+  return VTKIOHelperCheckNonEmpty(r->GetOutputAsDataSet(), fn);
 }
 
 template<class T>
@@ -171,6 +190,9 @@ void VTKIOHelper::write(vtkSmartPointer<vtkXMLWriter> writer, vtkSmartPointer<vt
 #else  // if VTK_MAJOR_VERSION > 5
   writer->SetInput(mesh);
 #endif  // if VTK_MAJOR_VERSION > 5
+  // Inline binary rather than the default appended-data form, which some VTK
+  // builds (apt VTK 9.1 + system expat) cannot read back (see Read()).
+  writer->SetDataModeToBinary();
   writer->Write();
   Verbosity::Stream(0) << "done." << endl;
 }

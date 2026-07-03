@@ -20,6 +20,15 @@ We recommend using a package manager (we use [macports](https://www.macports.org
 * [Open MPI](https://www.open-mpi.org)
 * [Python3](https://www.python.org) (optional, if you want to use some of the provided tools)
 
+On Debian/Ubuntu every dependency except PETSc is available from apt:
+```
+sudo apt install build-essential gfortran cmake git zlib1g-dev \
+                 libopenmpi-dev openmpi-bin libvtk9-dev
+```
+On macOS the equivalent packages come from Homebrew (`brew install cmake open-mpi vtk`).
+PETSc must still be built from source (see below) — the packaged builds do not ship all
+the solvers CardioMechanics needs.
+
 With [installRequirements.sh](/installRequirements.sh) we provide a script to compile [Open MPI](https://www.open-mpi.org), [PETSc](https://www.mcs.anl.gov/petsc/), and [VTK](https://vtk.org) from source with the most recently tested versions to ensure compatibility.
 Building with CMake as described in the next step requires the location and version of the tools as set in the script.
 If you do want to use alternative locations/versions you have to link them as required.
@@ -38,6 +47,13 @@ export THIRDPARTY_HOME=$kaRootDir/thirdparty
 ```
 
 Additionally, you need to build PETSc from source. This can be done using the following commands (which are a modified version of the way it is done in installRequirements.sh](/installRequirements.sh))
+
+> **Important (Linux):** keep `--download-fblaslapack` in the configure line. Without it
+> PETSc links the system BLAS, which on Ubuntu is OpenBLAS (`update-alternatives` routes
+> `libblas.so.3` to `openblas-pthread`). The packaged OpenBLAS 0.3.20 miscomputes on some
+> CPUs, which makes the MUMPS factorization report the mechanics tangent as *numerically
+> singular* (`INFOG(1)=-10`) and every mechanics solve fails. Building PETSc with its own
+> reference BLAS/LAPACK avoids this and matches the macOS (Accelerate) numerics.
 
 ```
 # compile PETSc

@@ -2,7 +2,7 @@
 
 MPI_VERSION=v4.1.5
 VTK_VERSION=v9.2.6
-PETSC_VERSION=v3.19.1
+PETSC_VERSION=v3.24.0
 
 # env variables for CardioMechanics
 export kaRootDir=`pwd`
@@ -51,7 +51,11 @@ git clone --depth 1 --branch ${PETSC_VERSION} https://gitlab.com/petsc/petsc.git
 cd petsc-${PETSC_VERSION}
 unset PETSC_DIR
 unset PETSC_ARCH
-./configure --prefix=${prefixPath}/petsc-${PETSC_VERSION} --with-cmake=1 --with-mpi-dir=${prefixPath}/openMPI-64bit --download-superlu --download-superlu_dist --download-mumps --download-dmumps  --download-metis --download-parmetis --download-bison --download-ptscotch --download-scalapack --download-blacs --download-hypre --with-shared-libraries=0 --with-x=0 COPTFLAGS=-O3 CXXOPTFLAGS=-O3 FOPTFLAGS=-O3 --with-debugging=no
+# --download-fblaslapack is required: it gives PETSc its own reference BLAS/LAPACK
+# instead of the system one. On Linux the system BLAS is OpenBLAS, whose 0.3.20
+# build miscomputes on some CPUs and makes MUMPS report the mechanics tangent as
+# numerically singular (INFOG(1)=-10), failing every mechanics solve.
+./configure --prefix=${prefixPath}/petsc-${PETSC_VERSION} --with-cmake=1 --with-mpi-dir=${prefixPath}/openMPI-64bit --download-fblaslapack --download-superlu --download-superlu_dist --download-mumps --download-dmumps  --download-metis --download-parmetis --download-bison --download-ptscotch --download-scalapack --download-blacs --download-hypre --with-shared-libraries=0 --with-x=0 COPTFLAGS=-O3 CXXOPTFLAGS=-O3 FOPTFLAGS=-O3 --with-debugging=no
 make PETSC_DIR=${THIRDPARTY_HOME}/src/petsc-${PETSC_VERSION} PETSC_ARCH=arch-darwin-c-opt all
 make PETSC_DIR=${THIRDPARTY_HOME}/src/petsc-${PETSC_VERSION} PETSC_ARCH=arch-darwin-c-opt install
 make PETSC_DIR=${prefixPath}/petsc-${PETSC_VERSION} PETSC_ARCH="" check

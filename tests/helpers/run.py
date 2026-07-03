@@ -16,6 +16,11 @@ def run_binary(binary, args, cwd, env, timeout=300, np=None):
         env=env,
         capture_output=True,
         text=True,
+        # The binaries emit non-UTF-8 bytes (e.g. the ProgressBar's block glyph in
+        # Latin-1), which would make a strict text=True decode raise UnicodeDecodeError
+        # inside subprocess before we can assert. Replace undecodable bytes instead.
+        encoding="utf-8",
+        errors="replace",
         timeout=timeout,
     )
     assert proc.returncode == 0, (

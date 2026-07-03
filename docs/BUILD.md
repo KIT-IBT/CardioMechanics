@@ -40,6 +40,8 @@ CardioMechanics uses the MUMPS and SuperLU direct solvers, so PETSc is configure
 downloads are their dependencies: `--download-scalapack` (required by MUMPS),
 `--download-metis` / `--download-parmetis` (parallel ordering), `--download-hypre` (a
 runtime-selectable preconditioner), and `--download-fblaslapack` (reference BLAS/LAPACK).
+`--download-cmake` builds a private CMake for those package builds: some of them now
+require CMake >= 3.26, newer than some distributions ship (Ubuntu 22.04 has 3.22).
 
 Pick an install prefix (`$HOME/software` below), then configure, build, install, and check:
 ```sh
@@ -50,6 +52,7 @@ git clone --depth 1 --branch $PETSC_VERSION https://gitlab.com/petsc/petsc.git p
 cd petsc-$PETSC_VERSION
 unset PETSC_DIR PETSC_ARCH
 ./configure --prefix=$PETSC_PREFIX \
+    --download-cmake \
     --download-fblaslapack --download-mumps --download-scalapack \
     --download-superlu --download-superlu_dist \
     --download-metis --download-parmetis --download-hypre \

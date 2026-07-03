@@ -99,4 +99,5 @@ jobs:
           export CM_BIN_DIR=/CardioMechanics/_build/bin/linux
           export OMPI_ALLOW_RUN_AS_ROOT=1
           export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+          mkdir -p ~/.openmpi && echo 'hwloc_base_use_hwthreads_as_cpus = 1' >> ~/.openmpi/mca-params.conf
           python -m pytest tests/

@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -95,7 +96,6 @@ jobs:
           python3 -m venv .venv
           . .venv/bin/activate
           pip install -r tests/requirements.txt
-          pip install meshio mpi4py
           export CM_BIN_DIR=/CardioMechanics/_build/bin/linux
           export OMPI_ALLOW_RUN_AS_ROOT=1
           export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1

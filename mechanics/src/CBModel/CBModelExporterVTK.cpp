@@ -399,6 +399,11 @@ bool CBModelExporterVTK::ExportModel() {
 #else // if VTK_MAJOR_VERSION > 5
     writer->SetInput(mesh);
 #endif // if VTK_MAJOR_VERSION > 5
+    // Write inline binary rather than the default appended-data form: some VTK
+    // builds (e.g. the Ubuntu/apt VTK 9.1 + system expat) cannot parse
+    // <AppendedData> and silently read such files as empty. Inline binary is
+    // read correctly everywhere.
+    writer->SetDataModeToBinary();
     writer->Write();
     
     ExportTetgenNode();

@@ -27,4 +27,11 @@ def test_matrix_invariants(em01_root, update_golden):
     assert GOLDEN.is_file(), f"missing golden {GOLDEN}; run with --update-golden"
     golden = json.loads(GOLDEN.read_text())
     for key in golden:
-        compare_scalars(actual[key], golden[key], rtol=RTOL)
+        # Floor the relative comparison with an absolute tolerance scaled to the
+        # object's own norm (Frobenius for matrices, L2 for the vector). Some
+        # invariants are ~0 by construction — e.g. the stiffness matrix's entries
+        # sum to zero (vsum≈1e-16), so a pure rtol only measures cross-build
+        # summation/rounding noise (clang/macOS vs gcc/Linux) and is meaningless.
+        # This keeps the meaningful, large-magnitude invariants tight.
+        scale = golden[key].get("fro", golden[key].get("l2", 0.0))
+        compare_scalars(actual[key], golden[key], rtol=RTOL, atol=RTOL * scale)

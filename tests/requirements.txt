@@ -1,6 +1,5 @@
 pytest>=7.0
 numpy
+meshio
 
-# Optional, used only by Phase 2/3 field/matrix tests; those tests skip if absent:
-# meshio
-# petsc4py
+# petsc4py intentionally not required: the field/matrix tests read PETSc binary format directly.

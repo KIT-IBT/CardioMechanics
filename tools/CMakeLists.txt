@@ -9,6 +9,7 @@ target_include_directories(PETScVec2VTK PRIVATE
 target_link_libraries(PETScVec2VTK PRIVATE
     Lattice
     PkgConfig::PETSc
+    MPI::MPI_CXX
     ${VTK_LIBRARIES}
     z
     cm_common_flags

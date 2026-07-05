@@ -28,10 +28,14 @@ if(CCACHE_PROGRAM)
 endif()
 
 find_package(MPI REQUIRED)
-find_package(VTK REQUIRED)
-if(VTK_VERSION VERSION_LESS "9.0")
-    include(${VTK_USE_FILE})
-endif()
+# Request only the VTK modules whose headers are used, so find_package(VTK) does
+# not resolve unrelated dependencies (e.g. Qt via Ubuntu's GUI-enabled VTK).
+find_package(VTK REQUIRED COMPONENTS
+    CommonCore CommonMath CommonDataModel
+    FiltersCore FiltersGeometry FiltersModeling FiltersVerdict
+    IOXML IOLegacy IOGeometry
+    RenderingCore RenderingOpenGL2
+)
 
 find_package(PkgConfig REQUIRED)
 # Locate PETSc pkg-config file via PETSC_DIR env var if set

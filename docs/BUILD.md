@@ -45,17 +45,20 @@ enable the solver packages used by CardioMechanics:
 cd /path/to/petsc-source
 ./configure \
     --prefix=/path/to/petsc/install \
+    --download-cmake \
+    --download-fblaslapack --download-mumps --download-scalapack \
     --download-superlu --download-superlu_dist \
-    --download-mumps --download-dmumps \
-    --download-bison --download-ptscotch \
-    --download-scalapack --download-blacs \
-    --download-metis --download-parmetis \
-    --download-hypre \
+    --download-metis --download-parmetis --download-hypre \
     --with-shared-libraries=0 --with-x=0 \
     --with-debugging=0 \
     COPTFLAGS='-O3' CXXOPTFLAGS='-O3' FOPTFLAGS='-O3'
 make all && make install
 ```
+
+`--download-fblaslapack` builds PETSc's own reference BLAS/LAPACK: linking a system OpenBLAS can
+make MUMPS report the tangent stiffness as numerically singular on some CPUs.  `--download-cmake`
+lets PETSc build a recent enough CMake for those solver packages that require one newer than the
+system provides.
 
 ## Building
 

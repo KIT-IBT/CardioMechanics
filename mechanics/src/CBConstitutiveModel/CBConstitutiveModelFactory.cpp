@@ -26,7 +26,7 @@ CBConstitutiveModel *CBConstitutiveModelFactory::New(ParameterMap *parameters, T
     else
         modelType = parameters->Get<std::string>("Materials.Mat_" + std::to_string(materialIndex) + ".Type");
     
-    CBConstitutiveModel *model;
+    CBConstitutiveModel *model = nullptr;
     
     if (modelType == std::string("Guccione"))
         model = new CBConstitutiveModelGuccione;

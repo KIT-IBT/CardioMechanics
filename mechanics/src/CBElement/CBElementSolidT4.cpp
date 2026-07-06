@@ -263,8 +263,8 @@ Matrix3<TFloat> CBElementSolidT4::GetPK2Stress() {
     GetDeformationTensor(deformationTensor);
     
     Matrix3<TFloat> pk2Stress = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-    CBStatus rc = Base::material_->GetConstitutiveModel()->CalcPK2Stress(deformationTensor, pk2Stress);
-    
+    [[maybe_unused]] CBStatus rc = Base::material_->GetConstitutiveModel()->CalcPK2Stress(deformationTensor, pk2Stress);
+
     return pk2Stress;
 }
 

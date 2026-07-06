@@ -131,52 +131,52 @@ acCELLerate::~acCELLerate() {
     
     PetscErrorCode ierr;
     if (MatImp) {
-        ierr = MatDestroy(&MatImp); CHKERRQ(ierr);
+        ierr = MatDestroy(&MatImp); CHKERRV(ierr);
     }
     if (VecDiag) {
-        ierr = VecDestroy(&VecDiag); CHKERRQ(ierr);
+        ierr = VecDestroy(&VecDiag); CHKERRV(ierr);
     }
     if (VecVCell) {
-        ierr = VecDestroy(&VecVCell); CHKERRQ(ierr);
+        ierr = VecDestroy(&VecVCell); CHKERRV(ierr);
     }
     if (VecRes) {
-        ierr = VecDestroy(&VecRes); CHKERRQ(ierr);
+        ierr = VecDestroy(&VecRes); CHKERRV(ierr);
     }
     if (VecVRes) {
-        ierr = VecDestroy(&VecVRes); CHKERRQ(ierr);
+        ierr = VecDestroy(&VecVRes); CHKERRV(ierr);
     }
     if (VecCmMyo) {
-        ierr = VecDestroy(&VecCmMyo); CHKERRQ(ierr);
+        ierr = VecDestroy(&VecCmMyo); CHKERRV(ierr);
     }
     if (VecBetaMyo) {
-        ierr = VecDestroy(&VecBetaMyo); CHKERRQ(ierr);
+        ierr = VecDestroy(&VecBetaMyo); CHKERRV(ierr);
     }
-    
+
     if (IntraMass) {
-        ierr = MatDestroy(&IntraMass); CHKERRQ(ierr);
+        ierr = MatDestroy(&IntraMass); CHKERRV(ierr);
     }
     if (IntraRHS) {
-        ierr = MatDestroy(&IntraRHS); CHKERRQ(ierr);
+        ierr = MatDestroy(&IntraRHS); CHKERRV(ierr);
     }
     if (ExtraRHS) {
-        ierr = MatDestroy(&ExtraRHS); CHKERRQ(ierr);
+        ierr = MatDestroy(&ExtraRHS); CHKERRV(ierr);
     }
     if (IntraIndexSet) {
-        ierr = ISDestroy(&IntraIndexSet); CHKERRQ(ierr);
+        ierr = ISDestroy(&IntraIndexSet); CHKERRV(ierr);
         if (VecSaveTmp) {
-            ierr = VecDestroy(&VecSaveTmp); CHKERRQ(ierr);
+            ierr = VecDestroy(&VecSaveTmp); CHKERRV(ierr);
         }
     }
-    
+
     if (GaussFwd) {
-        ierr = MatDestroy(&GaussFwd); CHKERRQ(ierr);
+        ierr = MatDestroy(&GaussFwd); CHKERRV(ierr);
     }
     if (GaussInt) {
-        ierr = MatDestroy(&GaussInt); CHKERRQ(ierr);
+        ierr = MatDestroy(&GaussInt); CHKERRV(ierr);
     }
-    
+
     if (ActivationTime) {
-        ierr = VecDestroy(&ActivationTime); CHKERRQ(ierr);
+        ierr = VecDestroy(&ActivationTime); CHKERRV(ierr);
     }
 }
 
@@ -783,7 +783,6 @@ void acCELLerate::InitMono(Vec materials) {
     // Vm wird gespeichert
     int ri = 0;
     bool compareType;
-    bool comparePara;
     bool nextPara;
     
     if (setResults == true) {
@@ -976,7 +975,6 @@ void acCELLerate::InitBi() {
                 
                 /* Add local RHS values to corresponding global entry */
                 for (int j = 0; j < rhs_ncols; ++j) {
-                    PetscScalar v;
                     ierr = MatSetValue(Extra.A, idcs[i], idcs[rhs_cols[j]], rhs_vals[j], ADD_VALUES); CHKERRQ(ierr);
                 }
                 
@@ -1344,22 +1342,28 @@ inline void acCELLerate::SaveSensors(PetscScalar *pix, PetscScalar *pib, PetscSc
         switch (pSC->cflag) {
             case ST_II:
                 if (pib)
-                    pSC->Save(currenttime, pib[row-StartNodes]); break;
+                    pSC->Save(currenttime, pib[row-StartNodes]);
+                break;
             case ST_UI:
                 if (pix)
-                    pSC->Save(currenttime, pix[row-StartNodes]); break;
+                    pSC->Save(currenttime, pix[row-StartNodes]);
+                break;
             case ST_IF:
                 if (pfb)
-                    pSC->Save(currenttime, pfb[row-StartNodes]); break;
+                    pSC->Save(currenttime, pfb[row-StartNodes]);
+                break;
             case ST_UF:
                 if (pfx)
-                    pSC->Save(currenttime, pfx[row-StartNodes]); break;
+                    pSC->Save(currenttime, pfx[row-StartNodes]);
+                break;
             case ST_IE:
                 if (peb)
-                    pSC->Save(currenttime, peb[row-StartExtraNodes]); break;
+                    pSC->Save(currenttime, peb[row-StartExtraNodes]);
+                break;
             case ST_UE:
                 if (pex)
-                    pSC->Save(currenttime, pex[row-StartExtraNodes]); break;
+                    pSC->Save(currenttime, pex[row-StartExtraNodes]);
+                break;
             case ST_PARA:
                 break;
             case ST_UEM:
@@ -1383,12 +1387,12 @@ void acCELLerate::SaveResultIntra() {
     
     char tmp[256];
     if (saveLattice[ResultVars::Vm] == true) {
-        sprintf(tmp, VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(),
+        snprintf(tmp, sizeof(tmp), VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(),
                 saveLattice_Name[ResultVars::Vm]);
         Intra.SaveX(tmp);
     }
     if (saveLattice[ResultVars::Ii] == true) {
-        sprintf(tmp, VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(),
+        snprintf(tmp, sizeof(tmp), VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(),
                 saveLattice_Name[ResultVars::Ii]);
         if (IntraRHS) {
             /* we have to solve [K Phi_e +] K V_m = M I_i for I_i*/
@@ -1421,7 +1425,7 @@ void acCELLerate::SaveResultIntra() {
         }
     }
     if (forceset) {
-        sprintf(tmp, VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(), "Force");
+        snprintf(tmp, sizeof(tmp), VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(), "Force");
         SaveVecMatInfo(tmp, Force, Intra.xot, Intra.m, Intra.xLattice, Intra.yLattice, Intra.zLattice);
     }
 }  // acCELLerate::SaveResultIntra
@@ -1429,7 +1433,7 @@ void acCELLerate::SaveResultIntra() {
 void acCELLerate::SaveResultParameters(string currentParameter) {
     PrintDebug2("SaveResultParameters()");
     char tmp[256];
-    sprintf(tmp, VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(), currentParameter.c_str());
+    snprintf(tmp, sizeof(tmp), VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(), currentParameter.c_str());
     SaveVecMatInfo(tmp, VecResultValues, ot_bin, Intra.m, Intra.xLattice, Intra.yLattice, Intra.zLattice);
 }
 
@@ -1438,12 +1442,12 @@ void acCELLerate::SaveResultExtra() {
     
     char tmp[256];
     if (saveLattice[ResultVars::Ve] == true) {
-        sprintf(tmp, VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(),
+        snprintf(tmp, sizeof(tmp), VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(),
                 saveLattice_Name[ResultVars::Ve]);
         Extra.SaveX(tmp);
     }
     if (saveLattice[ResultVars::Ie] == true) {
-        sprintf(tmp, VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(),
+        snprintf(tmp, sizeof(tmp), VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(),
                 saveLattice_Name[ResultVars::Ie]);
         if (IntraRHS) {
             /* We have to solve K V_m = M I_e */
@@ -1479,12 +1483,12 @@ void acCELLerate::SaveResultFibro() {
     
     char tmp[256];
     if (saveLattice[ResultVars::Vf] == true) {
-        sprintf(tmp, VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(),
+        snprintf(tmp, sizeof(tmp), VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(),
                 saveLattice_Name[ResultVars::Vf]);
         Fibro.SaveX(tmp);
     }
     if (saveLattice[ResultVars::If] == true) {
-        sprintf(tmp, VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(),
+        snprintf(tmp, sizeof(tmp), VecFnTemplate, resultprefix.c_str(), currenttime.toStr(4, 6).c_str(),
                 saveLattice_Name[ResultVars::If]);
         Fibro.SaveB(tmp);
     }
@@ -1517,7 +1521,6 @@ bool acCELLerate::ReadBackup(vbElphyModel<double> **ElphyModel, vbForceModel<dou
     // Calculate theoretical size of backup file without header
     long int objectSizeTemp = 0;
     for (PetscInt Ii = StartCells; Ii < EndCells; Ii++) {
-        int my_rank;
         PetscInt lindex = Ii-StartCells;
         objectSizeTemp += (ElphyModel[lindex]->GetSize());
         objectSizeTemp += sizeof(ML_CalcType);
@@ -1588,7 +1591,7 @@ bool acCELLerate::ReadBackup(vbElphyModel<double> **ElphyModel, vbForceModel<dou
     currenttime = timetemp;
     
     PetscErrorCode ierr;
-    PetscScalar   *pV, *pVe;
+    PetscScalar   *pV;
     ierr = VecGetArray(Vvector->X, &pV); CHKERRQ(ierr);
     
     for (PetscInt Ii = StartCells; Ii < EndCells; Ii++) {
@@ -1632,7 +1635,7 @@ void acCELLerate::WriteBackup(vbElphyModel<double> **ElphyModel, vbForceModel<do
     }
     
     PetscErrorCode ierr;
-    PetscScalar   *pV, *pVe;
+    PetscScalar   *pV;
     ierr = VecGetArray(Vvector->X, &pV); CHKERRQ(ierr);
     
     // ierr=VecGetArray(Vevector->X, &pVe);CHKERRQ(ierr); // mwk 20.07.2012: to write Ve in Backup as well. If desired,
@@ -1799,7 +1802,7 @@ void acCELLerate::SaveCellModelVariables(PetscScalar const *pix, acltTime saveat
                     if (resultPos[j][m] == -1) {
                         resultValue[j] = 0;
                     } else {
-                        double CallGetResultValues =
+                        [[maybe_unused]] double CallGetResultValues =
                         (EMIntra.GetResultValues[lindex])(pElphyIntra[lindex], resultPos[j][m], resultValue[j],
                                                           (double)currenttime,
                                                           pix[lindex]);
@@ -1814,7 +1817,7 @@ void acCELLerate::SaveCellModelVariables(PetscScalar const *pix, acltTime saveat
                             && (pSCPS->cflag == ST_PARA)
                             && !pSCPS->SensorParameterType.compare(resultName[j])
                             && (currenttime >=  pSCPS->beginsave)) {
-                            double CallGetResultValues_sensor =
+                            [[maybe_unused]] double CallGetResultValues_sensor =
                             (EMIntra.GetResultValues[lindex])(pElphyIntra[lindex], resultPos[j][m], resultValue[j],
                                                               (double)currenttime, pix[lindex]);
                             pSCPS->beginsave += pSCPS->dtsave;
@@ -2055,7 +2058,6 @@ void acCELLerate::initTimeSteps(acltTime &currenttime, acltTime &intraat, acltTi
 void acCELLerate::MonoDomain(acltTime tend, Vec strVec, Vec velVec) {
     PrintDebug("MonoDomain()");
     
-    time_t start, now;
     
     acltTime saveat, intraat, backupat;
     initTimeSteps(currenttime, intraat, saveat, backupat);
@@ -2117,12 +2119,12 @@ void acCELLerate::MonoDomain(acltTime tend, Vec strVec, Vec velVec) {
             if (currenttime >= backupat) {
                 backupat += dtbackup;
                 WriteBackup(pElphyIntra, pForceIntra, &Intra);
-                int n = 0;
-                sprintf(prottext, "Wrote backup at %s%n", currenttime.toStr(4, 6).c_str(), &n);
+                int n = snprintf(prottext, sizeof(prottext), "Wrote backup at %s",
+                                 currenttime.toStr(4, 6).c_str());
                 if (backupat <= tend) {
-                    sprintf(prottext+n, ", next backup at %s.", backupat.toStr(4, 6).c_str());
+                    snprintf(prottext+n, sizeof(prottext)-n, ", next backup at %s.", backupat.toStr(4, 6).c_str());
                 } else {
-                    sprintf(prottext+n, ".");
+                    snprintf(prottext+n, sizeof(prottext)-n, ".");
                 }
                 WriteProtocol(prottext, 1);
             }
@@ -2143,7 +2145,7 @@ void acCELLerate::MonoDomain(acltTime tend, Vec strVec, Vec velVec) {
         if ((currenttime >= saveat) && exportResults) {
             saveat += dtsave;
             SaveResultIntra();
-            sprintf(prottext, "Saved time step %s.", currenttime.toStr(4, 6).c_str());
+            snprintf(prottext, sizeof(prottext), "Saved time step %s.", currenttime.toStr(4, 6).c_str());
             WriteProtocol(prottext, 1);
         }
     }
@@ -2184,7 +2186,7 @@ void acCELLerate::BiDomain() {
     PrintDebug("BiDomain()");
     
     PetscErrorCode ierr;
-    PetscScalar   *pex, *peb, *pix, *pib, *pvvi, *pres;
+    PetscScalar   *pex, *peb, *pix, *pib;
     acltTime saveat, intraat, extraat, backupat;
     initTimeSteps(currenttime, intraat, saveat, backupat, &extraat);
     
@@ -2264,7 +2266,7 @@ void acCELLerate::TriDomain() {
     PetscScalar   *pex, *peb, *pix, *pib, *pfx, *pfb, *pvvi, *pvvf, *pres;
     
     for (/*currenttime*/; currenttime <= calclen; currenttime += dtcell) {
-        sprintf(prottext, "Time calculated: %s", currenttime.toStr(4, 6).c_str());
+        snprintf(prottext, sizeof(prottext), "Time calculated: %s", currenttime.toStr(4, 6).c_str());
         WriteProtocol(prottext);
         
         if (currenttime >= extraat) {
@@ -2328,7 +2330,7 @@ void acCELLerate::TriDomain() {
             for (PetscInt Ii = StartCells; Ii < EndCells; Ii++) {
                 PetscInt lindex = Ii-StartCells;
                 double   dVm    = .0;
-                double   force  =
+                [[maybe_unused]] double force =
                 (EMIntra.CouplingMethod[lindex])(pElphyIntra[lindex], pForceIntra[lindex], (double)dtcell, 0.0, 0.0, dVm,
                                                  pix[lindex], pib[lindex]);
                 pix[lindex] += dVm;
@@ -2360,7 +2362,7 @@ void acCELLerate::TriDomain() {
                     int m           = (int)pm[lindex];
                     if (j == 0) {
                         double dVm   = .0;
-                        double force =
+                        [[maybe_unused]] double force =
                         (EMIntra.CouplingMethod[lindex])(pElphyIntra[lindex], pForceIntra[lindex], (double)dtcell, 0.0, 0.0, dVm,
                                                          pix[lindex], pib[lindex]);
                         pix[lindex] += dVm;
@@ -2385,7 +2387,7 @@ void acCELLerate::TriDomain() {
                         if (resultPos[j][m] == -1) {
                             resultValue[j] = 0;
                         } else {
-                            double CallGetResultValues =
+                            [[maybe_unused]] double CallGetResultValues =
                             (EMIntra.GetResultValues[lindex])(pElphyIntra[lindex], resultPos[j][m], resultValue[j],
                                                               (double)currenttime, pix[lindex]);
                         }
@@ -2397,7 +2399,7 @@ void acCELLerate::TriDomain() {
                             if (!pSCPS->SensorParameterType.compare(resultName[j]) && (lindex == (pSCPS->SensorIndex-StartCells)) &&
                                 (pSCPS->SensorIndex >= StartCells) && (pSCPS->SensorIndex < EndCells) &&
                                 ((double)currenttime >= (double)pSCPS->beginsave)) {
-                                double CallGetResultValues_sensor =
+                                [[maybe_unused]] double CallGetResultValues_sensor =
                                 (EMIntra.GetResultValues[lindex])(pElphyIntra[lindex], resultPos[j][m], resultValue[j],
                                                                   (double)currenttime, pix[lindex]);
                                 pSCPS->beginsave += pSCPS->dtsave;

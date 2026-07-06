@@ -95,7 +95,7 @@ void CellModelStruct::LoadCellModels(string cmfilename) {
         int modtyp = 0;
         if ((*iCM).emd.size() > 0) {
             for (modtyp = (int)EMT_Dummy; modtyp <= (int)EMT_Last; modtyp++) {
-                sprintf(temptext, "%d", modtyp);
+                snprintf(temptext, sizeof(temptext),"%d", modtyp);
                 if (((*iCM).emd == FindElphyModelDescriptor((ElphyModelType)modtyp)) || ((*iCM).emd == temptext)) {
                     (*iCM).emt = (ElphyModelType)modtyp;
                     (*iCM).emd = FindElphyModelFileName((ElphyModelType)modtyp);
@@ -107,7 +107,7 @@ void CellModelStruct::LoadCellModels(string cmfilename) {
         }
         if ((*iCM).fmd.size() > 0) {
             for (modtyp = (int)FMT_Dummy; modtyp <= (int)FMT_Last; modtyp++) {
-                sprintf(temptext, "%d", (int)modtyp);
+                snprintf(temptext, sizeof(temptext),"%d", (int)modtyp);
                 if (( (*iCM).fmd == FindForceModelDescriptor((ForceModelType)modtyp)) || ( (*iCM).fmd == temptext) ) {
                     (*iCM).fmt = (ForceModelType)modtyp;
                     (*iCM).fmd = FindForceModelFileName((ForceModelType)modtyp);

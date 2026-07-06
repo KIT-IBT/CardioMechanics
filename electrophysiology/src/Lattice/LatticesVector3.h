@@ -82,7 +82,7 @@ template<class T> class LatticesVector3 : virtual public nskaGlobal::DataTypeInf
         if (!strcmp(name+strlen(buf)-strlen(ext), ext))
           buf[strlen(buf)-strlen(ext)] = 0; // remove the suffix the dot included (ex: .dlat in Mat.dlat).
 
-      sprintf(cls.Name, "%s%s.x%s", buf, add, ext);
+      snprintf(cls.Name, sizeof(cls.Name),"%s%s.x%s", buf, add, ext);
       x = new kaLattice<T>(cls);
       if (lx > 0)
         if (x->xLattice != lx) throw DimensionMismatch(buf, lx, ly, lz);
@@ -91,10 +91,10 @@ template<class T> class LatticesVector3 : virtual public nskaGlobal::DataTypeInf
       if (lz > 0)
         if (x->zLattice != lz) throw DimensionMismatch(buf, lx, ly, lz);
 
-      sprintf(cls.Name, "%s%s.y%s", buf, add, ext);
+      snprintf(cls.Name, sizeof(cls.Name),"%s%s.y%s", buf, add, ext);
       y = new kaLattice<T>(cls);
 
-      sprintf(cls.Name, "%s%s.z%s", buf, add, ext);
+      snprintf(cls.Name, sizeof(cls.Name),"%s%s.z%s", buf, add, ext);
       z = new kaLattice<T>(cls);
 
       CheckConsistency();
@@ -130,17 +130,17 @@ template<class T> class LatticesVector3 : virtual public nskaGlobal::DataTypeInf
     }
     if (x) {
       if (nameArg)
-        sprintf(buf, "%s.x%s", name, ext);
+        snprintf(buf, sizeof(buf),"%s.x%s", name, ext);
       x->Save(nameArg ? buf : NULL);
     }
     if (y) {
       if (nameArg)
-        sprintf(buf, "%s.y%s", name, ext);
+        snprintf(buf, sizeof(buf),"%s.y%s", name, ext);
       y->Save(nameArg ? buf : NULL);
     }
     if (z) {
       if (nameArg)
-        sprintf(buf, "%s.z%s", name, ext);
+        snprintf(buf, sizeof(buf),"%s.z%s", name, ext);
       z->Save(nameArg ? buf : NULL);
     }
   }  // Save

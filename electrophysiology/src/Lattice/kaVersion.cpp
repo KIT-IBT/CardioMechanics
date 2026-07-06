@@ -49,7 +49,7 @@ std::string kaVersion::getVersionString(void) {
   // What!!! 50 how about using the std::string << function :-) the std::string is a dynamic char array anyway.
   char ret[100];
 
-  sprintf(ret, "%i.%i.%i", major, minor, revision);
+  snprintf(ret, sizeof(ret), "%i.%i.%i", major, minor, revision);
   return ret;
 }
 
@@ -57,14 +57,14 @@ std::string kaVersion::getFullVersionString(void) {
   // What!!! 50 how about using the std::string << function :-) the std::string is a dynamic char array anyway.
   char ret[1000];
 
-  sprintf(ret, "%i.%i.%i", major, minor, revision);
+  snprintf(ret, sizeof(ret), "%i.%i.%i", major, minor, revision);
 
   // Only if a date was set, add date information to the string
   if ( (year > -1) && (month > -1) && (day > -1) ) {
-    sprintf(ret, "%s (%04d-%02d-%02d)", ret, year, month, day);
+    snprintf(ret + strlen(ret), sizeof(ret) - strlen(ret), " (%04d-%02d-%02d)", year, month, day);
   }
   if (!versiondescription.empty()) {
-    sprintf(ret, "%s %s", ret, versiondescription.c_str());
+    snprintf(ret + strlen(ret), sizeof(ret) - strlen(ret), " %s", versiondescription.c_str());
   }
   return ret;
 }

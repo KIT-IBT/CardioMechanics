@@ -43,7 +43,7 @@ void PETScVec2VTK(DataType *pointSet, std::string vecName, std::string arrayName
   ierr = PetscViewerBinaryOpen(PETSC_COMM_WORLD, vecName.c_str(), FILE_MODE_READ, &fd); CHKERRQ(ierr);
   VecCreate(PETSC_COMM_WORLD, &v);
   ierr = VecLoad(v, fd); CHKERRQ(ierr);
-  PetscInt nPoints, x, y, nPointsVec;
+  PetscInt nPoints, nPointsVec;
   std::string origVtkFilename;
   kaSharedMatrixN<double> m;  // Geometry matrix
   // LoadLatInfo(vecName.c_str(), m, x, y, nPoints);

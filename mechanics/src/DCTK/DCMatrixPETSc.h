@@ -34,8 +34,8 @@ public:
 protected:
 private:
     
-    void SetType(DCMatrixType type);
-    DCMatrixType GetType();
+    void SetType(DCMatrixType type) override;
+    DCMatrixType GetType() override;
     
     void SetNumberOfLocalRows(PetscInt numLocalRows) override;
     void SetNumberOfGlobalRows(PetscInt numGlobalRows) override;
@@ -48,14 +48,14 @@ private:
     void SetNumberOfNonzeros(PetscInt numNzDiag, PetscInt numNzOffDiag)override;
     void SetNonzeros(PetscInt* nonZerosDiag, PetscInt* nonZerosDiagOff)override;
     
-    void DuplicateTo(DCMatrixBase* m);
+    void DuplicateTo(DCMatrixBase* m) override;
     void DuplicateFrom(DCMatrixBase* m);
     
-    void CopyValuesTo(DCMatrixBase* m);
+    void CopyValuesTo(DCMatrixBase* m) override;
     void CopyValuesFrom(DCMatrixBase* m);
     
-    void Assemble();
-    void Build();
+    void Assemble() override;
+    void Build() override;
     
     PetscInt numLocalRows_ = 0;
     PetscInt numGlobalRows_  = 0;

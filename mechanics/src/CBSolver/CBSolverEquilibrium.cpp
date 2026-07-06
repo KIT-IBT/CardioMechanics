@@ -197,7 +197,7 @@ void CBSolverEquilibrium::InitPETScSolver() {
         KSPSetType(ksp_, "preonly");
     }
     
-    PCFactorSetMatSolverPackage(pc_, "mumps");
+    PCFactorSetMatSolverType(pc_, "mumps");
     SNESSetFromOptions(snes_);
     KSPSetFromOptions(ksp_);
     PCSetFromOptions(pc_);
@@ -284,7 +284,7 @@ CBStatus CBSolverEquilibrium::SolverStep(PetscScalar time, bool forceJacobianAnd
     InitPETScSolver();
     
     snesStep_ = 0;
-    SNESSolve(snes_, PETSC_NULL, displacement_);
+    SNESSolve(snes_, PETSC_NULLPTR, displacement_);
     
     SNESGetIterationNumber(snes_, &snesIts);
     KSPGetTotalIterations(ksp_, &kspIts);

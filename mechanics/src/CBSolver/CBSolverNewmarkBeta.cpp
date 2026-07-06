@@ -887,7 +887,7 @@ CBStatus CBSolverNewmarkBeta::SolverStep(PetscScalar time, bool forceJacobianAnd
     // Note that f_tot = f_int + f_ext in our case, since all plugins that contribute to f_ext return negative values
     // In each iteration, the internal and external forces are linearized:
     // K * d_n+1 ~= f_int(d_n+1, t_n+1) + f_ext(d_n+1, t_n+1)
-    SNESSolve(snes_, PETSC_NULL, displacement_);
+    SNESSolve(snes_, PETSC_NULLPTR, displacement_);
     
     SNESGetIterationNumber(snes_, &snesIts_);
     KSPGetTotalIterations(ksp_, &kspIts);

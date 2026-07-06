@@ -83,9 +83,9 @@ template<class T, int N> class LatticesVectorN : virtual public nskaGlobal::Data
 
       for (int i = 0; i < N; i++) {
         if (N == 1)
-          sprintf(cls.Name, "%s%s%s", buf, add, ext);
+          snprintf(cls.Name, sizeof(cls.Name),"%s%s%s", buf, add, ext);
         else
-          sprintf(cls.Name, "%s%s.%d%s", buf, add, i, ext);
+          snprintf(cls.Name, sizeof(cls.Name),"%s%s.%d%s", buf, add, i, ext);
         l[i] = new kaLattice<T>(cls);
         if (lx > 0)
           if (l[i]->xLattice != lx) throw DimensionMismatch(buf, lx, ly, lz);
@@ -127,9 +127,9 @@ template<class T, int N> class LatticesVectorN : virtual public nskaGlobal::Data
       if (l[i]) {
         if (nameArg)
           if (N == 1)
-            sprintf(buf, "%s%s", name, ext);
+            snprintf(buf, sizeof(buf),"%s%s", name, ext);
           else
-            sprintf(buf, "%s.%d%s", name, i, ext);
+            snprintf(buf, sizeof(buf),"%s.%d%s", name, i, ext);
         l[i]->Save(nameArg ? buf : NULL);
       }
   }

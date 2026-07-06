@@ -79,7 +79,7 @@ void CBReferenceRecovery::Apply(TFloat time) {
     DCCtrl::print << "\tCurrent pressures:";
     char str[10];
     for (auto s : surfaces_) {
-        sprintf(str, "%.1f", S_.currentPressures_.at(s));
+        snprintf(str, sizeof(str), "%.1f",S_.currentPressures_.at(s));
         DCCtrl::print << " " << str;
     }
     DCCtrl::print << std::endl;
@@ -123,7 +123,7 @@ void CBReferenceRecovery::AnalyzeResults() {
         DCCtrl::print << "\tUnloaded volumes:";
         char str[6];
         for (auto s : surfaces_) {
-            sprintf(str, "%.1f", 100*S_.unloadedVolumes_.at(s)/initialVolumes_.at(s));
+            snprintf(str, sizeof(str), "%.1f",100*S_.unloadedVolumes_.at(s)/initialVolumes_.at(s));
             DCCtrl::print << " " << str << "%";
         }
         DCCtrl::print << std::endl;

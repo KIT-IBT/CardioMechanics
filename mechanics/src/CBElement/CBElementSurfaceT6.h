@@ -39,7 +39,7 @@ public:
     std::string GetType() override {return(std::string("T6")); }
     unsigned int GetNumberOfNodesIndices() override {return((unsigned int)6); }
     
-    Triangle<TFloat> GetTriangle();
+    Triangle<TFloat> GetTriangle() override;
     TFloat GetArea();
     Vector3<TFloat> GetCentroid();
     

@@ -35,6 +35,8 @@ class kaPoint {
   //! Default constructor
   kaPoint() : x(T(0)), y(T(0)), z(T(0)) {}
 
+  virtual ~kaPoint() {}
+
   //! Constructor with coordinates
   kaPoint(const T xi, const T yi, const T zi) : x(xi), y(yi), z(zi) { /*x=xi; y=yi; z=zi;*/}
 

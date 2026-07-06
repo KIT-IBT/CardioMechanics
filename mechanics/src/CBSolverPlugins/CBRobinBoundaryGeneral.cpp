@@ -24,7 +24,7 @@ CBRobinBoundaryGeneral::~CBRobinBoundaryGeneral() {
 }
 
 void CBRobinBoundaryGeneral::Init() {
-#warning Implementation only works for T3 surface elements at the moment
+#pragma message("Implementation only works for T3 surface elements at the moment")
     
     /// read XML parameter input
     startTime_ =

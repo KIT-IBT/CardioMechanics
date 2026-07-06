@@ -25,6 +25,7 @@ class FETet8Point;
 
 class FETetQuadrature {
  public:
+  virtual ~FETetQuadrature() = default;
   virtual int                           GetDegree() const                     = 0;
   virtual int                           GetNumberOfPoints() const             = 0;
   virtual double                        GetWeight(int i) const                = 0;

@@ -1541,13 +1541,13 @@ void CBSolver::InitNodesComponentsBoundaryConditions() {
     
     if (DCCtrl::IsParallel()) {
         MatCreateAIJ(
-                     DCPetsc::Comm(), 3 * numLocalNodes_, 3 * numLocalNodes_, PETSC_DETERMINE, PETSC_DETERMINE, 3, PETSC_NULL, 1, PETSC_NULL,
+                     DCPetsc::Comm(), 3 * numLocalNodes_, 3 * numLocalNodes_, PETSC_DETERMINE, PETSC_DETERMINE, 3, PETSC_NULLPTR, 1, PETSC_NULLPTR,
                      &boundaryConditionsNodalForcesJacobianDiagonalComponents_);
         MatSetLocalToGlobalMapping(boundaryConditionsNodalForcesJacobianDiagonalComponents_, nodesIndicesMapping_,
                                    nodesIndicesMapping_);
     } else {
         MatCreateSeqAIJ(
-                        DCPetsc::Comm(), 3 * numNodes_, 3 * numNodes_, 3, PETSC_NULL,
+                        DCPetsc::Comm(), 3 * numNodes_, 3 * numNodes_, 3, PETSC_NULLPTR,
                         &boundaryConditionsNodalForcesJacobianDiagonalComponents_);
         MatSetLocalToGlobalMapping(boundaryConditionsNodalForcesJacobianDiagonalComponents_, nodesIndicesMapping_,
                                    nodesIndicesMapping_);
@@ -1635,7 +1635,7 @@ void CBSolver::CreateNodesJacobianAndLinkToAdapter() {
                      model_->GetNodeNeighborsForNnz().data() + localNodesFrom_*3, &nodalForcesJacobian_);
         MatSetLocalToGlobalMapping(nodalForcesJacobian_, nodesIndicesMapping_, nodesIndicesMapping_);
     } else {
-        PetscErrorCode ierr = MatCreateSeqAIJ(DCPetsc::Comm(), 3 * numNodes_, 3 * numNodes_, 0,
+        [[maybe_unused]] PetscErrorCode ierr = MatCreateSeqAIJ(DCPetsc::Comm(), 3 * numNodes_, 3 * numNodes_, 0,
                                               model_->GetNodeNeighborsForNnz().data(), &nodalForcesJacobian_);
         ierr = MatSetLocalToGlobalMapping(nodalForcesJacobian_, nodesIndicesMapping_, nodesIndicesMapping_);
     }
@@ -1650,7 +1650,7 @@ CBStatus CBSolver::PrepareSimulation() {
     
     std::string initializingPlugin;
     DCCtrl::print << "\n\n\n-------------------------- Initializing Simulation... --------------------------\n\n";
-    TFloat tt = 0;
+    [[maybe_unused]] TFloat tt = 0;
     timing_.SetCurrentTime(0);
     timing_.ResetForInit();
     

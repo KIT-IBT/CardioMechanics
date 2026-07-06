@@ -219,7 +219,7 @@ void ParameterMap::ReadXml(std::string Filename)
     std::ifstream       file(Filename.c_str());
     if(!file.good())
         throw std::runtime_error("File " + Filename + " does not exist, while i'm an existentialist");
-    int            length;
+    [[maybe_unused]] int length;
     file.seekg(0, std::ios::end);
     length = file.tellg();
     file.seekg(0, std::ios::beg);

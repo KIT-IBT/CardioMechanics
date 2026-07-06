@@ -37,6 +37,7 @@ protected:
     void UpdateInitialGuess(TFloat time);
     CBStatus SolverStep(PetscScalar time, bool forceJacobianAndDampingRecalculation = false);
     
+    using CBSolver::CalcNodalForces;
     CBStatus CalcNodalForces(Vec displacement, Vec forces);
     CBStatus CalcNodalForcesJacobian(Vec displacement, Mat jacobian);
     typedef CBSolver   Base;

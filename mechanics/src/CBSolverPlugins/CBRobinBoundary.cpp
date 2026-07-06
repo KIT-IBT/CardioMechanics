@@ -24,7 +24,7 @@ CBRobinBoundary::~CBRobinBoundary() {
 }
 
 void CBRobinBoundary::Init() {
-#warning Implementation only works for T3 surface elements at the moment
+#pragma message("Implementation only works for T3 surface elements at the moment")
     
     /// read XML parameter input
     startTime_ = parameters_->Get<TFloat>("Plugins.RobinBoundary.StartTime", std::numeric_limits<double>::lowest());

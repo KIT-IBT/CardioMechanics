@@ -703,17 +703,6 @@ static Matrix3<T> GetRotationZ(T gamma)
 }
 
 
-static double RadToDeg(double alpha_rad) {
-    double pi = 2*acos(0);
-    return alpha_rad * 360./(2.*pi);
-}
-
-static double DegToRad(double alpha_deg) {
-    double pi = 2*acos(0);
-    return alpha_deg * 2.*pi/360.;
-}
-
-
 template<typename T>
 Matrix3<T> GetRotationXFromDeg(T alpha)
 {

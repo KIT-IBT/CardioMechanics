@@ -24,12 +24,6 @@ std::string StringTo<std::string>(std::string str)
 }
 
 template<>
-const char* StringTo<const char*>(std::string str)
-{
-    return str.c_str();
-}
-
-template<>
 int StringTo<int>(std::string str)
 {
     return std::stoi(str);

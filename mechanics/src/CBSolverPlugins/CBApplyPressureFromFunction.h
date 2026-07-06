@@ -36,7 +36,7 @@ public:
     virtual void AnalyzeResults() override;
     virtual void WriteHeaderToFile();
     virtual void WriteToFile(TFloat time) override;
-    bool WantsToAnalyzeResults() { return true; }
+    bool WantsToAnalyzeResults() override { return true; }
     CBStatus GetStatus() override {return status_;}
     virtual std::string GetName() override { return("ApplyPressureFromFunction"); };
     

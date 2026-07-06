@@ -146,9 +146,9 @@ void LoadElements(std::ifstream& elementsFile,std::vector<std::vector<long int> 
 	
     if(attr < 1)
         throw(std::string("Material information is needed"));
-	
-	
-	for(long int i=0; i < numElements; i++)
+
+
+    for(long int i=0; i < numElements; i++)
 	{
 		
 		// Load Elements
@@ -628,7 +628,7 @@ int main(int argc, char* argv[])
 	{
 		
 		bool append = false;
-		int firstIndex = -1;
+		[[maybe_unused]] int firstIndex = -1;
         bool standAlone = false;
         bool exportNodesIndices = false;
         double unit=1;

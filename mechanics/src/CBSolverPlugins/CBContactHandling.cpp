@@ -140,11 +140,11 @@ void CBContactHandling::Init() {
         
         VecGetSize(slaveElementsNodes_, &numGlobalSlaveElements_);
         numGlobalSlaveElements_ /= 9;
-        VecGetOwnershipRange(slaveElementsNodes_, &from, PETSC_NULL);
+        VecGetOwnershipRange(slaveElementsNodes_, &from, PETSC_NULLPTR);
         from /= 9;
         
         VecCreateSeq(PETSC_COMM_SELF, 9 * numGlobalSlaveElements_, &slaveElementsNodesSeq_);
-        VecScatterCreateToAll(slaveElementsNodes_, &scatter_, PETSC_NULL);
+        VecScatterCreateToAll(slaveElementsNodes_, &scatter_, PETSC_NULLPTR);
     } else {
         VecCreateSeq(PETSC_COMM_SELF, 9 * slaveElements_.size(), &slaveElementsNodesSeq_);
         numGlobalSlaveElements_ = slaveElements_.size();

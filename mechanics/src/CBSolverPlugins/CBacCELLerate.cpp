@@ -907,7 +907,7 @@ void CBacCELLerate::InitMapping() {
     for (int i = 0; i < nPoints_; i++) {
         nearC_[i] = {INFINITY, 0, 0, 0, 0, 0};
     }
-    int skippedElement = 0;
+    [[maybe_unused]] int skippedElement = 0;
     vtkSmartPointer<vtkPoints> CenterPoints = vtkSmartPointer<vtkPoints>::New();
     vtkSmartPointer<vtkUnstructuredGrid> TempVTK = vtkSmartPointer<vtkUnstructuredGrid>::New();
     vtkSmartPointer<vtkIdList> CellPoints = vtkSmartPointer<vtkIdList>::New();

@@ -19,7 +19,7 @@ We recommend using a package manager (e.g. [Homebrew](https://brew.sh) on macOS 
 * [Open MPI](https://www.open-mpi.org)
 * [Python3](https://www.python.org) (optional, for the tools in `tools/python/`)
 
-The `docker/` directory contains Dockerfiles that build Open MPI, PETSc, and VTK from source with tested versions and can serve as a reference for building dependencies manually.
+The `docker/` directory contains the Dockerfiles used by CI: `Dockerfile-thirdparty-petsc` source-builds PETSc with the tested version, while Open MPI and VTK are installed from apt (`libopenmpi-dev`, `libvtk9-dev`). They can serve as a reference for building dependencies manually.
 
 ## Environment variables
 

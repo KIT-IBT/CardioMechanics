@@ -57,8 +57,9 @@ git diff tests/**/golden
 - **Binary discovery:** set `$CM_BIN_DIR` to pin a build directory, otherwise the
   newest match of `_build/*/bin/**/<name>` is used (release/debug/installed
   agnostic).
-- **kaRootDir:** the run fixture sets `kaRootDir` to the repo root in the
-  subprocess environment. Without it the binaries segfault at startup.
+- **No `kaRootDir` needed:** the binaries resolve their bundled
+  `electrophysiology/data` files via `CM_SOURCE_DIR`, baked in at build time, so the
+  fixtures set no data-path variable. (`kaRootDir` still overrides it if set.)
 - **Goldens** were generated on this machine (PETSc 3.24, serial). Cross-environment
   drift is absorbed by tolerances, not per-platform goldens.
 

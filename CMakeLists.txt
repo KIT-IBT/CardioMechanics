@@ -66,11 +66,14 @@ if(APPLE)
     list(APPEND CMAKE_INSTALL_RPATH /opt/homebrew/lib)
 endif()
 
-# Interface target that propagates compiler flags and debug macros to all targets
+# Project-wide warning baseline. Applied at directory scope so it precedes the
+# per-target -Wno-* opt-outs (which land after it on the command line and must
+# win); an INTERFACE library appends its options after a target's own, defeating
+# those opt-outs.
+add_compile_options(-pedantic -Wall -Werror=vla -Wno-extra-semi)
+
+# Interface target that propagates debug macros to all targets
 add_library(cm_common_flags INTERFACE)
-target_compile_options(cm_common_flags INTERFACE
-    -pedantic -Wall -Werror=vla -Wno-extra-semi
-)
 target_compile_definitions(cm_common_flags INTERFACE
     $<$<CONFIG:Debug>:KADEBUG=1;KAMATERIALDEBUG=1>
     $<$<NOT:$<CONFIG:Debug>>:KADEBUG=0;KAMATERIALDEBUG=0;NDEBUG>

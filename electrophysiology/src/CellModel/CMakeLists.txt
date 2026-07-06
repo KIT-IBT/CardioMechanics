@@ -69,3 +69,10 @@ add_executable(ForceModelTest
 )
 target_compile_definitions(ForceModelTest PRIVATE USE_FMT)
 target_link_libraries(ForceModelTest PRIVATE CellModel)
+
+install(TARGETS
+    ElphyModelTest
+    CellModelTest
+    ForceModelTest
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)

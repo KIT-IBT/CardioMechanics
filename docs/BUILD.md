@@ -88,11 +88,25 @@ export PATH="$PATH:/path/to/CardioMechanics/_build/release/bin"
 export PATH="$PATH:/path/to/CardioMechanics/tools/python"
 ```
 
-### Pinning PETSC_DIR per preset
+### Installing to a separate location (optional)
+
+Running the binaries directly from `_build/<preset>/bin/` is sufficient. To install them
+elsewhere, use `cmake --install`, which copies the executables into `<prefix>/bin/`:
+
+```sh
+cmake --install _build/release --prefix /path/to/install/CardioMechanics.opt
+# → binaries in /path/to/install/CardioMechanics.opt/bin/
+```
+
+Always pass `--prefix` (or pin `CMAKE_INSTALL_PREFIX` per preset — see below). Without it,
+`CMAKE_INSTALL_PREFIX` defaults to `/usr/local` on both Linux and macOS, and installing there
+requires root.
+
+### Pinning PETSC_DIR and the install prefix per preset
 
 If you maintain multiple PETSc builds (e.g. optimized and debug), create a local
-`CMakeUserPresets.json` at the repo root to pin `PETSC_DIR` per preset without
-modifying the committed `CMakePresets.json`:
+`CMakeUserPresets.json` at the repo root to pin `PETSC_DIR` and `CMAKE_INSTALL_PREFIX` per
+preset without modifying the committed `CMakePresets.json`:
 
 ```json
 {
@@ -102,12 +116,14 @@ modifying the committed `CMakePresets.json`:
       "name": "local-release",
       "inherits": "release",
       "binaryDir": "${sourceDir}/_build/release",
+      "cacheVariables": { "CMAKE_INSTALL_PREFIX": "/path/to/install/CardioMechanics.opt" },
       "environment": { "PETSC_DIR": "/path/to/petsc-opt", "PETSC_ARCH": "" }
     },
     {
       "name": "local-debug",
       "inherits": "debug",
       "binaryDir": "${sourceDir}/_build/debug",
+      "cacheVariables": { "CMAKE_INSTALL_PREFIX": "/path/to/install/CardioMechanics.deb" },
       "environment": { "PETSC_DIR": "/path/to/petsc-deb", "PETSC_ARCH": "" }
     }
   ],

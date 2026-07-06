@@ -122,3 +122,5 @@ target_link_libraries(CardioMechanics PRIVATE CardioMechanicsCore)
 if(VTK_VERSION VERSION_GREATER_EQUAL "9.0")
     vtk_module_autoinit(TARGETS CardioMechanics MODULES ${VTK_LIBRARIES})
 endif()
+
+install(TARGETS CardioMechanics RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

@@ -20,3 +20,5 @@ target_link_libraries(acCELLerate PRIVATE
 if(VTK_VERSION VERSION_GREATER_EQUAL "9.0")
     vtk_module_autoinit(TARGETS acCELLerate MODULES ${VTK_LIBRARIES})
 endif()
+
+install(TARGETS acCELLerate RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

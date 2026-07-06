@@ -63,3 +63,12 @@ target_link_libraries(FixNodes PRIVATE cm_common_flags)
 
 add_executable(ConvertT4toT10 MechanicsUtility/ConvertT4toT10.cpp)
 target_link_libraries(ConvertT4toT10 PRIVATE cm_common_flags)
+
+install(TARGETS
+    PETScVec2VTK
+    BidomainMatrixGenerator
+    VTPExtractSurfaceFromMesh
+    FixNodes
+    ConvertT4toT10
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)

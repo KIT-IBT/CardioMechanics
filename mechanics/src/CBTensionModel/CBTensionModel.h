@@ -52,6 +52,9 @@ public:
     virtual CBStatus SetActiveTensionAtQuadraturePoint(int indexQP, TFloat activeTension) {
         return CBStatus::SUCCESS;
     }
+
+    /// current stored active tension (used by the inverse active-stress estimator)
+    virtual TFloat GetActiveTension() { return 0; }
     
     virtual void SetfibreRatio(Vector3<TFloat> ffRatio) {}
     

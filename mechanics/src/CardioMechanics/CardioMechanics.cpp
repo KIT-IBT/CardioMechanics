@@ -18,6 +18,7 @@
 #include "CBSolver.h"
 #include "CBSolverNewmarkBeta.h"
 #include "CBSolverEquilibrium.h"
+#include "CBSolverActiveStressEstimator.h"
 
 
 void CardioMechanics::Init1() {
@@ -167,6 +168,8 @@ void CardioMechanics::InitSolver()
         solver_ = new CBSolverEquilibrium();
     else if(solverType == "NewmarkBeta")
         solver_ = new CBSolverNewmarkBeta();
+    else if(solverType == "ActiveStressEstimator")
+        solver_ = new CBSolverActiveStressEstimator();
     
     if(!solver_)
         throw std::runtime_error("CardioMechanics::InitSolver(): Solver type: " + solverType + " is unkown ");

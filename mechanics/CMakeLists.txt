@@ -35,6 +35,7 @@ set(SRCS
     src/CBElement/CBElementSurfaceT3.cpp
     src/CBElement/CBElementSurfaceT6.cpp
     src/CBTensionModel/CBTensionFactory.cpp
+    src/CBTensionModel/CBTensionEstimator.cpp
     src/CBTensionModel/CBTensionFromFunction.cpp
     src/CBTensionModel/CBTensionModelLumens.cpp
     src/CBTensionModel/CBTensionModelBestel.cpp
@@ -51,6 +52,7 @@ set(SRCS
     src/CBSolver/CBTiming.cpp
     src/CBSolver/CBSolverEquilibrium.cpp
     src/CBSolver/CBSolverNewmarkBeta.cpp
+    src/CBSolver/CBSolverActiveStressEstimator.cpp
     src/CBSolverPlugins/CBApplyPressure.cpp
     src/CBSolverPlugins/CBApplyPressureFromFunction.cpp
     src/CBSolverPlugins/CBApplyPressureFromFunctionNodeExport.cpp
@@ -60,6 +62,7 @@ set(SRCS
     src/CBSolverPlugins/CBRobinBoundary.cpp
     src/CBSolverPlugins/CBRobinBoundaryGeneral.cpp
     src/CBSolverPlugins/CBLoadUnloadedState.cpp
+    src/CBSolverPlugins/CBPointsCtrl.cpp
     src/CBSolverPlugins/CBSolverPluginCavities.cpp
     src/CBSolverPlugins/CBSolverPluginFactory.cpp
     src/CBSolverPlugins/CBacCELLerate.cpp

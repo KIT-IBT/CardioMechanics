@@ -19,6 +19,7 @@
 #include "CBTensionModelLand17.h"
 #include "CBTensionModelTanH.h"
 #include "CBTensionModelBestel.h"
+#include "CBTensionEstimator.h"
 
 #include "CBTiming.h"
 #include "CBFileManager.h"
@@ -41,6 +42,7 @@ void CBTensionFactory::Init(ParameterMap *parameters, CBTiming *timing, CBFileMa
     producers_["Land17"]        = [this](CBElementSolid *ele) {return new CBTensionModelLand17(ele, parameters_); };
     producers_["TanH"]          = [this](CBElementSolid *ele) {return new CBTensionModelTanH(ele, parameters_); };
     producers_["Bestel"]        = [this](CBElementSolid *ele) {return new CBTensionModelBestel(ele, parameters_); };
+    producers_["TensionEstimator"] = [this](CBElementSolid *ele) {return new CBTensionEstimator(ele, parameters_); };
 }
 
 /// returns a new tensionModel, that fits to the tensionName found in the passed elements material properties
@@ -60,6 +62,7 @@ CBTensionModel *CBTensionFactory::New(CBElementSolid *ele) {
                                  + "\t TanH\t: length-dependent analytic function\n"
                                  + "\t Bestel\t, Bestel2001\t: ode-based, time-dependent stress function\n"
                                  + "\t Land17\t: ode-based tension model designed for humans\n"
+                                 + "\t TensionEstimator\t: mailbox tension set by the inverse active-stress estimator\n"
                                  + "\t FromFunction\t: calculate tension through functions \n"
                                  = ")");
     } else {

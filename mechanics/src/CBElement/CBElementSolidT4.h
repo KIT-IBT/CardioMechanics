@@ -39,6 +39,7 @@ public:
     
     void CheckNodeSorting();
     CBStatus CalcNodalForcesJacobian();
+    CBStatus CalcNodalForcesActiveStressJacobian() override;
     CBStatus CalcNodalForces();
     CBStatus CalcNodalForcesAndJacobian();
     CBStatus CalcConsistentMassMatrix(); // {std::runtime_error("Error: Function CBElementSolidT4::CalcConsistenMassMatrix() is not implemented yet."); return CBStatus::FAILED;}

@@ -350,6 +350,51 @@ CBStatus CBElementSolidT4::CalcNodalForcesJacobian() {
     return CBStatus::SUCCESS;
 } // CBElementSolidT4::CalcNodalForcesJacobian
 
+CBStatus CBElementSolidT4::CalcNodalForcesActiveStressJacobian() {
+    // Derivative of the nodal forces with respect to the element active tension, assembled into
+    // the active-stress Jacobian matrix (column = element index). Used by the inverse problem.
+    // Active stress enters the nodal forces linearly through the tension model, so a central
+    // finite difference in the active tension yields the exact derivative.
+    TFloat nodesCoords[12];
+    bool   boundaryConditions[12];
+    TInt   nodesCoordsIndices[12];
+    TInt   indices[12];
+    TFloat f1[12];
+    TFloat f2[12];
+    TFloat forcesActiveStressJacobian[12];
+
+    GetNodesCoordsIndices(nodesCoordsIndices);
+    Base::adapter_->GetNodesComponentsBoundaryConditions(12, nodesCoordsIndices, boundaryConditions);
+    memcpy(indices, nodesCoordsIndices, 12*sizeof(TInt));
+    for (int i = 0; i < 12; i++)
+        if (boundaryConditions[i])
+            indices[i] = -1; // negative indices will be ignored by MatSetValues
+
+    Base::adapter_->GetNodesCoords(12, nodesCoordsIndices, nodesCoords);
+
+    const TFloat epsilon = 1.0;
+    TFloat tau = GetTensionModel()->GetActiveTension();
+
+    GetTensionModel()->SetActiveTensionAtQuadraturePoint(0, tau + epsilon);
+    CBStatus rc = CalcNodalForcesHelperFunction(nodesCoords, boundaryConditions, f1);
+    if (rc != CBStatus::SUCCESS)
+        return rc;
+
+    GetTensionModel()->SetActiveTensionAtQuadraturePoint(0, tau - epsilon);
+    rc = CalcNodalForcesHelperFunction(nodesCoords, boundaryConditions, f2);
+    if (rc != CBStatus::SUCCESS)
+        return rc;
+
+    GetTensionModel()->SetActiveTensionAtQuadraturePoint(0, tau);
+
+    for (int k = 0; k < 12; k++)
+        forcesActiveStressJacobian[k] = boundaryConditions[k] ? 0 : (f1[k] - f2[k]) / (2*epsilon);
+
+    TInt elementIndex = localIndex_;
+    Base::adapter_->AddNodalForcesActiveStressJacobianEntries(12, indices, 1, &elementIndex, forcesActiveStressJacobian);
+    return CBStatus::SUCCESS;
+} // CBElementSolidT4::CalcNodalForcesActiveStressJacobian
+
 CBStatus CBElementSolidT4::CalcNodalForcesAndJacobian() {
     CBStatus rc;
     

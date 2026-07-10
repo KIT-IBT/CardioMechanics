@@ -29,6 +29,14 @@ double CBTensionEstimator::CalcActiveTension(const math_pack::Matrix3<double> &,
     return activeTension_ * Tmax_;
 }
 
+math_pack::Matrix3<double> CBTensionEstimator::CalcActiveStress(const math_pack::Matrix3<double> &deformation, const double time) {
+    // The inverse problem estimates the scalar fiber tension against target surfaces that were
+    // generated with a pure fiber-direction active stress. Place the tension in the (0,0)/fiber
+    // component only, without the deformation-dependent 1/sqrt(I4) scaling of the base class, so the
+    // estimator recovers the same active stress that produced the targets.
+    return CalcActiveTension(deformation, time) * math_pack::Matrix3<double> {1, 0, 0,  0, 0, 0,  0, 0, 0};
+}
+
 CBStatus CBTensionEstimator::SetActiveTensionAtQuadraturePoint(int, TFloat activeTension) {
     activeTension_ = activeTension;
     return CBStatus::SUCCESS;

@@ -26,6 +26,7 @@ public:
     CBTensionEstimator(CBElementSolid *ele, ParameterMap *parameters);
 
     double CalcActiveTension(const math_pack::Matrix3<double> &deformation, const double time) override;
+    math_pack::Matrix3<double> CalcActiveStress(const math_pack::Matrix3<double> &deformation, const double time) override;
     TFloat GetActiveTension() override;
     CBStatus SetActiveTensionAtQuadraturePoint(int indexQP, TFloat activeTension) override;
 

@@ -119,6 +119,26 @@ def read_vtu_points(path):
     return pid[order], pts[order]
 
 
+def read_vtu_cell_field(path, name):
+    """Named cell-data field from a VTU, ordered by CellID.
+
+    CardioMechanics writes cell fields (e.g. ActiveStress) per cell block;
+    sorting by CellID makes the order independent of MPI partitioning, matching
+    read_vtu_points. Returns (cellid, values) with values flattened per cell
+    (scalar fields squeezed to 1-D). Requires meshio.
+    """
+    import meshio
+
+    m = meshio.read(str(path))
+    vals = np.concatenate([np.asarray(b).reshape(len(b), -1) for b in m.cell_data[name]])
+    cid = m.cell_data.get("CellID")
+    if cid is None:
+        return np.arange(len(vals)), vals.squeeze()
+    cid = np.concatenate([np.asarray(b).ravel() for b in cid])
+    order = np.argsort(cid, kind="stable")
+    return cid[order], vals[order].squeeze()
+
+
 def write_golden(path, names, data):
     # CellModelTest writes ~7 significant figures; %.8e keeps that faithfully
     # without storing re-expansion noise, and stays well above the compare rtol.

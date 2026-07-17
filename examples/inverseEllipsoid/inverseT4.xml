@@ -1,0 +1,123 @@
+<Setting>Inverse-problem ellipsoid - recover the active stress that reproduces the target surfaces</Setting>
+
+<General>
+    <LogFile>Results/Inverse.log</LogFile>
+</General>
+
+<Mesh>
+    <Type>T4</Type>
+    <Format>Tetgen</Format>
+    <Sorting>None</Sorting>
+    <Tetgen>
+        <Unit>1e-3</Unit>
+        <Nodes>geometry/meshT4IP.node</Nodes>
+        <Elements>geometry/meshT4.ele</Elements>
+        <Bases>geometry/meshT4.bases</Bases>
+        <Surfaces>geometry/meshT4IP.sur</Surfaces>
+    </Tetgen>
+    <Surfaces>
+        <Surface_1>
+            <Type>CONTACT_MASTER</Type>
+        </Surface_1>
+        <Surface_2>
+            <Type>CONTACT_SLAVE</Type>
+        </Surface_2>
+    </Surfaces>
+</Mesh>
+
+<Materials>
+    <Mat_Default>
+        <IgnoreCorruptElements>true</IgnoreCorruptElements>
+    </Mat_Default>
+    <Global>
+        <Damping>
+            <Type>Rayleigh</Type>
+            <Rayleigh>
+                <Alpha>500</Alpha>
+                <Beta>0.005</Beta>
+            </Rayleigh>
+        </Damping>
+    </Global>
+    <Mat_30>
+        <Type>Guccione</Type>
+        <TensionMax>1</TensionMax>
+        <Density>1082</Density>
+        <Guccione>
+            <C>556</C>
+            <bf>12</bf>
+            <bt>4.8</bt>
+            <bfs>8.4</bfs>
+            <K>1e6</K>
+        </Guccione>
+        <TensionModel>TensionEstimator</TensionModel>
+    </Mat_30>
+</Materials>
+
+<Export>
+    <Format>VTK</Format>
+    <Prefix>Results/Inverse</Prefix>
+    <TimeStep>1e-2</TimeStep>
+    <Options>
+        <Material>true</Material>
+        <Fixation>true</Fixation>
+        <FiberAllQuadraturePoints>false</FiberAllQuadraturePoints>
+        <SurfaceElementID>true</SurfaceElementID>
+        <SurfaceID>true</SurfaceID>
+        <SurfaceNormal>true</SurfaceNormal>
+        <ActiveStress>true</ActiveStress>
+        <TetgenBases>true</TetgenBases>
+        <Deformation>true</Deformation>
+        <Lambda>true</Lambda>
+        <Cauchy>true</Cauchy>
+        <LocalActivationTime>true</LocalActivationTime>
+        <Fiber>true</Fiber>
+        <Sheet>true</Sheet>
+        <SheetNormal>true</SheetNormal>
+        <AbsDisplacement>true</AbsDisplacement>
+        <Displacement>true</Displacement>
+        <Velocity>true</Velocity>
+        <Acceleration>true</Acceleration>
+    </Options>
+</Export>
+
+<Solver>
+    <NonZeros>200</NonZeros>
+    <DomainDecomposition>false</DomainDecomposition>
+    <Precision>1e-12</Precision>
+    <Verbose>true</Verbose>
+    <LU>true</LU>
+    <Type>ActiveStressEstimator</Type>
+    <ActiveStressEstimator>
+        <AbsTol>1e-5</AbsTol>
+        <RelTol>1e-5</RelTol>
+        <l6>1e-14</l6>
+    </ActiveStressEstimator>
+
+    <Formulation>TotalLagrangian</Formulation>
+    <StartTime>0</StartTime>
+    <StopTime>1</StopTime>
+    <TimeStep>1e-2</TimeStep>
+    <Plugins>
+        <PointsCtrl>true</PointsCtrl>
+        <ContactHandling>true</ContactHandling>
+    </Plugins>
+</Solver>
+
+<Plugins>
+    <ContactHandling>
+        <Export>true</Export>
+        <ExportPath>Results/ContactHandling.dat</ExportPath>
+        <Alpha>0</Alpha>
+        <Beta>1</Beta>
+        <Steps>1</Steps>
+        <Partner>1,2</Partner>
+    </ContactHandling>
+    <PointsCtrl>
+        <Points>
+            <FromTo>723,1007</FromTo>
+        </Points>
+        <Coordinates>
+            <File>TargetSurfaces.list</File>
+        </Coordinates>
+    </PointsCtrl>
+</Plugins>

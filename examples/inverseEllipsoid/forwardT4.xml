@@ -1,0 +1,110 @@
+<Setting>Inverse-problem ellipsoid - forward run generating the target deformation</Setting>
+
+<General>
+    <LogFile>Results/forward.log</LogFile>
+</General>
+
+<Mesh>
+    <Type>T4</Type>
+    <Format>Tetgen</Format>
+    <Sorting>None</Sorting>
+    <Tetgen>
+        <Unit>1e-3</Unit>
+        <Nodes>geometry/meshT4IP.node</Nodes>
+        <Elements>geometry/meshT4.ele</Elements>
+        <Bases>geometry/meshT4.bases</Bases>
+        <Surfaces>geometry/meshT4IP.sur</Surfaces>
+    </Tetgen>
+    <Surfaces>
+        <Surface_1>
+            <Type>T3</Type>
+        </Surface_1>
+        <Surface_2>
+            <Type>T3</Type>
+        </Surface_2>
+    </Surfaces>
+</Mesh>
+
+<Materials>
+    <Mat_Default>
+        <IgnoreCorruptElements>true</IgnoreCorruptElements>
+    </Mat_Default>
+    <Global>
+        <Damping>
+            <Type>Rayleigh</Type>
+            <Rayleigh>
+                <Alpha>500</Alpha>
+                <Beta>0.005</Beta>
+            </Rayleigh>
+        </Damping>
+    </Global>
+    <Mat_30>
+        <Type>Guccione</Type>
+        <TensionMax>120000</TensionMax>
+        <TensionModel>FromFunction</TensionModel>
+        <Density>1082</Density>
+        <Guccione>
+            <C>556</C>
+            <bf>12</bf>
+            <bt>4.8</bt>
+            <bfs>8.4</bfs>
+            <K>1e6</K>
+        </Guccione>
+        <FromFunction>
+            <Type>DoubleHill</Type>
+            <StartTime>0.0</StartTime>
+            <StopTime>10.0</StopTime>
+            <DoubleHill>
+                <Period>1.0</Period>
+                <ContrTimeOffset>0.215</ContrTimeOffset>
+                <RelaxTimeOffset>0.362</RelaxTimeOffset>
+                <ContrRateConst>1.32</ContrRateConst>
+                <RelaxRateConst>21.9</RelaxRateConst>
+                <OnsetTime>0.1</OnsetTime>
+            </DoubleHill>
+        </FromFunction>
+    </Mat_30>
+</Materials>
+
+<Export>
+    <Format>VTK</Format>
+    <Prefix>Results/forward</Prefix>
+    <TimeStep>1e-2</TimeStep>
+    <Options>
+        <Material>true</Material>
+        <Fiber>true</Fiber>
+        <Sheet>true</Sheet>
+        <Sheetnormal>true</Sheetnormal>
+        <Velocity>true</Velocity>
+        <Acceleration>true</Acceleration>
+        <ActiveTension>true</ActiveTension>
+    </Options>
+</Export>
+
+<Solver>
+    <NonZeros>2000</NonZeros>
+    <DomainDecomposition>false</DomainDecomposition>
+    <Precision>1e-8</Precision>
+    <Verbose>true</Verbose>
+    <LU>true</LU>
+    <Type>NewmarkBeta</Type>
+    <NewmarkBeta>
+        <Beta>0.3</Beta>
+        <Gamma>0.6</Gamma>
+    </NewmarkBeta>
+    <Formulation>TotalLagrangian</Formulation>
+    <StartTime>0</StartTime>
+    <StopTime>1</StopTime>
+    <TimeStep>1e-2</TimeStep>
+    <Plugins>
+        <ApplyPressure>false</ApplyPressure>
+    </Plugins>
+</Solver>
+
+<Plugins>
+    <ApplyPressure>
+        <MaxPressure>-5000</MaxPressure>
+        <SurfaceIndex>1</SurfaceIndex>
+        <KeepMaxPressure>true</KeepMaxPressure>
+    </ApplyPressure>
+</Plugins>

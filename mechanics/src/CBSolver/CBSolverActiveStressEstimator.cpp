@@ -312,15 +312,12 @@ CBStatus CBSolverActiveStressEstimator::EstimatorStep(PetscScalar time, int step
 
         Mat subdfdx;
         MatCreateSubMatrix(nodalForcesJacobian_, nodesOfInterestIndices_, nodesOfInterestIndices_, MAT_INITIAL_MATRIX, &subdfdx);
-        Mat subdfdxT;
-        MatTranspose(subdfdx, MAT_INITIAL_MATRIX, &subdfdxT);
-
         IS perm, iperm;
         Mat f;
         MatFactorInfo info;
         MatFactorInfoInitialize(&info);
-        MatGetOrdering(subdfdxT, MATORDERINGND, &perm, &iperm);
-        MatGetFactor(subdfdxT, MATSOLVERMUMPS, MAT_FACTOR_LU, &f);
+        MatGetOrdering(subdfdx, MATORDERINGND, &perm, &iperm);
+        MatGetFactor(subdfdx, MATSOLVERMUMPS, MAT_FACTOR_LU, &f);
         MatLUFactorSymbolic(f, subdfdx, perm, iperm, &info);
         MatLUFactorNumeric(f, subdfdx, &info);
 
@@ -346,7 +343,6 @@ CBStatus CBSolverActiveStressEstimator::EstimatorStep(PetscScalar time, int step
         MatDestroy(&b);
         MatDestroy(&bt);
         MatDestroy(&f);
-        MatDestroy(&subdfdxT);
         ISDestroy(&iperm);
         ISDestroy(&perm);
         MatDestroy(&subdfdx);

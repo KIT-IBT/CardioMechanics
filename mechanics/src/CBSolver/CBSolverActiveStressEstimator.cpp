@@ -131,6 +131,19 @@ void CBSolverActiveStressEstimator::Init(ParameterMap *parameters, CBModel *mode
 
     GenerateElementLaplacian();
 
+    // dfdtau gets one entry per (node DOF, adjacent solid element) pair, contributed by
+    // CalcNodalForcesActiveStressJacobian. Count the adjacent elements per node so the matrix can be
+    // preallocated exactly; the three DOFs of a node share the same count.
+    dfdtauNnz_.assign(3 * numNodes_, 0);
+    for (auto &e : GetSolidElementVector())
+        for (unsigned int j = 0; j < e->GetNumberOfNodesIndices(); j++) {
+            TInt n = e->GetNodeIndex(j);
+            if ((n < 0) || (n >= numNodes_))
+                throw std::runtime_error("CBSolverActiveStressEstimator::Init(): node index out of range");
+            for (int k = 0; k < 3; k++)
+                dfdtauNnz_[3*n + k]++;
+        }
+
     DCPetsc::CreateSeqVector(numElementOfInterestIndices_, &ti_);
     VecDuplicate(ti_, &ti1_);
     VecDuplicate(ti_, &ti2_);
@@ -281,7 +294,7 @@ CBStatus CBSolverActiveStressEstimator::EstimatorStep(PetscScalar time, int step
 
     // df/dtau: sensitivity of nodal forces to element active stress.
     Mat dfdtau;
-    DCPetsc::CreateSeqMatrix(3 * numNodes_, GetNumberOfElements(), 5000, &dfdtau);
+    MatCreateSeqAIJ(PETSC_COMM_WORLD, 3 * numNodes_, GetNumberOfElements(), 0, dfdtauNnz_.data(), &dfdtau);
     adapter_->LinkNodalForcesActiveStressJacobian(dfdtau);
     formulation_->CalcNodalForcesActiveStressJacobian();
     MatAssemblyBegin(dfdtau, MAT_FINAL_ASSEMBLY);

@@ -60,6 +60,9 @@ private:
     std::vector<TInt> mat_;
     std::set<TInt>    mn_;
 
+    // Nonzeros per row of dfdtau: one entry per solid element adjacent to the row's node.
+    std::vector<PetscInt> dfdtauNnz_;
+
     Mat lTl_             = nullptr;
     Mat elementLaplacian_ = nullptr;
     Mat inv_             = nullptr;

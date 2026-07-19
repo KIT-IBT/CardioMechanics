@@ -304,7 +304,6 @@ CBStatus CBSolverActiveStressEstimator::EstimatorStep(PetscScalar time, int step
 
     // inv = (df/dx)^{-1} restricted to the nodes of interest, applied to the master-node unit loads.
     Mat inv;
-    MatCreateSeqDense(PETSC_COMM_SELF, numMasterNodesIndices_, numNodesOfInterestIndices_, nullptr, &inv);
 
     if (step == 0 || !(parameters_->Get<bool>("Solver.ActiveStressEstimator.ReUseInverse", false))) {
         CBSolver::CalcNodalForcesJacobian();
@@ -325,36 +324,32 @@ CBStatus CBSolverActiveStressEstimator::EstimatorStep(PetscScalar time, int step
         MatLUFactorSymbolic(f, subdfdx, perm, iperm, &info);
         MatLUFactorNumeric(f, subdfdx, &info);
 
-        Vec ba, e;
-        DCPetsc::CreateSeqVector(numNodesOfInterestIndices_, &ba);
-        VecDuplicate(ba, &e);
-        PetscInt *ind = new PetscInt[numNodesOfInterestIndices_];
-        for (int i = 0; i < numNodesOfInterestIndices_; i++)
-            ind[i] = i;
+        // Solve for all master-node unit loads at once rather than one at a time: the right-hand
+        // sides are the unit vectors at the master DOFs, which MUMPS takes in sparse form. PETSc
+        // selects that path when the right-hand side is a virtual transpose of a sparse matrix.
+        Mat bt;
+        MatCreateSeqAIJ(PETSC_COMM_SELF, numMasterNodesIndices_, numNodesOfInterestIndices_, 1, nullptr, &bt);
+        for (int i = 0; i < numMasterNodesIndices_; i++)
+            MatSetValue(bt, i, masterNodesIndicesNodesOfInterestMapping_[i], 1, INSERT_VALUES);
+        MatAssemblyBegin(bt, MAT_FINAL_ASSEMBLY);
+        MatAssemblyEnd(bt, MAT_FINAL_ASSEMBLY);
 
-        for (int i = 0; i < numMasterNodesIndices_; i++) {
-            VecZeroEntries(ba);
-            VecSetValue(ba, masterNodesIndicesNodesOfInterestMapping_[i], 1, INSERT_VALUES);
-            VecAssemblyBegin(ba);
-            VecAssemblyEnd(ba);
-            VecZeroEntries(e);
-            MatSolve(f, ba, e);
-            PetscScalar *vals;
-            VecGetArray(e, &vals);
-            MatSetValues(inv, 1, &i, numNodesOfInterestIndices_, ind, vals, INSERT_VALUES);
-            VecRestoreArray(e, &vals);
-        }
-        MatAssemblyBegin(inv, MAT_FINAL_ASSEMBLY);
-        MatAssemblyEnd(inv, MAT_FINAL_ASSEMBLY);
+        Mat b, x;
+        MatCreateTranspose(bt, &b);
+        MatCreateSeqDense(PETSC_COMM_SELF, numNodesOfInterestIndices_, numMasterNodesIndices_, nullptr, &x);
+        MatMatSolve(f, b, x);
 
-        VecDestroy(&ba);
-        VecDestroy(&e);
+        // The solutions come back as columns of x; inv holds them as rows.
+        MatTranspose(x, MAT_INITIAL_MATRIX, &inv);
+
+        MatDestroy(&x);
+        MatDestroy(&b);
+        MatDestroy(&bt);
         MatDestroy(&f);
         MatDestroy(&subdfdxT);
         ISDestroy(&iperm);
         ISDestroy(&perm);
         MatDestroy(&subdfdx);
-        delete[] ind;
 
         if (inv_ == nullptr)
             MatDuplicate(inv, MAT_DO_NOT_COPY_VALUES, &inv_);
@@ -362,9 +357,7 @@ CBStatus CBSolverActiveStressEstimator::EstimatorStep(PetscScalar time, int step
         MatAssemblyBegin(inv_, MAT_FINAL_ASSEMBLY);
         MatAssemblyEnd(inv_, MAT_FINAL_ASSEMBLY);
     } else {
-        MatCopy(inv_, inv, DIFFERENT_NONZERO_PATTERN);
-        MatAssemblyBegin(inv, MAT_FINAL_ASSEMBLY);
-        MatAssemblyEnd(inv, MAT_FINAL_ASSEMBLY);
+        MatDuplicate(inv_, MAT_COPY_VALUES, &inv);
     }
 
     // Sensitivity of the master-node positions to the element active stress, and normal equations.

@@ -36,6 +36,21 @@ CLAUDE.md
 .windsurfrules
 .github/copilot-instructions.md
 
+# LaTeX build artifacts (docs/UserManual); the rendered docs/Manual.pdf is tracked
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lol
+*.out
+*.pdfsync
+*.synctex.gz
+*.toc
+*-eps-converted-to.pdf
+docs/UserManual/Manual.pdf
+docs/UserManual/*.log
+
 # misc
 *.swp
 *.o

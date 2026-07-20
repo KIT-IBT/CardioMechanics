@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(CardioMechanics LANGUAGES CXX)
+project(CardioMechanics VERSION 1.1 LANGUAGES CXX)
 
 # VTK 9+ requires C++17; set globally to avoid flag conflicts when targets propagate their standards.
 set(CMAKE_CXX_STANDARD 17)

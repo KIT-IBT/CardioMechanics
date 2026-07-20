@@ -39,7 +39,11 @@ Configure and build using the provided presets (binaries are placed in \verb|_bu
 cmake --preset release
 cmake --build --preset release -j
 \end{lstlisting}
-Use the \verb|debug| preset in the same way for a debug build. To build without presets, run \verb|cmake -S . -B _build/release -DCMAKE_BUILD_TYPE=Release| followed by \verb|cmake --build _build/release -j|.
+Use the \verb|debug| preset in the same way for a debug build. To build without presets:
+\begin{lstlisting}[language=bash]
+cmake -S . -B _build/release -DCMAKE_BUILD_TYPE=Release
+cmake --build _build/release -j
+\end{lstlisting}
 
 Finally, add the executables and Python tools to your PATH variable:
 \begin{lstlisting}[language=bash]

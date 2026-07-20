@@ -1,8 +1,6 @@
 # CardioMechanics
 
 CardioMechanics is a simulation environment designed for (but not limited to) cardiac tissue electromechanics problems.
-As of 09/2023, active development on this software is no longer pursued.
-Therefore, support is limited.
 Even though this repository includes a standalone cardiac electrophysiology solver, we recommend using [openCARP](https://opencarp.org) instead if you are only interested in cardiac electrophysiology.
 
 ## Features

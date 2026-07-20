@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -11,6 +12,8 @@ env:
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.tags }}
     permissions:
       contents: read
       packages: write
@@ -39,24 +42,14 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       
-      - name: Build and push VTK Docker image
-        id: push-vtk
-        uses: docker/build-push-action@v5
-        with:
-          file: ./docker/Dockerfile-thirdparty-vtk
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-vtk
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-vtk:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-vtk:buildcache,mode=max
-          push: true
-        
-      - name: Build and push OpenMPI and PETSc Docker image
+      - name: Build and push PETSc Docker image
         id: push-petsc
         uses: docker/build-push-action@v5
         with:
-          file: ./docker/Dockerfile-thirdparty-openmpi-petsc
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-openmpi-petsc
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-openmpi-petsc:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-openmpi-petsc:buildcache,mode=max
+          file: ./docker/Dockerfile-thirdparty-petsc
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-petsc
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-petsc:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-petsc:buildcache,mode=max
           push: true
 
       - name: Build and push main Docker image
@@ -65,10 +58,35 @@ jobs:
         with:
           file: ./docker/Dockerfile
           build-args: |
-            VTK_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-vtk
-            OPENMPI_PETSC_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-openmpi-petsc
+            PETSC_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/thirdparty-petsc
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
           push: true
+
+  tests-in-container:
+    runs-on: ubuntu-latest
+    needs: build-and-push-image
+    permissions:
+      contents: read
+      packages: read
+    container:
+      image: ${{ needs.build-and-push-image.outputs.image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Set up Python environment
+        run: |
+          apt update
+          apt install -y python3-venv
+          cd /CardioMechanics
+          python3 -m venv .venv
+          . .venv/bin/activate
+          pip install -r tests/requirements.txt
+          export CM_BIN_DIR=/CardioMechanics/_build/release/bin
+          export OMPI_ALLOW_RUN_AS_ROOT=1
+          export OMPI_ALLOW_RUN_AS_ROOT_CONFIRM=1
+          mkdir -p ~/.openmpi && echo 'hwloc_base_use_hwthreads_as_cpus = 1' >> ~/.openmpi/mca-params.conf
+          python -m pytest tests/

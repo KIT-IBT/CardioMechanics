@@ -27,8 +27,8 @@ public:
     CBSolverPluginCavities() : CBSolverPlugin() {}
     virtual ~CBSolverPluginCavities(){}
     
-    virtual void Init() = 0;
-    virtual void Apply(TFloat time)  = 0;
+    virtual void Init() override = 0;
+    virtual void Apply(TFloat time) override = 0;
     virtual std::string GetName() override { return("SolverPluginCavities"); };
     
     virtual void InitCavities(std::string pluginRootKey);

@@ -48,8 +48,8 @@ CBStatus CBSolverEquilibrium::CalcNodalForces(Vec displacement, Vec forces) {
     
     Vec localDisplacedNodesSeq;
     Vec displacedNodes;
-    VecAssemblyBegin(displacement);
-    VecAssemblyEnd(displacement);
+    // VecAssemblyBegin(displacement);
+    // VecAssemblyEnd(displacement);
     
     VecDuplicate(Base::nodes_, &displacedNodes);
     
@@ -100,7 +100,7 @@ CBStatus CBSolverEquilibrium::CalcNodalForces(Vec displacement, Vec forces) {
         localSuccess = false;
     else
         localSuccess = true;
-    MPI_Allreduce(&localSuccess, &globalSuccess, 1, MPI_INT, MPI_LAND, Petsc::Comm());
+    MPI_Allreduce(&localSuccess, &globalSuccess, 1, MPI_INT, MPI_LAND, DCPetsc::Comm());
     if (!globalSuccess)
         return CBStatus::FAILED;
     else
@@ -176,7 +176,7 @@ CBStatus CBSolverEquilibrium::CalcNodalForcesJacobian(Vec displacement, Mat jaco
         localSuccess = false;
     else
         localSuccess = true;
-    MPI_Allreduce(&localSuccess, &globalSuccess, 1, MPI_INT, MPI_LAND, Petsc::Comm());
+    MPI_Allreduce(&localSuccess, &globalSuccess, 1, MPI_INT, MPI_LAND, DCPetsc::Comm());
     if (!globalSuccess)
         return CBStatus::FAILED;
     else
@@ -197,7 +197,7 @@ void CBSolverEquilibrium::InitPETScSolver() {
         KSPSetType(ksp_, "preonly");
     }
     
-    PCFactorSetMatSolverPackage(pc_, "mumps");
+    PCFactorSetMatSolverType(pc_, "mumps");
     SNESSetFromOptions(snes_);
     KSPSetFromOptions(ksp_);
     PCSetFromOptions(pc_);
@@ -284,7 +284,7 @@ CBStatus CBSolverEquilibrium::SolverStep(PetscScalar time, bool forceJacobianAnd
     InitPETScSolver();
     
     snesStep_ = 0;
-    SNESSolve(snes_, PETSC_NULL, displacement_);
+    SNESSolve(snes_, PETSC_NULLPTR, displacement_);
     
     SNESGetIterationNumber(snes_, &snesIts);
     KSPGetTotalIterations(ksp_, &kspIts);
@@ -292,9 +292,9 @@ CBStatus CBSolverEquilibrium::SolverStep(PetscScalar time, bool forceJacobianAnd
     KSPGetConvergedReason(ksp_, &kspReason);
     
     DCCtrl::debug << "\n\t--- --- Solver step finished --- ---\n";
-    DCCtrl::debug << "\tSNES Reason: "     << Petsc::SNESReasonToString(snesReason) << "\n";
+    DCCtrl::debug << "\tSNES Reason: "     << DCPetsc::SNESReasonToString(snesReason) << "\n";
     DCCtrl::debug << "\tSNES Iterations: " << snesIts    << "\n";
-    DCCtrl::debug << "\tKSP  Reason: "     << Petsc::KSPReasonToString(kspReason)  << "\n";
+    DCCtrl::debug << "\tKSP  Reason: "     << DCPetsc::KSPReasonToString(kspReason)  << "\n";
     DCCtrl::debug << "\tKSP  Iterations: " << kspIts     << "\n\n";
     Base::convergedReason_ = snesReason;
     Base::snesIterations_ += snesIts;

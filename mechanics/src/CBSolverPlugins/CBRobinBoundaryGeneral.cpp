@@ -24,7 +24,7 @@ CBRobinBoundaryGeneral::~CBRobinBoundaryGeneral() {
 }
 
 void CBRobinBoundaryGeneral::Init() {
-#warning Implementation only works for T3 surface elements at the moment
+#pragma message("Implementation only works for T3 surface elements at the moment")
     
     /// read XML parameter input
     startTime_ =
@@ -227,8 +227,8 @@ void CBRobinBoundaryGeneral::Export(TFloat time) {
         Vec contactForce;
         Vec contactPressure;
         
-        Petsc::CreateVector(3*GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactForce);
-        Petsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactPressure);
+        DCPetsc::CreateVector(3*GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactForce);
+        DCPetsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactPressure);
         
         PetscInt from1, to1;
         PetscInt from2, to2;

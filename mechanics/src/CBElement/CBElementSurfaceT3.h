@@ -51,8 +51,8 @@ public:
     TFloat CalcContributionToVolume(const TFloat *referenceCoords) override;
     void CalcContributionToVolumeJacobian(TFloat *volumeJacobianEntries, TInt *volumeJacobianEntriesIndices) override;
     void GetAreaNormalAndIndices(TFloat *c, TInt *nodesCoordsIndices) override;
-    void ApplyPressure(TFloat pressure);
-    void CalcPressureJacobian(TFloat pressure);
+    void ApplyPressure(TFloat pressure) override;
+    void CalcPressureJacobian(TFloat pressure) override;
     void SetBasisAtQuadraturePoint(int i, const Matrix3<TFloat> &basis) override;
     Matrix3<TFloat> *GetBasisAtQuadraturePoint(int i) override;
     

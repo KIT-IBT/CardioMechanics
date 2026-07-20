@@ -149,7 +149,14 @@ bool DigestCommandline(int argc, std::string parameterFile, bool &shouldCheckSet
         PrintHelpText();
         return false; // back to main, stop after this
     }
-    
+
+    // These flags are parsed directly from argv above, not through PETSc's
+    // options API, so PETSc never marks them used. Remove them from the
+    // options database to prevent the spurious "options left" warning at exit.
+    for (const char* opt : {"-settings", "-check_settings", "-no_try_catch",
+                            "-handbrake", "-verbose", "-debug", "-parameter"})
+        DCCtrl::ClearOption(opt);
+
     cardio.ReadParameterFile(parameterFile);
     for (auto ep:extraParameters) {
         std::string key   = "";

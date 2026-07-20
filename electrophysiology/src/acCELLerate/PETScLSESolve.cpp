@@ -47,19 +47,19 @@ PETScAIJSolve::PETScAIJSolve(int argc, char **argv) {
   vecname  = argv[is++];
 
   PetscBool flg;
-  PetscOptionsHasName(PETSC_NULL, "-verbose", &flg);
+  PetscOptionsHasName(PETSC_NULLPTR, "-verbose", &flg);
   if (flg)
     this->verbose = true;
-  PetscOptionsHasName(PETSC_NULL, "-bin", &flg);
+  PetscOptionsHasName(PETSC_NULLPTR, "-bin", &flg);
   if (flg)
     this->mot = ot_bin;
-  PetscOptionsHasName(PETSC_NULL, "-ascii", &flg);
+  PetscOptionsHasName(PETSC_NULLPTR, "-ascii", &flg);
   if (flg)
     this->mot = ot_ascii;
-  PetscOptionsHasName(PETSC_NULL, "-matlab", &flg);
+  PetscOptionsHasName(PETSC_NULLPTR, "-matlab", &flg);
   if (flg)
     this->mot = ot_matlab;
-  ierr = PetscOptionsGetString(PETSC_NULL, "-saveab", savepre, sizeof(savepre)/sizeof(char), &flg);
+  ierr = PetscOptionsGetString(PETSC_NULLPTR, "-saveab", savepre, sizeof(savepre)/sizeof(char), &flg);
   if (flg) {
     this->saveab  = true;
     PETScLSE::bot = PETScLSE::mot;

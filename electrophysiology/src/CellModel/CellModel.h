@@ -179,7 +179,7 @@ class CellParameters {
 
     if (!fp)
       throw kaBaseException("Can't open clampfile %s", clampFile);
-    for (int numClamps = 0; !feof(fp); numClamps++) {
+    while (!feof(fp)) {
       Clamp tmp;
       char  buf[256];
       int   rc = fscanf(fp, "%s %lf %lf ", buf, &tmp.t, &tmp.val);

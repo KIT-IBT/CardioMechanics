@@ -79,7 +79,7 @@ void CBReferenceRecovery::Apply(TFloat time) {
     DCCtrl::print << "\tCurrent pressures:";
     char str[10];
     for (auto s : surfaces_) {
-        sprintf(str, "%.1f", S_.currentPressures_.at(s));
+        snprintf(str, sizeof(str), "%.1f",S_.currentPressures_.at(s));
         DCCtrl::print << " " << str;
     }
     DCCtrl::print << std::endl;
@@ -123,7 +123,7 @@ void CBReferenceRecovery::AnalyzeResults() {
         DCCtrl::print << "\tUnloaded volumes:";
         char str[6];
         for (auto s : surfaces_) {
-            sprintf(str, "%.1f", 100*S_.unloadedVolumes_.at(s)/initialVolumes_.at(s));
+            snprintf(str, sizeof(str), "%.1f",100*S_.unloadedVolumes_.at(s)/initialVolumes_.at(s));
             DCCtrl::print << " " << str << "%";
         }
         DCCtrl::print << std::endl;
@@ -237,7 +237,7 @@ void CBReferenceRecovery::InitParamsFromXML() {
 } // CBReferenceRecovery::InitParamsFromXML
 
 void CBReferenceRecovery::InitPetscVec() {
-    VecCreate(Petsc::Comm(), &targetCoords_);
+    VecCreate(DCPetsc::Comm(), &targetCoords_);
     VecSetSizes(targetCoords_, 3*adapter_->GetSolver()->GetNumberOfLocalNodes(), PETSC_DETERMINE);
     VecSetFromOptions(targetCoords_);
     VecZeroEntries(targetCoords_);
@@ -476,7 +476,7 @@ void CBReferenceRecovery::ExportFibersAsBasesFile(bool isFinalCycle) {
     Vec fVec, sVec, snVec;
     
     if (DCCtrl::IsParallel())
-        VecCreateMPI(Petsc::Comm(), 3 * solidElements.size() * nQP, PETSC_DETERMINE, &fVec);
+        VecCreateMPI(DCPetsc::Comm(), 3 * solidElements.size() * nQP, PETSC_DETERMINE, &fVec);
     else
         VecCreateSeq(PETSC_COMM_SELF, 3 * solidElements.size() * nQP, &fVec);
     

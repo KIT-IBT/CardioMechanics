@@ -38,17 +38,17 @@ PETScLSE::~PETScLSE() {
     PetscErrorCode ierr;
     
     if (ksp) {
-        ierr = KSPDestroy(&ksp); CHKERRQ(ierr);
+        ierr = KSPDestroy(&ksp); CHKERRV(ierr);
     }
     if (A) {
-        ierr = MatDestroy(&A); CHKERRQ(ierr);
+        ierr = MatDestroy(&A); CHKERRV(ierr);
     }
     if (X) {
-        ierr = VecDestroy(&X); CHKERRQ(ierr);
+        ierr = VecDestroy(&X); CHKERRV(ierr);
         X    = NULL;
     }
     if (B) {
-        ierr = VecDestroy(&B); CHKERRQ(ierr);
+        ierr = VecDestroy(&B); CHKERRV(ierr);
     }
 }
 
@@ -58,8 +58,8 @@ void PETScLSE::CreateA(PetscInt DiagonalElements, PetscInt NonDiagonalElements) 
 #endif  // if KADEBUG
     
     PetscErrorCode ierr;
-    ierr = MatCreateAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, size, size, DiagonalElements, PETSC_NULL,
-                        NonDiagonalElements, PETSC_NULL, &A); CHKERRQ(ierr);
+    ierr = MatCreateAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, size, size, DiagonalElements, PETSC_NULLPTR,
+                        NonDiagonalElements, PETSC_NULLPTR, &A); CHKERRQ(ierr);
     ierr = MatSetOption(A, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE); CHKERRQ(ierr);
     ierr = MatGetOwnershipRange(A, &Istart, &Iend); CHKERRQ(ierr);
 }
@@ -183,14 +183,14 @@ void PETScLSE::MatZeroColumns(PetscInt numRows, const PetscInt *rows) {
     int i = 0;
     for (i = 0; i < numRows; i++)
         if ((rows[i] >= Istart) && (rows[i] < Iend)) {
-            ierr       = MatGetRow(A, rows[i], &ncols[i], &cols, PETSC_NULL); CHKERRQ(ierr);
+            ierr       = MatGetRow(A, rows[i], &ncols[i], &cols, PETSC_NULLPTR); CHKERRQ(ierr);
             indizes[i] = new PetscInt[ncols[i]];
             values[i]  = new PetscScalar[ncols[i]];
             for (int j = 0; j < ncols[i]; j++) {
                 indizes[i][j] = cols[j];
                 values[i][j]  = 0.0;
             }
-            ierr = MatRestoreRow(A, rows[i], &ncols[i], &cols, PETSC_NULL); CHKERRQ(ierr);
+            ierr = MatRestoreRow(A, rows[i], &ncols[i], &cols, PETSC_NULLPTR); CHKERRQ(ierr);
         }
     
     for (i = 0; i < numRows; i++)

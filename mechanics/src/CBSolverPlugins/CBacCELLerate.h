@@ -105,7 +105,6 @@ private:
     TFloat stopTime_ = 0;
     float stepBackTime_ = 0;
     bool stepBack_    = false;
-    int counter_ = 0;
     CBStatus status_ = CBStatus::WAITING;
     
     /// Plugin parameters

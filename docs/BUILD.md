@@ -1,93 +1,148 @@
 # Building CardioMechanics from source
 
 First, you have to make sure all requirements for building CardioMechanics are met.
-Afterwards, CardioMechanics can be build using CMake.
-Building from source was tested on Linux and Intel based Mac systems. 
-ARM based Macs may require some changes.
+Afterwards, CardioMechanics can be built using CMake.
+Building from source was tested on Linux and macOS (Intel and Apple Silicon).
 
 ## Requirements
 
 The following requirements have to be installed before trying to build CardioMechanics from source.
-We recommend using a package manager (we use [macports](https://www.macports.org) on our macOSX systems) whenever possible.
+We recommend using a package manager (e.g. [Homebrew](https://brew.sh) on macOS or `apt` on Ubuntu) whenever possible.
 * C and C++ compilers (e.g. gcc/g++ or clang/clang++)
-* [CMake](https://cmake.org)
+* [CMake](https://cmake.org) ≥ 3.20
+* [pkg-config](https://www.freedesktop.org/wiki/Software/pkg-config/)
 * [zlib](https://zlib.net)
 * [gfortran](https://gcc.gnu.org/fortran/)
 * [git](https://git-scm.com)
-* [make](https://git-scm.com)
-* [PETSc](https://www.mcs.anl.gov/petsc/)
-* [VTK](https://vtk.org)
+* [PETSc](https://petsc.org/) (built with `--prefix` so that a `PETSc.pc` pkg-config file is generated)
+* [VTK](https://vtk.org) ≥ 9
 * [Open MPI](https://www.open-mpi.org)
-* [Python3](https://www.python.org) (optional, if you want to use some of the provided tools)
+* [Python3](https://www.python.org) (optional, for the tools in `tools/python/`)
 
-With [installRequirements.sh](/installRequirements.sh) we provide a script to compile [Open MPI](https://www.open-mpi.org), [PETSc](https://www.mcs.anl.gov/petsc/), and [VTK](https://vtk.org) from source with the most recently tested versions to ensure compatibility.
-Building with CMake as described in the next step requires the location and version of the tools as set in the script.
-If you do want to use alternative locations/versions you have to link them as required.
-By default, the script [installRequirements.sh](/installRequirements.sh) compiles all components using a single process, which takes a considerable amount of time.
-If you want to speed up this process, use the command `make` with the option `-j X` where `X` is the number of processes you want to use.
-Additionally, adjust `export AUTOMAKE_JOBS=X` specifically for [Open MPI](https://www.open-mpi.org).
+The `docker/` directory contains the Dockerfiles used by CI: `Dockerfile-thirdparty-petsc` source-builds PETSc with the tested version, while Open MPI and VTK are installed from apt (`libopenmpi-dev`, `libvtk9-dev`). They can serve as a reference for building dependencies manually.
 
-## Building using CMake
+## Environment variables
 
-Before continuing with compiling CardioMechanics using [CMake](https://cmake.org), add the following environmental variables to your systems configuration file ( e.g. .bashrc or .zshrc)
+Only `PETSC_DIR` (and optionally `PETSC_ARCH`) are required so that CMake can locate the PETSc pkg-config file.
 
-If you installed the requirements with homebrew add:
-```
-export kaRootDir=$HOME/CardioMechanics
-export THIRDPARTY_HOME=$kaRootDir/thirdparty
+```sh
+export PETSC_DIR=/path/to/petsc          # prefix install directory
+export PETSC_ARCH=                        # leave empty if PETSc was installed with --prefix
 ```
 
-Additionally, you need to build PETSc from source. This can be done using the following commands (which are a modified version of the way it is done in installRequirements.sh](/installRequirements.sh))
+If `PETSC_ARCH` is non-empty, the pkg-config file is expected at `$PETSC_DIR/$PETSC_ARCH/lib/pkgconfig/PETSc.pc`.
+If `PETSC_ARCH` is empty, it is expected at `$PETSC_DIR/lib/pkgconfig/PETSc.pc`.
 
-```
-# compile PETSc
-cd {SOFTWARE_HOME}
-git clone --depth 1 --branch ${PETSC_VERSION} https://gitlab.com/petsc/petsc.git petsc-${PETSC_VERSION} 
-cd petsc-${PETSC_VERSION}
-unset PETSC_DIR
-unset PETSC_ARCH
-./configure --download-superlu --download-superlu_dist --download-mumps --download-dmumps --download-bison --download-ptscotch --download-scalapack --download-blacs --with-shared-libraries=0 --with-x=0  --prefix=$HOME/software/petsc --download-fblaslapack --download-metis --download-parmetis --download-hypre --with-debugging=0 COPTFLAGS='-O2' CXXOPTFLAGS='-O2' FOPTFLAGS='-O2'
-make PETSC_DIR={SOFTWARE_HOME}/petsc-${PETSC_VERSION} PETSC_ARCH=arch-darwin-c-opt all
-make PETSC_DIR={SOFTWARE_HOME}/petsc-${PETSC_VERSION} PETSC_ARCH=arch-darwin-c-opt install
-make PETSC_DIR=${prefixPath}/petsc-${PETSC_VERSION} PETSC_ARCH="" check
+VTK and Open MPI are found via CMake's standard search paths.
+On macOS with Homebrew, no extra variables are needed — Homebrew's prefix (`/opt/homebrew` or `/usr/local`) is searched automatically.
+
+### PETSc build example
+
+PETSc must be configured with `--prefix` to generate the pkg-config file.  The options below
+enable the solver packages used by CardioMechanics:
+
+```sh
+cd /path/to/petsc-source
+./configure \
+    --prefix=/path/to/petsc/install \
+    --download-cmake \
+    --download-fblaslapack --download-mumps --download-scalapack \
+    --download-superlu --download-superlu_dist \
+    --download-metis --download-parmetis --download-hypre \
+    --with-shared-libraries=0 --with-x=0 \
+    --with-debugging=0 \
+    COPTFLAGS='-O3' CXXOPTFLAGS='-O3' FOPTFLAGS='-O3'
+make all && make install
 ```
 
-If you are using [installRequirements.sh](/installRequirements.sh) add:
-```
-export kaRootDir=$HOME/CardioMechanics
-export THIRDPARTY_HOME=$kaRootDir/thirdparty
-export PETSC_DIR=$THIRDPARTY_HOME/macosx
-export PETSC_ARCH=petsc-v3.19.1
-```
-In case you did not use either option to install the requirements add the paths `kaRootDir` and `THIRDPARTY_HOME` in the same way as proposed above and edit the path for `PETSC_DIR` according to your actual path.
+`--download-fblaslapack` builds PETSc's own reference BLAS/LAPACK: linking a system OpenBLAS can
+make MUMPS report the tangent stiffness as numerically singular on some CPUs.  `--download-cmake`
+lets PETSc build a recent enough CMake for those solver packages that require one newer than the
+system provides.
 
-Next add the location of the executables to your PATH variable (replace macosx with linux if you are on a linux machine).
+## Building
+
+Configure and build using presets (recommended):
+
+```sh
+cmake --preset release   # Release build, output in _build/release/
+cmake --build --preset release -j
+
+cmake --preset debug     # Debug build, output in _build/debug/
+cmake --build --preset debug -j
 ```
-PATH="$PATH:$THIRDPARTY_HOME/macosx/openMPI-64bit/bin"
-PATH="$PATH:$kaRootDir/_build/bin/macosx"
-PATH="$PATH:$kaRootDir/tools/python"
-export PATH
+
+Or without presets:
+
+```sh
+cmake -S . -B _build/release -DCMAKE_BUILD_TYPE=Release
+cmake --build _build/release -j
 ```
-We assume here that you copied the repository to your `$HOME` directory.
-If you chose a different root directory, adjust the `kaRootDir` variable accordingly.
-If you used a different PETSc version in [installRequirements.sh](/installRequirements.sh), adjust the `PETSC_ARCH` variable.
-Now run 
+
+Binaries are placed in `_build/<preset>/bin/`.
+
+Add the binaries and Python tools to your PATH:
+
+```sh
+export PATH="$PATH:/path/to/CardioMechanics/_build/release/bin"
+export PATH="$PATH:/path/to/CardioMechanics/tools/python"
 ```
-cmake -S . -B _build
+
+### Installing to a separate location (optional)
+
+Running the binaries directly from `_build/<preset>/bin/` is sufficient. To install them
+elsewhere, use `cmake --install`, which copies the executables into `<prefix>/bin/`:
+
+```sh
+cmake --install _build/release --prefix /path/to/install/CardioMechanics.opt
+# → binaries in /path/to/install/CardioMechanics.opt/bin/
 ```
-to create the `_build` folder and compile the code using
+
+Always pass `--prefix` (or pin `CMAKE_INSTALL_PREFIX` per preset — see below). Without it,
+`CMAKE_INSTALL_PREFIX` defaults to `/usr/local` on both Linux and macOS, and installing there
+requires root.
+
+### Pinning PETSC_DIR and the install prefix per preset
+
+If you maintain multiple PETSc builds (e.g. optimized and debug), create a local
+`CMakeUserPresets.json` at the repo root to pin `PETSC_DIR` and `CMAKE_INSTALL_PREFIX` per
+preset without modifying the committed `CMakePresets.json`:
+
+```json
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "local-release",
+      "inherits": "release",
+      "binaryDir": "${sourceDir}/_build/release",
+      "cacheVariables": { "CMAKE_INSTALL_PREFIX": "/path/to/install/CardioMechanics.opt" },
+      "environment": { "PETSC_DIR": "/path/to/petsc-opt", "PETSC_ARCH": "" }
+    },
+    {
+      "name": "local-debug",
+      "inherits": "debug",
+      "binaryDir": "${sourceDir}/_build/debug",
+      "cacheVariables": { "CMAKE_INSTALL_PREFIX": "/path/to/install/CardioMechanics.deb" },
+      "environment": { "PETSC_DIR": "/path/to/petsc-deb", "PETSC_ARCH": "" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "local-release", "configurePreset": "local-release", "configuration": "Release" },
+    { "name": "local-debug",   "configurePreset": "local-debug",   "configuration": "Debug" }
+  ]
+}
 ```
-cmake --build _build
-```
+
+Add `CMakeUserPresets.json` to `.gitignore` to keep machine-local paths out of version control.
 
 ## Troubleshooting
 
-If you experience the following error 
-```
-nlohmann/json.hpp is not found (fatal error)
-```
-you will have to add the nlohmann-json manually. 
-If you used homebrew to install the requirements you will have to include the following line in your .zshrc:
-```
+**`nlohmann/json.hpp` not found**
+
+Install the nlohmann-json package and expose its headers:
+```sh
+# Homebrew
+brew install nlohmann-json
 export CPATH=$CPATH:/opt/homebrew/opt/nlohmann-json/include
 ```

@@ -1,0 +1,4 @@
+{
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/_build/debug/compile_commands.json",
+    "makefile.configureOnOpen": false
+}

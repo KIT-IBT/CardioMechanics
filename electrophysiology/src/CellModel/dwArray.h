@@ -97,26 +97,26 @@ template<class T> string dwArray<T>::arrayInformation() {
   char out[1024]    = "Array of ";
   char buf[1024/16] = "";
 
-  sprintf(buf, "%s %s (%i ... %i) with %i entries:\n", buf, DTName(dt).c_str(), start, start+numEntries-1, numEntries);
+  snprintf(buf, sizeof(buf), " %s (%i ... %i) with %i entries:\n", DTName(dt).c_str(), start, start+numEntries-1, numEntries);
   strcat(out, buf);
 
   for (int i = 0; i < numEntries; i++) {
     switch (dt) {
       case DT_FLOAT:
-        sprintf(buf, "[%i]:\t%f\n", i+start, *(pv+i));
+        snprintf(buf, sizeof(buf), "[%i]:\t%f\n", i+start, *(pv+i));
         break;
       case DT_INT:
-        sprintf(buf, "[%i]:\t%i\n", i+start, *(pv+i));
+        snprintf(buf, sizeof(buf), "[%i]:\t%i\n", i+start, *(pv+i));
         break;
       case DT_P_FLOAT:
       case DT_P_INT:
-        sprintf(buf, "[%i]:\t%p\n", i+start, *(pv+i));
+        snprintf(buf, sizeof(buf), "[%i]:\t%p\n", i+start, *(pv+i));
         break;
       case DT_UNSIGNED_CHAR:
-        sprintf(buf, "[%i]:\t%c\n", i+start, *(pv+i));
+        snprintf(buf, sizeof(buf), "[%i]:\t%c\n", i+start, *(pv+i));
         break;
       default:
-        sprintf(buf, "unknown typeid '%s' - can't show formated values ...\n", typeid(*v).name());
+        snprintf(buf, sizeof(buf), "unknown typeid '%s' - can't show formated values ...\n", typeid(*v).name());
     }
     strcat(out, buf);
   }

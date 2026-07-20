@@ -68,6 +68,7 @@ protected:
     PetscScalar globalRayleighBeta_;
     
 private:
+    using CBSolver::CalcNodalForces;
     CBStatus CalcNodalForces(Vec displacement, Vec forces);
     void InitVectors() override;
     void InitMatrices() override;

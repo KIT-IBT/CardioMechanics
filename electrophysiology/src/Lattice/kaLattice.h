@@ -279,7 +279,8 @@ bool kaLattice<X>::Restore(void) {
   bool ret2 = kaLatticeHeader::Read();
   if (!ret2) {
     if (rmFD)
-      closeReadFD(); return false;
+      closeReadFD();
+    return false;
   }
 
   // depending on the compression type restore the data respectively

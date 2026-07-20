@@ -83,14 +83,14 @@ template<class T> class LatticesOrientation : virtual public nskaGlobal::DataTyp
         if (!strcmp(name+strlen(name)-strlen(ext), ext))
           buf[strlen(name)-strlen(ext)] = 0;
 
-      sprintf(cls.Name, "%s%s.phi%s", buf, add, ext);
+      snprintf(cls.Name, sizeof(cls.Name),"%s%s.phi%s", buf, add, ext);
       phi = new kaLattice<T>(cls, noshm);
 
-      sprintf(cls.Name, "%s%s.theta%s", buf, add, ext);
+      snprintf(cls.Name, sizeof(cls.Name),"%s%s.theta%s", buf, add, ext);
       theta = new kaLattice<T>(cls, noshm);
 
 #ifndef ANISOTROP2D
-      sprintf(cls.Name, "%s%s.rho%s", buf, add, ext);
+      snprintf(cls.Name, sizeof(cls.Name),"%s%s.rho%s", buf, add, ext);
       rho = new kaLattice<T>(cls, noshm);
 #endif  // ifndef ANISOTROP2D
 
@@ -151,18 +151,18 @@ template<class T> class LatticesOrientation : virtual public nskaGlobal::DataTyp
     }
     if (phi) {
       if (nameArg)
-        sprintf(buf, "%s.phi%s", name, ext);
+        snprintf(buf, sizeof(buf),"%s.phi%s", name, ext);
       phi->Save(nameArg ? buf : NULL);
     }
     if (theta) {
       if (nameArg)
-        sprintf(buf, "%s.theta%s", name, ext);
+        snprintf(buf, sizeof(buf),"%s.theta%s", name, ext);
       theta->Save(nameArg ? buf : NULL);
     }
 #ifndef ANISOTROP2D
     if (rho) {
       if (nameArg)
-        sprintf(buf, "%s.rho%s", name, ext);
+        snprintf(buf, sizeof(buf),"%s.rho%s", name, ext);
       rho->Save(nameArg ? buf : NULL);
     }
 #endif  // ifndef ANISOTROP2D
@@ -246,7 +246,7 @@ template<class T> class LatticesMaterial : virtual public nskaGlobal::DataTypeIn
         if (!strcmp(name+strlen(name)-strlen(ext), ext))
           buf[strlen(name)-strlen(ext)] = 0;
 
-      sprintf(cls.Name, "%s%s%s", buf, add, ext);
+      snprintf(cls.Name, sizeof(cls.Name),"%s%s%s", buf, add, ext);
       p = new LTMatTyp(cls, noshm);
 
       if (!p->xLattice || !p->yLattice || !p->zLattice)

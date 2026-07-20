@@ -1,23 +1,59 @@
-# thirdparty software 
+# thirdparty software
 thirdparty
+
+# build directories
+_build*/
+
+# CMake artifacts (defense against in-source builds)
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+
+# CMake user presets (machine-local paths)
+CMakeUserPresets.json
+
+# editor / IDE
+.vscode/
+.idea/
+.cache/
+compile_commands.json
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# AI coding assistants
+.claude/
+CLAUDE.md
+.cursor/
+.cursorrules
+.aider*
+.continue/
+.codeium/
+.windsurfrules
+.github/copilot-instructions.md
+
+# LaTeX build artifacts (docs/UserManual); the rendered docs/Manual.pdf is tracked
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.lol
+*.out
+*.pdfsync
+*.synctex.gz
+*.toc
+*-eps-converted-to.pdf
+docs/UserManual/Manual.pdf
+docs/UserManual/*.log
 
 # misc
 *.swp
 *.o
 *.d
 *.a
-*.pyc
 .DS_Store
-
-# build directories
-electrophysiology/src/Lattice/build
-electrophysiology/src/CellModel/build
-electrophysiology/src/LatticePETSc/build
-mechanics/build
-build
-
-# binaries
-bin
-
-# libraries
-lib

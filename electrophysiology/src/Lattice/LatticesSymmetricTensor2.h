@@ -69,7 +69,7 @@ template<class T> class LatticesSymmetricTensor2 : virtual public nskaGlobal::Da
         if (!strcmp(name+strlen(buf)-strlen(ext), ext))
           buf[strlen(buf)-strlen(ext)] = 0;
 
-      sprintf(cls.Name, "%s%s.a%s", buf, add, ext);
+      snprintf(cls.Name, sizeof(cls.Name),"%s%s.a%s", buf, add, ext);
       a = new kaLattice<T>(cls);
 
       if (lx >= 0) if ((a->xLattice != cls.xLattice) || !a->xLattice)
@@ -79,19 +79,19 @@ template<class T> class LatticesSymmetricTensor2 : virtual public nskaGlobal::Da
       if (lz >= 0) if ((a->zLattice != cls.zLattice) || !a->zLattice)
           throw kaBaseException("LatticesSymmetricTensor2<T>::Load(%s) failed", name);
 
-      sprintf(cls.Name, "%s%s.b%s", buf, add, ext);
+      snprintf(cls.Name, sizeof(cls.Name),"%s%s.b%s", buf, add, ext);
       b = new kaLattice<T>(cls);
 
-      sprintf(cls.Name, "%s%s.c%s", buf, add, ext);
+      snprintf(cls.Name, sizeof(cls.Name),"%s%s.c%s", buf, add, ext);
       c = new kaLattice<T>(cls);
 
-      sprintf(cls.Name, "%s%s.d%s", buf, add, ext);
+      snprintf(cls.Name, sizeof(cls.Name),"%s%s.d%s", buf, add, ext);
       d = new kaLattice<T>(cls);
 
-      sprintf(cls.Name, "%s%s.e%s", buf, add, ext);
+      snprintf(cls.Name, sizeof(cls.Name),"%s%s.e%s", buf, add, ext);
       e = new kaLattice<T>(cls);
 
-      sprintf(cls.Name, "%s%s.f%s", buf, add, ext);
+      snprintf(cls.Name, sizeof(cls.Name),"%s%s.f%s", buf, add, ext);
       f = new kaLattice<T>(cls);
 
       CheckConsistency();
@@ -130,32 +130,32 @@ template<class T> class LatticesSymmetricTensor2 : virtual public nskaGlobal::Da
     }
     if (a) {
       if (nameArg)
-        sprintf(buf, "%s.a%s", name, ext);
+        snprintf(buf, sizeof(buf),"%s.a%s", name, ext);
       a->Save(nameArg ? buf : NULL);
     }
     if (b) {
       if (nameArg)
-        sprintf(buf, "%s.b%s", name, ext);
+        snprintf(buf, sizeof(buf),"%s.b%s", name, ext);
       b->Save(nameArg ? buf : NULL);
     }
     if (c) {
       if (nameArg)
-        sprintf(buf, "%s.c%s", name, ext);
+        snprintf(buf, sizeof(buf),"%s.c%s", name, ext);
       c->Save(nameArg ? buf : NULL);
     }
     if (d) {
       if (nameArg)
-        sprintf(buf, "%s.d%s", name, ext);
+        snprintf(buf, sizeof(buf),"%s.d%s", name, ext);
       d->Save(nameArg ? buf : NULL);
     }
     if (e) {
       if (nameArg)
-        sprintf(buf, "%s.e%s", name, ext);
+        snprintf(buf, sizeof(buf),"%s.e%s", name, ext);
       e->Save(nameArg ? buf : NULL);
     }
     if (f) {
       if (nameArg)
-        sprintf(buf, "%s.f%s", name, ext);
+        snprintf(buf, sizeof(buf),"%s.f%s", name, ext);
       f->Save(nameArg ? buf : NULL);
     }
   }  // Save

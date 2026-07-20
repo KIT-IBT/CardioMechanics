@@ -134,17 +134,17 @@ void CBContactHandling::Init() {
     
     // Create vector for nodes coordinates of the slave elements, these are needed on all processes -> VecScatter ...
     if (DCCtrl::IsParallel()) {
-        VecCreateMPI(Petsc::Comm(), 9 * slaveElements_.size(), PETSC_DETERMINE, &slaveElementsNodes_);
+        VecCreateMPI(DCPetsc::Comm(), 9 * slaveElements_.size(), PETSC_DETERMINE, &slaveElementsNodes_);
         VecAssemblyBegin(slaveElementsNodes_);
         VecAssemblyEnd(slaveElementsNodes_);
         
         VecGetSize(slaveElementsNodes_, &numGlobalSlaveElements_);
         numGlobalSlaveElements_ /= 9;
-        VecGetOwnershipRange(slaveElementsNodes_, &from, PETSC_NULL);
+        VecGetOwnershipRange(slaveElementsNodes_, &from, PETSC_NULLPTR);
         from /= 9;
         
         VecCreateSeq(PETSC_COMM_SELF, 9 * numGlobalSlaveElements_, &slaveElementsNodesSeq_);
-        VecScatterCreateToAll(slaveElementsNodes_, &scatter_, PETSC_NULL);
+        VecScatterCreateToAll(slaveElementsNodes_, &scatter_, PETSC_NULLPTR);
     } else {
         VecCreateSeq(PETSC_COMM_SELF, 9 * slaveElements_.size(), &slaveElementsNodesSeq_);
         numGlobalSlaveElements_ = slaveElements_.size();
@@ -181,12 +181,12 @@ void CBContactHandling::Init() {
             slaveElementsNodesIndicesGlobal_.push_back(tmp[3*i] / 3);
         
         
-        Petsc::GatherToZero(slaveElementsNodesIndicesGlobal_);
-        Petsc::CopyFromZeroToAll(slaveElementsNodesIndicesGlobal_);
+        DCPetsc::GatherToZero(slaveElementsNodesIndicesGlobal_);
+        DCPetsc::CopyFromZeroToAll(slaveElementsNodesIndicesGlobal_);
         
         
-        Petsc::GatherToZero(slaveElementsSurfaceIndices_);
-        Petsc::CopyFromZeroToAll(slaveElementsSurfaceIndices_);
+        DCPetsc::GatherToZero(slaveElementsSurfaceIndices_);
+        DCPetsc::CopyFromZeroToAll(slaveElementsSurfaceIndices_);
         
         if (slaveElementsSurfaceIndices_.size() != numGlobalSlaveElements_) {
             throw std::runtime_error(
@@ -589,13 +589,13 @@ void CBContactHandling::Export(TFloat time) {
         Vec contactPressure;
         Vec contactSlaveFound;
         
-        Petsc::CreateVector(3*GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactForce);
-        Petsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactPressure);
-        Petsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactSlaveFound);
+        DCPetsc::CreateVector(3*GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactForce);
+        DCPetsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactPressure);
+        DCPetsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactSlaveFound);
         
         /// Try to export better distances: 1 CellData array per QP
         Vec distance;
-        Petsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &distance);
+        DCPetsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &distance);
         
         PetscInt from4, to4;
         VecGetOwnershipRange(distance, &from4, &to4);

@@ -773,7 +773,7 @@ void kaMatrixSparseCol<T>::SavePETSc(const char *file, int argc, char **argv, IO
   kaSharedMatrixN<double> dummy(4);
 
   /* initialize PETSc */
-  ierr = PetscInitialize(&argc, &argv, PETSC_NULL, PETSC_NULL); CHKERRQ(ierr);
+  ierr = PetscInitialize(&argc, &argv, PETSC_NULLPTR, PETSC_NULLPTR); CHKERRQ(ierr);
 
   /* No multi-CPU support in derived classes! */
   int numCPU;

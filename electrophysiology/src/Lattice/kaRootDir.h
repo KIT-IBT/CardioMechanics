@@ -17,36 +17,23 @@
 
 #include <kaMachineOS.h>
 
-//! Class for handling of default root directories
+//! Resolves the location of the bundled model parameter files (electrophysiology/data).
 /*!
-   The default is hardcoded, but can be overwritten by setting the system variable "kaRootDir"
-
+   Defaults to the source directory baked in at build time (CM_SOURCE_DIR); the
+   "kaRootDir" environment variable overrides it when set.
  */
 
 class kaRootDir {
-  std::string root;
   std::string data;
-  std::string bin;
 
  public:
   kaRootDir(const char *name) {
-    char *p = getenv("kaRootDir");
-
-    root = p + std::string("/electrophysiology/") + name;
-    data = p + std::string("/electrophysiology/data/") + name;
-
-    # ifdef osLinux
-    bin = p + std::string("/bin/linux/") + name;
-    # endif  // ifdef osLinux
-    # ifdef osMac
-    bin = p + std::string("/bin/macosx/") + name;
-    # endif  // ifdef osMac
-
+    const char *p = getenv("kaRootDir");
+    std::string base = (p && *p) ? p : CM_SOURCE_DIR;
+    data = base + "/electrophysiology/data/" + name;
   }
 
-  const char *GetRoot() {return root.c_str();}
   const char *GetData() {return data.c_str();}
-  const char *GetBin() {return bin.c_str();}
 };  // class kaRootDir
 
 #endif  // ifndef KAROOTDIR_H

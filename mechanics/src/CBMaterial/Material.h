@@ -607,7 +607,7 @@ public:
                 }
                 default: {
                     char buf[80];
-                    sprintf(buf, "MaterialListe::MaterialListe - Internal error '%s' char '%c'",
+                    snprintf(buf, sizeof(buf), "MaterialListe::MaterialListe - Internal error '%s' char '%c'",
                             pDateiName, c);
                     throw kaBaseException(buf);
                     break;
@@ -685,6 +685,7 @@ inline void Material::Read(FILE *fp, MaterialListe *pLM) {
             unsigned int matnr;
             int rc = fscanf(fp, " %u", &matnr);
             assert(rc == 1);
+            (void)rc;
             Material *pM = pLM->Suchen((MaterialTyp)matnr);
             if (!pM)
                 throw kaBaseException("Material::Read - Invalid reference to %d", matnr);

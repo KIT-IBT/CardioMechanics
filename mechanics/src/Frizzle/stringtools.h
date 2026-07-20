@@ -28,8 +28,6 @@ T StringTo(std::string str)
 template<>
 std::string StringTo<std::string>(std::string str);
 template<>
-const char* StringTo<const char*>(std::string str);
-template<>
 int StringTo<int>(std::string str);
 template<>
 long StringTo<long>(std::string str);

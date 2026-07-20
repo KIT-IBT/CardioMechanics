@@ -40,11 +40,11 @@ using namespace nskaGlobal;
 #if PETSC_VERSION_MAJOR > 3 || (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR >= 7)
 
 inline PetscErrorCode PetscOptionsHasName(const char a[], const char b[], PetscBool *c) {
-  return PetscOptionsHasName(PETSC_NULL, a, b, c);
+  return PetscOptionsHasName(PETSC_NULLPTR, a, b, c);
 }
 
 inline PetscErrorCode PetscOptionsGetString(const char a[], const char b[], char c[], size_t d, PetscBool *e) {
-  return PetscOptionsGetString(PETSC_NULL, a, b, c, d, e);
+  return PetscOptionsGetString(PETSC_NULLPTR, a, b, c, d, e);
 }
 
 #endif  // if PETSC_VERSION_MAJOR > 3 || (PETSC_VERSION_MAJOR == 3 && PETSC_VERSION_MINOR >= 7)

@@ -318,7 +318,7 @@ void acltTimeTemplate<DECIMALS, T>::parse(std::string const &str) {
 #endif  // if 0
 
 typedef acltTimeTemplate<10, int64_t> acltTime;
-inline acltTime operator"" _s(const char *s) {return acltTime(std::string(s));}
+inline acltTime operator""_s(const char *s) {return acltTime(std::string(s));}
 
 
 #if TEST

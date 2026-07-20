@@ -292,7 +292,7 @@ void DCCtrlPETSc::GatherToZeroImpl(std::vector<std::string>& a)
                     char* s = new char[c];
                     MPI_Recv(s,c+1,MPI_CHAR, i, i, PETSC_COMM_WORLD, &stat);
                     a.push_back(std::string(s));
-                    delete s;
+                    delete[] s;
                 }
             }
             
@@ -408,7 +408,7 @@ void DCCtrlPETSc::WeightedAverageImpl(double& localAverage, double& localWeight,
         std::vector<double> t;
         t.push_back(localAverage);
         t.push_back(localWeight);
-        Petsc::GatherToZero(t);
+        DCPetsc::GatherToZero(t);
         globalAverage = 0;
         
         if(DCCtrl::IsProcessZero())
@@ -444,17 +444,22 @@ void DCCtrlPETSc::CreateMatrix(PetscInt n, PetscInt m,PetscInt N, PetscInt M, Pe
 {
     if(DCCtrlPETSc::IsParallel())
     {
-        MatCreateAIJ(PETSC_COMM_WORLD, n, m, N, M,numNonZeros, PETSC_NULL, numNonZeros, PETSC_NULL, v);
+        MatCreateAIJ(PETSC_COMM_WORLD, n, m, N, M,numNonZeros, PETSC_NULLPTR, numNonZeros, PETSC_NULLPTR, v);
     }
     else
     {
-        MatCreateSeqAIJ(PETSC_COMM_WORLD, N, M,numNonZeros, PETSC_NULL, v);
+        MatCreateSeqAIJ(PETSC_COMM_WORLD, N, M,numNonZeros, PETSC_NULLPTR, v);
     }
 }
 
 void DCCtrlPETSc::CreateSeqMatrix(PetscInt N, PetscInt M, PetscInt numNonZeros, Mat* v)
 {
-    MatCreateSeqAIJ(PETSC_COMM_WORLD, N, M,numNonZeros, PETSC_NULL, v);
+    MatCreateSeqAIJ(PETSC_COMM_WORLD, N, M,numNonZeros, PETSC_NULLPTR, v);
+}
+
+void DCCtrlPETSc::ClearOptionImpl(const std::string& name)
+{
+    PetscOptionsClearValue(PETSC_NULLPTR, name.c_str());
 }
 
 std::string DCCtrlPETSc::SNESReasonToString(int i)

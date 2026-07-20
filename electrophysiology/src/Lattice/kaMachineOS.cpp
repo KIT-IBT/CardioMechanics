@@ -75,7 +75,7 @@ public:
         fprintf(stderr, "kaSemaphore::Init %ld\n", pid);
 # endif  // if KALATTICEDEBUG
         char semname[256];
-        sprintf(semname, "/tmp/kaSemaphore%ld", pid);
+        snprintf(semname, sizeof(semname), "/tmp/kaSemaphore%ld", pid);
         
         int i;
         for (i = 0; i < NUM_SEMS; i++)

@@ -24,7 +24,7 @@ CBRobinBoundary::~CBRobinBoundary() {
 }
 
 void CBRobinBoundary::Init() {
-#warning Implementation only works for T3 surface elements at the moment
+#pragma message("Implementation only works for T3 surface elements at the moment")
     
     /// read XML parameter input
     startTime_ = parameters_->Get<TFloat>("Plugins.RobinBoundary.StartTime", std::numeric_limits<double>::lowest());
@@ -231,9 +231,9 @@ void CBRobinBoundary::Export(TFloat time) {
         Vec contactPressure;
         Vec contactDistance;
         
-        Petsc::CreateVector(3*GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactForce);
-        Petsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactPressure);
-        Petsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactDistance);
+        DCPetsc::CreateVector(3*GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactForce);
+        DCPetsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactPressure);
+        DCPetsc::CreateVector(GetAdapter()->GetSolver()->GetNumberOfLocalElements(), PETSC_DETERMINE, &contactDistance);
         
         PetscInt from1, to1;
         PetscInt from2, to2;

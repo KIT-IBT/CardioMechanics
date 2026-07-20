@@ -37,7 +37,7 @@ public:
     }
     
     
-    // Petsc specific functions, access with DCCtrl::Petsc::...
+    // PETSc-specific functions, accessible via DCPetsc::
     static void CreateVector(PetscInt n,PetscInt N, Vec* v);
     static void CreateSeqVector(PetscInt n,Vec* v);
     static void CreateMatrix(PetscInt n, PetscInt m,PetscInt N, PetscInt M, PetscInt numNonZeros, Mat* v);
@@ -73,6 +73,7 @@ private:
     void CopyFromZeroToAllImpl(std::vector<double>& a)override;
     
     void WeightedAverageImpl(double& localAverage, double& localWeight, double& globalAverage)override;
+    void ClearOptionImpl(const std::string& name) override;
     
     typedef DCCtrl  Base;
     
@@ -83,6 +84,6 @@ private:
     static std::map<int,std::string> kspReasonStr_;
 };
 
-typedef DCCtrlPETSc Petsc;
+typedef DCCtrlPETSc DCPetsc;
 
 #endif

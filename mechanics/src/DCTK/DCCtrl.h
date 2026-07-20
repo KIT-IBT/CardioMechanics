@@ -192,6 +192,7 @@ public:
     void static DebugOff();
     bool static GetVerbose();
     bool static GetDebug();
+    static void ClearOption(const std::string& name);
     
 protected:
     
@@ -225,6 +226,7 @@ private:
     virtual void CopyFromZeroToAllImpl(std::vector<double>& a) = 0;
     
     virtual void WeightedAverageImpl(double& localAverage, double& localWeight, double& globalAverage) = 0;
+    virtual void ClearOptionImpl(const std::string& name) = 0;
     
     std::ofstream logFile_;
     static DCCtrl* instance_;

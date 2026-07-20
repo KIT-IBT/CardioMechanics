@@ -156,6 +156,14 @@ bool DCCtrl::GetDebug()
         throw std::runtime_error("void DCCtrl::IsDebug(): DCCtrl is not yet initialized");
 }
 
+void DCCtrl::ClearOption(const std::string& name)
+{
+    if(instance_)
+        instance_->ClearOptionImpl(name);
+    else
+        throw std::runtime_error("void DCCtrl::ClearOption(): DCCtrl is not yet inizialized");
+}
+
 void DCCtrl::SetLogFile(std::string filename)
 {
     if (IsProcessZero()) { // only the first processor needs access

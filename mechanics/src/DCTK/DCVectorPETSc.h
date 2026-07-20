@@ -66,7 +66,6 @@ private:
     PetscInt numGhostIndices_ = 0;
     const PetscInt* ghostIndices_ = 0;
     
-    bool isBuild_ = false;
     bool isGhost_ = false;
     
     Vec vec_ = 0;

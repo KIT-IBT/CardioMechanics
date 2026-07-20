@@ -13,7 +13,7 @@
 - Regression test suite under `tests/`: pytest golden-file characterization tests covering `CellModelTest` (all ionic models, including Land17-coupled runs), the Land 2015 mechanics benchmark (Problem 1), and the EM01 electromechanics pipeline (`BidomainMatrixGenerator`, `acCELLerate`, and the coupled `CardioMechanics` run). Comparisons use numerical tolerances rather than byte-exact matching.
 
 ### Changed
-- Modernized the CMake build system: removed `cmake/IBTDefault.cmake` and its `ka*` macros in favor of standard `target_*()` commands; bumped to CMake 3.20 and C++17; switched PETSc discovery to pkg-config (only `PETSC_DIR` env var required, `kaRootDir` no longer needed); added `CMakePresets.json`; binaries now land in `_build/bin/`.
+- Modernized the CMake build system: removed `cmake/IBTDefault.cmake` and its `ka*` macros in favor of standard `target_*()` commands; bumped to CMake 3.20 and C++17; switched PETSc discovery to pkg-config (only `PETSC_DIR` env var required, `kaRootDir` no longer needed); added `CMakePresets.json`; binaries now land in `_build/<preset>/bin/`.
 - Restructured `CMakePresets.json`: `default` is now a hidden base preset; `release` and `debug` are the user-facing configure/build presets, each with its own build directory (`_build/release/`, `_build/debug/`); `CMAKE_EXPORT_COMPILE_COMMANDS` enabled by default.
 
 ### Fixed

@@ -22,7 +22,7 @@ We recommend using a package manager (e.g. \href{https://brew.sh}{Homebrew} on m
     \item \href{https://www.open-mpi.org}{Open MPI}
     \item \href{https://www.python.org}{Python3} (optional, for the tools in \verb|tools/python/|)
 \end{itemize}
-The \verb|docker/| directory contains Dockerfiles that build \href{https://www.open-mpi.org}{Open MPI}, \href{https://petsc.org/}{PETSc}, and \href{https://vtk.org}{VTK} from source with tested versions and can serve as a reference for building the dependencies manually.
+The \verb|docker/| directory contains the Dockerfiles used by CI: \verb|Dockerfile-thirdparty-petsc| source-builds \href{https://petsc.org/}{PETSc} with the tested version, while \href{https://www.open-mpi.org}{Open MPI} and \href{https://vtk.org}{VTK} are installed from apt (\verb|libopenmpi-dev|, \verb|libvtk9-dev|). They can serve as a reference for building the dependencies manually.
 
 \subsection{Installation Instructions}
 
@@ -46,4 +46,10 @@ Finally, add the executables and Python tools to your PATH variable:
 export PATH="$PATH:/path/to/CardioMechanics/_build/release/bin"
 export PATH="$PATH:/path/to/CardioMechanics/tools/python"
 \end{lstlisting}
-See \href{https://github.com/KIT-IBT/CardioMechanics/blob/main/docs/BUILD.md}{docs/BUILD.md} for pinning \verb|PETSC_DIR| per preset via a local \verb|CMakeUserPresets.json| and for troubleshooting.
+Running the binaries directly from \verb|_build/<preset>/bin/| is sufficient. To install them elsewhere, use \verb|cmake --install|, which copies the executables into \verb|<prefix>/bin/|:
+\begin{lstlisting}[language=bash]
+cmake --install _build/release --prefix /path/to/install/CardioMechanics.opt
+\end{lstlisting}
+Always pass \verb|--prefix| (or pin \verb|CMAKE_INSTALL_PREFIX| per preset). Without it, \verb|CMAKE_INSTALL_PREFIX| defaults to \verb|/usr/local| on both Linux and macOS, and installing there requires root.
+
+See \href{https://github.com/KIT-IBT/CardioMechanics/blob/main/docs/BUILD.md}{docs/BUILD.md} for pinning \verb|PETSC_DIR| and the install prefix per preset via a local \verb|CMakeUserPresets.json| and for troubleshooting.

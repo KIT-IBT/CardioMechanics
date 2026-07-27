@@ -10,12 +10,23 @@
 ## Unreleased
 
 ### Added
+- Inverse problem (active-stress estimator): given a target deformed surface over time, `Solver.Type=ActiveStressEstimator` recovers the scalar active stress in every element at each timestep via Gauss-Newton with Tikhonov regularization and a direct MUMPS solve. Comprises the solver `CBSolverActiveStressEstimator`, the tension model `TensionEstimator`, the plugin `Solver.Plugins.PointsCtrl`, the active-stress Jacobian for T4 elements, and the `ExtractSurfaceNodesFromVTU` tool. The estimator runs serially. Reinstates a feature of the pre-modernization code base; the forward problem is unchanged.
+- `examples/inverseEllipsoid`: truncated-ellipsoid ventricle running the full forward -> target-extraction -> inverse round-trip, with a regression test (`tests/cardiomechanics/test_inverse.py`) covering the same chain at a shortened stop time.
+- `tools/python/CreateTargetSurfaces.py`: reusable CLI that converts forward-run VTUs into the binary target-surface format consumed by the estimator.
+- Unit tests for the pure-python tool logic under `tests/python/` (no binaries required).
+- Manual sections covering the inverse problem: the regularized Gauss-Newton formulation and its regularization terms in "Mathematical Model", the `ActiveStressEstimator` settings and the `PointsCtrl` plugin in "Simulation Framework", the `ExtractSurfaceNodesFromVTU` tool and the `CreateTargetSurfaces` script in "Tools", and the target-surface file format in "File Formats".
 
 ### Changed
+- Corrected the statement in the manual that two solver classes are available, which no longer held once `ActiveStressEstimator` was added.
+- `docs/BUILD.md` and the CI PETSc image now recommend and use OpenBLAS (`--download-openblas`) instead of reference BLAS. Results are unaffected; the inverse problem is roughly 7x faster, pure mechanics roughly 2x, and EP-dominated runs largely unchanged.
+- `tools/python/VTK2tetgen.py` rewritten to be Python 3 compatible and importable: the CLI and conversion moved into `main()` under a `__main__` guard and the `vtk` import is deferred, so the geometry helpers can be imported without VTK. Mesh output is unchanged; `.bases` differs only in whitespace between the row index and the values.
 
 ### Fixed
+- Corrected the sign of the master-to-target gap vector in `CBContactHandling`. The gap was taken as `(ip - p).Norm()`, which discards the sign of the signed distance along the master normal, so the vector pointed the wrong way whenever the target lay on the negative-normal side. Only the estimator consumes this vector; the forward contact force computes its own distance and is unaffected.
+- `CBDataFromFile`'s default constructor left `startTime_` and `period_` uninitialized, which produced NaN sampled values on the default-constructed path used by `CBPointsCtrl`.
 
 ### Known Issues
+- The active-stress estimator is serial only and aborts if launched under `mpirun`.
 
 
 ## Release 1.1

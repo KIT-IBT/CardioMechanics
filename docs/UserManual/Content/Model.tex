@@ -243,6 +243,95 @@ where internal and external forces $\K$ are linearized in each Newton iteration:
 Finally, we calculate the updated values for velocity and acceleration using \autoref{eq:updatev} and \autoref{eq:updatea}.
 
 
+\subsection{The Inverse Problem: Active Stress Estimation}
+\label{model:inverseproblem}
+
+All of the above describes the \emph{forward} problem: the active tension is prescribed by a tension model and the deformation follows.
+\CM~can also solve the corresponding \emph{inverse} problem: given a target deformed surface at every point in time, estimate the scalar active tension in each element that produces it.
+This is what the \verb|ActiveStressEstimator| solver (\Sec{settings:ActiveStressEstimator}) does.
+Note that the estimated quantity is one tension value per element, not a full stress tensor; it enters the constitutive response through the fiber direction exactly as an ordinary tension model would.
+
+Let $\vec \tau \in \mathbb{R}^{n_\mathrm{e}}$ collect the active tension of the $n_\mathrm{e}$ elements of interest, and let
+\begin{equation}
+    \vec r(\d, \vec \tau) = \vec f^\mathrm{int}(\d, \vec \tau) - \vec f^\mathrm{ext}(\d) = \vec 0
+    \label{eq:invEquilibrium}
+\end{equation}
+be the static equilibrium \eqref{eq:staticLinMom}, which the estimator solves in the usual way for a given $\vec \tau$.
+The measurement is the signed gap $\vec g \in \mathbb{R}^{m}$ between the $m$ tracked surface degrees of freedom (the \emph{master} surface) and the target surface, measured along the master surface normal.
+It is supplied by the \verb|ContactHandling| plugin, which is used here purely as a distance measurement and not to generate contact forces.
+
+\paragraph{Sensitivity}
+Differentiating \eqref{eq:invEquilibrium} with respect to $\vec \tau$ at equilibrium gives
+\begin{equation}
+    \K \pdv{\d}{\vec \tau} + \vec G = \vec 0 \qq{with} \K = \pdv{\vec f^\mathrm{int}}{\d} \qq{and} \vec G = \pdv{\vec f^\mathrm{int}}{\vec \tau} \,,
+\end{equation}
+so that the deformation responds to a change in active tension as $\pdv*{\d}{\vec \tau} = -\K^{-1} \vec G$.
+Restricting the rows to the master degrees of freedom yields the sensitivity matrix actually assembled by the solver,
+\begin{equation}
+    \vec A = \left[ \K^{-1} \right]_{m} \vec G \in \mathbb{R}^{m \times n_\mathrm{e}} \,,
+    \label{eq:invSensitivity}
+\end{equation}
+which is the negative of $\pdv*{\d}{\vec \tau}$ on those rows.
+The sign is carried in the update \eqref{eq:invUpdate} below rather than in $\vec A$.
+Both $\K$ and $\vec G$ are obtained by finite differences of the nodal forces; $\left[ \K^{-1} \right]_{m}$ is formed by a direct (MUMPS) factorization of $\K$ followed by one blocked solve against the unit loads of the master degrees of freedom.
+
+\paragraph{Regularized Gauss-Newton step}
+The estimation is ill-posed: $\vec A$ has at most rank $m$ while $\vec \tau$ has $n_\mathrm{e}$ entries, and in practice $n_\mathrm{e} \gg m$.
+It is therefore solved as a regularized linear least-squares problem in the increment $\Delta \vec \tau$, with the updated tension abbreviated as $\vec \tau^{*} = \vec \tau - \Delta \vec \tau$:
+\begin{align}
+    \Delta \vec \tau = \argmin_{\Delta \vec \tau} \Big\{ \; & \norm{\vec A \Delta \vec \tau - \vec g}^2
+    + \lambda_1 \norm{\Delta \vec \tau}^2
+    + \lambda_2 \norm{\vec \tau^{*}}^2 \nonumber \\
+    + \; & \frac{\lambda_3}{\dt} \norm{\vec \tau^{*} - \vec \tau^{n-1}}^2
+    + \frac{\lambda_4}{\dt^2} \norm{\vec \tau^{*} - 2 \vec \tau^{n-1} + \vec \tau^{n-2}}^2 \nonumber \\
+    + \; & \lambda_5 \norm{\vec L \Delta \vec \tau}^2
+    + \lambda_6 \norm{\vec L \vec \tau^{*}}^2
+    + \lambda_7 \norm{\vec L \left( \vec \tau^{*} - \vec \tau^{n-1} \right)}^2 \Big\} \,,
+    \label{eq:invObjective}
+\end{align}
+where $\vec \tau^{n-1}$ and $\vec \tau^{n-2}$ are the converged tensions of the two preceding time steps.
+The individual terms are Tikhonov penalties with distinct purposes: $\lambda_1$ damps the step itself (a Levenberg-Marquardt term), $\lambda_2$ penalizes the magnitude of the tension, $\lambda_3$ and $\lambda_4$ penalize its first and second temporal differences, and $\lambda_5$ to $\lambda_7$ penalize spatial roughness of the step, of the tension, and of its temporal increment, respectively.
+The matrix $\vec L$ is the graph Laplacian of the element adjacency built from elements sharing a common face,
+\begin{equation}
+    L_{ef} = \begin{cases}
+        n_e & \text{if } e = f \,, \\
+        -1  & \text{if elements } e \text{ and } f \text{ share a face} \,, \\
+        0   & \text{otherwise} \,,
+    \end{cases}
+\end{equation}
+with $n_e$ the number of face neighbors of element $e$, so that $\norm{\vec L \vec \tau}^2$ measures how much the tension of an element deviates from that of its neighbors.
+
+Setting the derivative of \eqref{eq:invObjective} with respect to $\Delta \vec \tau$ to zero gives the normal equations that are actually assembled and factorized,
+\begin{equation}
+    \left( \vec A^\tran \vec A + \vec R \right) \Delta \vec \tau = \vec A^\tran \vec g + \vec c \,,
+    \label{eq:invNormalEquations}
+\end{equation}
+with the regularization matrix $\vec R$ and the right hand side contribution $\vec c$
+\begin{align}
+    \vec R &= \left( \lambda_1 + \lambda_2 + \frac{\lambda_3}{\dt} + \frac{\lambda_4}{\dt^2} \right) \vec I
+    + \left( \lambda_5 + \lambda_6 + \lambda_7 \right) \vec L^\tran \vec L \,, \\
+    \vec c &= \lambda_2 \vec \tau
+    + \frac{\lambda_3}{\dt} \left( \vec \tau - \vec \tau^{n-1} \right)
+    + \frac{\lambda_4}{\dt^2} \left( \vec \tau - 2 \vec \tau^{n-1} + \vec \tau^{n-2} \right) \nonumber \\
+    &\quad + \lambda_6 \vec L^\tran \vec L \vec \tau
+    + \lambda_7 \vec L^\tran \vec L \left( \vec \tau - \vec \tau^{n-1} \right) \,.
+\end{align}
+This is a dense $n_\mathrm{e} \times n_\mathrm{e}$ system and is solved directly by an LU factorization.
+The tension is then updated and limited to a physiologically meaningful range,
+\begin{equation}
+    \vec \tau \leftarrow \mathrm{clamp} \left( \vec \tau - \Delta \vec \tau, \; 0, \; \SI{400}{\kilo\pascal} \right) \,,
+    \label{eq:invUpdate}
+\end{equation}
+where the increment itself is additionally limited to $\abs{\Delta \tau_e} \leq \SI{10}{\kilo\pascal}$ per element and iteration to keep the linearization valid.
+
+\paragraph{Outer iteration}
+Because \eqref{eq:invSensitivity} is only a linearization around the current state, each time step is iterated:
+the equilibrium \eqref{eq:invEquilibrium} is solved, the gap $\vec g$ is measured, one step \eqref{eq:invNormalEquations} to \eqref{eq:invUpdate} is taken, and the equilibrium is re-solved with the updated tension.
+The iteration stops once $\norm{\vec g}_2$ falls below \verb|AbsTol|, or once it changes by less than \verb|RelTol| between two iterations, and it is capped at five iterations per time step.
+
+Note that the estimator inherits the linear system of the forward problem but adds a dense solve whose size scales with the number of elements, and that it is implemented for sequential execution only.
+
+
 \subsection{Units}
 
 In general, all units are given in the international system of units (SI).

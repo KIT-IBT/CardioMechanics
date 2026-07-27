@@ -112,6 +112,34 @@ Leave an empty line at the end of the file.
     
 \end{lstlisting}
 
+\subsubsection{Target Surface Files (*.list, *.dat)}
+\label{fileformats:TargetSurfaces}
+
+These files provide time-dependent nodal coordinates to the \nameref{settings:PointsCtrl} plugin and thereby the target surfaces of the inverse problem (\Sec{settings:ActiveStressEstimator}).
+They are usually written by the \nameref{tools:CreateTargetSurfaces} script rather than by hand.
+
+The list file is a plain text table that assigns one binary data file to each point in time.
+Paths are interpreted relative to the directory of the list file, empty lines are skipped, and lines whose first non-blank character is \verb|#| are treated as comments.
+\begin{lstlisting}[language=Bash,caption=Target surface list file (*.list)]
+    <time in s> <path to data file>
+    <time in s> <path to data file>
+    ...
+\end{lstlisting}
+
+Each referenced data file is binary and contains the coordinates of all controlled nodes at that point in time, in the order in which the nodes are given to the plugin.
+The leading count is the number of \verb|double| values that follow, \ie three times the number of nodes.
+Values are written in the native byte order of the machine.
+\begin{lstlisting}[language=Bash,caption=Target surface data file (*.dat)]
+    int32   3 * <# nodes>
+    double  x[0]
+    double  y[0]
+    double  z[0]
+    double  x[1]
+    ...
+\end{lstlisting}
+
+The same binary layout is used wherever \CM~reads tabulated data over time from a file, for instance by the \nameref{tension:File} tension model (\Sec{tension:File}), which stores one tension value per element instead of three coordinates per node.
+
 \subsection{Output Files}
 \label{sec:outfiles}
 

@@ -119,6 +119,19 @@ Options:
 
 \end{lstlisting}
 
+\subsection{ExtractSurfaceNodesFromVTU}
+\label{tools:ExtractSurfaceNodesFromVTU}
+
+Extracts the deformed coordinates of all nodes belonging to the given surfaces from a simulation result and writes them in the binary format described in \Sec{fileformats:TargetSurfaces}.
+It is the per-time-step building block of the target surfaces used by the inverse problem; in most cases it is not called directly but through the \nameref{tools:CreateTargetSurfaces} script, which invokes it for every exported time step and additionally writes the list file.
+The surface indices are passed as a single quoted, space-separated argument, and the nodes are written in ascending order of their index in the .node file.
+
+\begin{lstlisting}[language=bash,caption=Syntax for ExtractSurfaceNodesFromVTU]
+ExtractSurfaceNodesFromVTU <mesh.vtu> <nodes file> <surface file> '<surface indices>' <output>
+Example:
+	ExtractSurfaceNodesFromVTU mesh.vtu mesh.node mesh.sur '1 2' surface.dat
+\end{lstlisting}
+
 \subsection{FixNodes}
 \label{tools:FixNodes}
 
@@ -159,6 +172,33 @@ optional arguments:
                         fixMaterial 32 162" 
 \end{lstlisting}
 
+
+\subsection{CreateTargetSurfaces}
+\label{tools:CreateTargetSurfaces}
+
+CreateTargetSurfaces.py generates the target surfaces of the inverse problem (\Sec{settings:ActiveStressEstimator}) from the results of a forward simulation.
+For every exported VTU in \verb|-results| it calls \nameref{tools:ExtractSurfaceNodesFromVTU} to extract the deformed surface nodes, writes one binary file per time step into \verb|-output|, and collects them in the list file given by \verb|-list|, which is the file the \nameref{settings:PointsCtrl} plugin expects.
+The time stamps in that list file are derived from \verb|-dt|, which has to match the export time step of the forward run.
+The binary used for the extraction is taken from \verb|PATH| unless \verb|-tool| points at it explicitly.
+
+\begin{lstlisting}[language=bash,caption=Syntax for CreateTargetSurfaces.py]
+usage: CreateTargetSurfaces [-h] -results RESULTS -node NODE -sur SUR -output
+                            OUTPUT -list LIST -dt DT [-surfaces SURFACES]
+                            [-tool TOOL]
+
+Generate inverse-problem target surfaces from a forward run.
+
+options:
+  -h, --help          show this help message and exit
+  -results RESULTS    Directory of forward-output VTU files.
+  -node NODE          Mesh .node file.
+  -sur SUR            Mesh .sur file.
+  -output OUTPUT      Output directory for the target .dat files.
+  -list LIST          Output .list file path.
+  -dt DT              Time between exported VTUs in seconds.
+  -surfaces SURFACES  Surface indices to extract (default: '1 2').
+  -tool TOOL          Path to the ExtractSurfaceNodesFromVTU binary.
+\end{lstlisting}
 
 \subsection{ConvertPETScDir2VTK}
 \label{tools:ConvertPETScDir2VTK}

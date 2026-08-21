@@ -319,7 +319,7 @@ CBTensionModelLand17::CBTensionModelLand17(CBElementSolid *e, ParameterMap *para
     S_.ZetaS      = ZetaS_;
     S_.ZetaW      = ZetaW_;
     S_.Cd         = Cd_;
-    S_.lambda     = sqrt(deformationTensor.GetCol(0)*deformationTensor.GetCol(0));
+    S_.lambda     = lambdaScaling_ * sqrt(deformationTensor.GetCol(0)*deformationTensor.GetCol(0));
     S_.dlambdadt  = 0.0;
     S_.Ta         = Ta_;
     S_.Tension    = Tension_;
@@ -364,7 +364,7 @@ double CBTensionModelLand17::CalcActiveTension(const math_pack::Matrix3<double> 
     
     // compute / integrate variables
     // update extention ratio (lambda) and exention rate (dlambdadt)
-    S_.lambda = sqrt(deformation.GetCol(0)*deformation.GetCol(0)); // in m/m
+    S_.lambda = lambdaScaling_ * sqrt(deformation.GetCol(0)*deformation.GetCol(0)); // in m/m
     if ((S_.delta_t == 0.0) || (rateDependancy_ == "OFF")) { // Avoid division by 0 in the first time-step
         S_.dlambdadt = 0.0;
     } else {
@@ -375,10 +375,15 @@ double CBTensionModelLand17::CalcActiveTension(const math_pack::Matrix3<double> 
     TFloat lambda_m = std::min(1.2, S_.lambda);
     TFloat h = std::max(0.0, Overlap(lambda_m));
     
+    // effect of PKA phosphoryaltion from https://doi.org/10.1101/2025.03.24.645031
+    TFloat PKACaUnbindingMultiplier = (1.45 - 0.45 * (1.0 - fTnI_PKA_)/(1.0 - 0.0031));
+    TFloat PKAForceMultiplier = 1.0 + fMyBPC_PKA_ * 0.26;
+    TFloat PKAXBacceleration = 1.0 + fMyBPC_PKA_/2;
+    
     // unattached available xb = all - tm blocked - already prepowerstroke - already post-poststroke - no overlap
     TFloat XU = (1.0 - S_prev_.TmBlocked) - S_prev_.XW - S_prev_.XS;
-    TFloat xb_ws = kws_ * S_prev_.XW;
-    TFloat xb_uw = kuw_ * XU;
+    TFloat xb_ws = kws_ * S_prev_.XW * PKAXBacceleration;
+    TFloat xb_uw = kuw_ * XU * PKAXBacceleration;
     TFloat xb_wu = kwu_ * S_prev_.XW;
     TFloat xb_su = ksu_ * S_prev_.XS;
     
@@ -394,7 +399,7 @@ double CBTensionModelLand17::CalcActiveTension(const math_pack::Matrix3<double> 
     TFloat xb_wu_gamma = gamma_rate_w * S_prev_.XW;
     S_.XW = S_prev_.XW + S_.delta_t * dXWdt(xb_uw, xb_wu, xb_ws, xb_wu_gamma);
     
-    TFloat Ca50 = Ca50_ + beta1_ * (lambda_m - 1.0);
+    TFloat Ca50 = (Ca50_ * PKACaUnbindingMultiplier) + beta1_ * (lambda_m - 1.0); // min() has been added accoding to TWorld!!!
     S_.TRPN = S_prev_.TRPN + S_.delta_t * dTRPNdt(TRPNk_, Cai(calciumTransientType_, S_.t), Ca50, TRPNn_, S_prev_.TRPN);
     
     TFloat TRPN_NP = pow(S_.TRPN, (-nTM_/2.0));
@@ -409,8 +414,13 @@ double CBTensionModelLand17::CalcActiveTension(const math_pack::Matrix3<double> 
     // ActiveTension in kPa
     // Tmax_ = 1000 should be used to do kPa -> Pa
     // don't allow negative values
-    S_.Ta = std::max(0.0, h * (Tref_ / rs_) * ((S_.ZetaS + 1.0) * S_.XS + S_.ZetaW * S_.XW));
-    
+    S_.Ta = std::max(0.0, PKAForceMultiplier* h * (Tref_ / rs_) * ((S_.ZetaS + 1.0) * S_.XS + S_.ZetaW * S_.XW));
+    // scale with sigmoidal function taken from T-World 2
+    if (use_sigmoid_scaling)
+    {
+        TFloat sigmoid = (d_sigmoid + (a_sigmoid - d_sigmoid)/(1.0 + pow(S_.Ta/c_sigmoid, b_sigmoid)));
+        S_.Ta = S_.Ta * sigmoid;
+    }
     // Minimal implementation of the passive cell model
     // Similar to a standard linear solid model. It is used for the viscoelastic response.
     TFloat C_s = (S_.lambda - 1.0) - S_prev_.Cd;
@@ -459,6 +469,7 @@ void CBTensionModelLand17::InitParamsFromXml(ParameterMap *parameters, std::stri
     nTM_          = InitKey(parameters, parameterKey, parameterKeyFallback, ".nTM", 5.0);
     TRPN50_       = InitKey(parameters, parameterKey, parameterKeyFallback, ".TRPN50", 0.35);
     kuw_          = InitKey(parameters, parameterKey, parameterKeyFallback, ".kuw", 0.182);
+    lambdaScaling_ = InitKey(parameters, parameterKey, parameterKeyFallback, ".lambdaScaling", 1.0);
     kws_          = InitKey(parameters, parameterKey, parameterKeyFallback, ".kws", 0.012);
     rs_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".rs", 0.25);
     rw_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".rw", 0.5);
@@ -474,7 +485,15 @@ void CBTensionModelLand17::InitParamsFromXml(ParameterMap *parameters, std::stri
     eta_l_        = InitKey(parameters, parameterKey, parameterKeyFallback, ".eta_l", 200.0);
     eta_s_        = InitKey(parameters, parameterKey, parameterKeyFallback, ".eta_s", 20.0);
     xi_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".xi", 1.0);
-    
+    fTnI_PKA_     = InitKey(parameters, parameterKey, parameterKeyFallback, ".fTnI_PKA", 0.0031);
+    fMyBPC_PKA_   = InitKey(parameters, parameterKey, parameterKeyFallback, ".fMyBPC_PKA", 0.0);
+    // sigmoid values from TWorld-2 paper, default parameters from Tomek himself
+    use_sigmoid_scaling = parameters->Get<bool>(parameterKey + ".use_sigmoid_scaling", false);
+    a_sigmoid     = InitKey(parameters, parameterKey, parameterKeyFallback, ".a_sigmoid", 4.0);
+    b_sigmoid     = InitKey(parameters, parameterKey, parameterKeyFallback, ".b_sigmoid", 2.0);
+    c_sigmoid     = InitKey(parameters, parameterKey, parameterKeyFallback, ".c_sigmoid", 6.0);
+    d_sigmoid     = InitKey(parameters, parameterKey, parameterKeyFallback, ".d_sigmoid", 20.0);
+
     // initial values for the state variables as parameters from xml file
     XS_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".XS", 0.0);
     XW_           = InitKey(parameters, parameterKey, parameterKeyFallback, ".XW", 0.0);

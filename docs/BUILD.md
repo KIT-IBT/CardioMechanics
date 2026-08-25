@@ -21,30 +21,23 @@ We recommend using a package manager (e.g. [Homebrew](https://brew.sh) on macOS 
 
 The `docker/` directory contains the Dockerfiles used by CI: `Dockerfile-thirdparty-petsc` source-builds PETSc with the tested version, while Open MPI and VTK are installed from apt (`libopenmpi-dev`, `libvtk9-dev`). They can serve as a reference for building dependencies manually.
 
-## Environment variables
-
-Only `PETSC_DIR` (and optionally `PETSC_ARCH`) are required so that CMake can locate the PETSc pkg-config file.
-
-```sh
-export PETSC_DIR=/path/to/petsc          # prefix install directory
-export PETSC_ARCH=                        # leave empty if PETSc was installed with --prefix
-```
-
-If `PETSC_ARCH` is non-empty, the pkg-config file is expected at `$PETSC_DIR/$PETSC_ARCH/lib/pkgconfig/PETSc.pc`.
-If `PETSC_ARCH` is empty, it is expected at `$PETSC_DIR/lib/pkgconfig/PETSc.pc`.
-
-VTK and Open MPI are found via CMake's standard search paths.
-On macOS with Homebrew, no extra variables are needed — Homebrew's prefix (`/opt/homebrew` or `/usr/local`) is searched automatically.
-
-### PETSc build example
+## PETSc build example
 
 PETSc must be configured with `--prefix` to generate the pkg-config file.  The options below
-enable the solver packages used by CardioMechanics:
+enable the solver packages used by CardioMechanics.
+
+The two paths below are placeholders — replace them with directories of your own choosing.
+`PETSC_SRC` is where the PETSc sources were unpacked, `PETSC_PREFIX` is where PETSc will be
+installed; the latter is created by `make install` and is the value `PETSC_DIR` must point to
+afterwards.
 
 ```sh
-cd /path/to/petsc-source
+PETSC_SRC=$HOME/src/petsc          # your PETSc source directory
+PETSC_PREFIX=$HOME/opt/petsc       # your PETSc install directory
+
+cd $PETSC_SRC
 ./configure \
-    --prefix=/path/to/petsc/install \
+    --prefix=$PETSC_PREFIX \
     --download-cmake \
     --download-openblas --download-mumps --download-scalapack \
     --download-superlu --download-superlu_dist \
@@ -54,6 +47,21 @@ cd /path/to/petsc-source
     COPTFLAGS='-O3' CXXOPTFLAGS='-O3' FOPTFLAGS='-O3'
 make all && make install
 ```
+
+## Environment variables
+
+Only `PETSC_DIR` (and optionally `PETSC_ARCH`) are required so that CMake can locate the PETSc pkg-config file.
+
+```sh
+export PETSC_DIR=$HOME/opt/petsc   # your PETSc install directory, i.e. the --prefix used above
+export PETSC_ARCH=                 # leave empty if PETSc was installed with --prefix
+```
+
+If `PETSC_ARCH` is non-empty, the pkg-config file is expected at `$PETSC_DIR/$PETSC_ARCH/lib/pkgconfig/PETSc.pc`.
+If `PETSC_ARCH` is empty, it is expected at `$PETSC_DIR/lib/pkgconfig/PETSc.pc`.
+
+VTK and Open MPI are found via CMake's standard search paths.
+On macOS with Homebrew, no extra variables are needed — Homebrew's prefix (`/opt/homebrew` or `/usr/local`) is searched automatically.
 
 ## Building
 
@@ -101,7 +109,9 @@ requires root.
 
 If you maintain multiple PETSc builds (e.g. optimized and debug), create a local
 `CMakeUserPresets.json` at the repo root to pin `PETSC_DIR` and `CMAKE_INSTALL_PREFIX` per
-preset without modifying the committed `CMakePresets.json`:
+preset without modifying the committed `CMakePresets.json`. All four `/path/to/...` entries below
+are placeholders for your own directories; each `PETSC_DIR` is the `--prefix` of the corresponding
+PETSc install:
 
 ```json
 {

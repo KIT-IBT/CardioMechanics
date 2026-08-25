@@ -14,6 +14,7 @@
 - `examples/inverseEllipsoid`: truncated-ellipsoid ventricle running the full forward -> target-extraction -> inverse round-trip, with a regression test (`tests/cardiomechanics/test_inverse.py`) covering the same chain at a shortened stop time.
 - `tools/python/CreateTargetSurfaces.py`: reusable CLI that converts forward-run VTUs into the binary target-surface format consumed by the estimator.
 - Unit tests for the pure-python tool logic under `tests/python/` (no binaries required).
+- CardioMechanics copies the settings file it was started with next to the results, as `<Export.Prefix>_settings.xml`, so an output directory always records the parameters that produced it. Note that `-parameter` overrides given on the command line are not reflected in the copy.
 - Manual sections covering the inverse problem: the regularized Gauss-Newton formulation and its regularization terms in "Mathematical Model", the `ActiveStressEstimator` settings and the `PointsCtrl` plugin in "Simulation Framework", the `ExtractSurfaceNodesFromVTU` tool and the `CreateTargetSurfaces` script in "Tools", and the target-surface file format in "File Formats".
 
 ### Changed

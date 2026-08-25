@@ -51,6 +51,12 @@ CLAUDE.md
 docs/UserManual/Manual.pdf
 docs/UserManual/*.log
 
+# example run output (the settings files write here; inputs live in tetgen/ and geometry/)
+examples/benchmark2015/Problem1/
+examples/benchmark2015/Problem2/
+examples/benchmark2015/Problem3/
+examples/inverseEllipsoid/Results/
+
 # misc
 *.swp
 *.o

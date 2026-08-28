@@ -278,7 +278,7 @@ class CircWholeHeart:
             state['V_VEN_SYS'] = float(self.V_VEN_SYS)
             state['V_AR_PUL']  = float(self.V_AR_PUL)
             state['V_VEN_PUL'] = float(self.V_VEN_PUL)
-	    state['p_AR_SYS']  = float(self.p_AR_SYS)
+	    	state['p_AR_SYS']  = float(self.p_AR_SYS)
             state['p_VEN_SYS'] = float(self.p_VEN_SYS)
             state['p_AR_PUL']  = float(self.p_AR_PUL)
             state['p_VEN_PUL'] = float(self.p_VEN_PUL)

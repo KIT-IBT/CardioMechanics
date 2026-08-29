@@ -8,19 +8,22 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 ENV PETSC_VERSION=v3.24.0
 
 # PETSc is the only dependency built from source; the packaged builds do not ship
-# all the solvers CardioMechanics needs. Keep --download-fblaslapack: linking the
-# system OpenBLAS (0.3.20 on jammy) makes MUMPS report the tangent as numerically
-# singular on some CPUs. --download-cmake: some PETSc packages need CMake >= 3.26,
+# all the solvers CardioMechanics needs. --download-openblas: PETSc builds and links
+# its own OpenBLAS for fast dense linear algebra. Do NOT also install/link a system
+# OpenBLAS (apt's 0.3.20 on jammy) alongside PETSc: mixing the two made MUMPS report the
+# tangent stiffness as numerically singular. If that recurs on the CI runner, switch back
+# to --download-fblaslapack. --download-cmake: some PETSc packages need CMake >= 3.26,
 # newer than the 3.22 in Ubuntu 22.04, so PETSc builds its own for the package builds.
 RUN git clone --depth 1 --branch ${PETSC_VERSION} https://gitlab.com/petsc/petsc.git /tmp/petsc \
     && cd /tmp/petsc \
-    && ./configure --prefix=/opt/petsc-${PETSC_VERSION} \
+    && if ! ./configure --prefix=/opt/petsc-${PETSC_VERSION} \
         --download-cmake \
-        --download-fblaslapack --download-mumps --download-scalapack \
+        --download-openblas --download-mumps --download-scalapack \
         --download-superlu --download-superlu_dist \
         --download-metis --download-parmetis --download-hypre \
         --with-shared-libraries=0 --with-x=0 --with-debugging=0 \
-        COPTFLAGS=-O2 CXXOPTFLAGS=-O2 FOPTFLAGS=-O2 \
+        COPTFLAGS=-O2 CXXOPTFLAGS=-O2 FOPTFLAGS=-O2 ; then \
+        tail -c 400000 configure.log ; exit 1 ; fi \
     && make PETSC_DIR=/tmp/petsc PETSC_ARCH=arch-linux-c-opt all \
     && make PETSC_DIR=/tmp/petsc PETSC_ARCH=arch-linux-c-opt install \
     && rm -rf /tmp/petsc

@@ -34,6 +34,7 @@ public:
     virtual ~CBFormulation(){}
     virtual CBStatus  CalcNodalForces() = 0;
     virtual CBStatus  CalcNodalForcesJacobian() = 0;
+    virtual CBStatus  CalcNodalForcesActiveStressJacobian() = 0;
 protected:
     CBSolver* solver_;    // No ownership
 private:

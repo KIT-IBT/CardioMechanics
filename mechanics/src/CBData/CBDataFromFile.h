@@ -44,9 +44,9 @@ private:
     virtual void LoadFileList(std::string filename);
     bool LoadDataSet(TFloat time);
     
-    TFloat startTime_;
-    TFloat period_;
-    
+    TFloat startTime_ = 0;
+    TFloat period_ = 1;
+
     bool isDataSetLoaded_;
     TFloat                                      timeDataBegin_ = 0;
     TFloat                                      timeDataEnd_ = 0;

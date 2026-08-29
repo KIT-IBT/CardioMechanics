@@ -401,7 +401,7 @@ where the relationship $\pdv{\III{C}}{\vec C} = J^2 \vec C^{-1}$ was used.
 
 \subsubsection{Tension Models}
 
-\paragraph{File} provides tensions from a tension.list file. 
+\paragraph{File} \label{tension:File} provides tensions from a tension.list file.
 The actual data is outsourced and managed by a FileManager object that lives within the solver class. 
 The tension between stored data gets interpolated from a CBDataFromFile* object.
 You have to provide one file at location \verb|Filename| with the following content:
@@ -673,11 +673,22 @@ where $a(t)$ is the activation function, $\sigma_0$ is the contractility, $\alph
     </Bestel>
 \end{lstlisting}
 
+\paragraph{TensionEstimator} \label{tension:TensionEstimator} is not a model in its own right, but the counterpart of the \nameref{settings:ActiveStressEstimator} solver.
+It simply holds the tension that the solver writes into it and returns that value when the element asks for it, which makes the estimated tension act on the mechanics like any other active tension.
+It takes no parameters and is only meaningful together with that solver.
+Note that it applies the tension along the fiber direction only, without the stretch-dependent scaling used by the other tension models.
+
+\begin{lstlisting}[language=XML,caption=.xml settings for the TensionEstimator tension model]
+    <TensionMax> 1 </TensionMax>
+    <TensionModel>TensionEstimator</TensionModel>
+\end{lstlisting}
+
 \subsection{Solver}
 \label{settings:Solver}
 
-Two different solver classes are available.
-These are the \verb|Static| solver and the \verb|NewmarkBeta| solver.
+Three different solver classes are available.
+These are the \verb|Static| solver, the \verb|NewmarkBeta| solver, and the \verb|ActiveStressEstimator| solver.
+The first two solve the forward problem and are described here; the \verb|ActiveStressEstimator| solves the inverse problem and is described separately in \Sec{settings:ActiveStressEstimator}.
 The \verb|Static| solver does not require any further parameters to be set and is used to solve problems according to \autoref{eq:staticLinMom} without momentum or problems where inertial forces can be neglected.
 In this case, time steps can be interpreted as loading steps instead.
 Dynamic problems should be solved with the \verb|NewmarkBeta| solver, which uses the name-giving time integration method to solve the initial value problem.
@@ -729,7 +740,7 @@ One really bad element is all it takes to give you a lot of trouble.
     <Formulation> TotalLagrangian </Formulation>
 
     <!-- Set Solver -->
-    <Type> Static/NewmarkBeta </Type>
+    <Type> Static/NewmarkBeta/ActiveStressEstimator </Type>
     <NewmarkBeta>
         <!-- Dissipation of higher frequencies for Gamma >= 0.5 -->
         <!-- Unconditional stability for 2*Beta >= Gamma >= 0.5 -->
@@ -750,6 +761,73 @@ One really bad element is all it takes to give you a lot of trouble.
     <MinSteps> 4 </MinSteps>
 </Solver>
 \end{lstlisting}
+
+\subsection{ActiveStressEstimator (Inverse Problem)}
+\label{settings:ActiveStressEstimator}
+
+This solver does not compute a deformation from a given active tension, but the reverse: given a target deformed surface at every point in time, it estimates the scalar active tension of every element that reproduces it.
+The underlying regularized Gauss-Newton formulation is described in \Sec{model:inverseproblem}.
+A complete, runnable setup is provided in \verb|examples/inverseEllipsoid|.
+
+The estimator wraps the static equilibrium solve, so it accepts the general solver parameters, but it ignores \verb|NewmarkBeta| settings.
+It requires the following to be set up consistently:
+\begin{itemize}
+    \item
+    Two surfaces in the \verb|Mesh| scope: a \verb|CONTACT_MASTER| surface, whose nodes are compared against the target, and a \verb|CONTACT_SLAVE| surface, whose nodes are moved onto the target.
+    \item
+    The \verb|ContactHandling| plugin, which is used only to measure the distance between the two surfaces. Set \verb|Alpha| to \verb|0| so that no contact forces are generated.
+    \item
+    The \verb|PointsCtrl| plugin (\Sec{settings:PointsCtrl}), which prescribes the target coordinates of the slave nodes over time from a list of target surface files.
+    \item
+    The \verb|TensionEstimator| tension model for every material whose tension is to be estimated. It acts as a mailbox into which the solver writes the current estimate; it computes nothing on its own.
+\end{itemize}
+
+The target surfaces are usually generated from a forward simulation with the \nameref{tools:CreateTargetSurfaces} script (\Sec{tools:CreateTargetSurfaces}).
+It also produces the list file referenced by \verb|PointsCtrl|.
+
+\paragraph{Regularization}
+The parameters \verb|l1| to \verb|l7| are the weights $\lambda_1$ to $\lambda_7$ of \Eq{eq:invObjective} and all default to zero.
+They are the main tuning knobs of the estimation and their appropriate values depend strongly on the problem, the mesh, and the noise in the target data.
+Since the estimation is ill-posed, at least one of them should be active; the example uses a small amount of spatial smoothing via \verb|l6| alone.
+For choosing them systematically, the solver writes the residual and regularization norms of every iteration to the file given by \verb|ExportLcurveDataFile|, from which an L-curve can be constructed.
+
+\paragraph{Restrictions}
+The estimator uses a direct solve of a dense system and \textbf{runs sequentially only}.
+It aborts if it is started with more than one process.
+The size of that dense system is the number of estimated elements, which is what limits the problem size in practice; restricting the estimation to the relevant materials via \verb|Materials| is the most effective way to keep it tractable.
+
+\begin{lstlisting}[language=XML,caption=.xml settings for the active stress estimator]
+<Solver>
+    <Type> ActiveStressEstimator </Type>
+    <ActiveStressEstimator>
+        <!-- Convergence of the outer iteration, at most 5 per time step -->
+        <AbsTol> 1e-4 </AbsTol>
+        <RelTol> 1e-4 </RelTol>
+
+        <!-- Tikhonov weights, all default to 0 -->
+        <l1> FLOAT </l1>  <!-- damping of the increment -->
+        <l2> FLOAT </l2>  <!-- magnitude of the tension -->
+        <l3> FLOAT </l3>  <!-- first temporal difference -->
+        <l4> FLOAT </l4>  <!-- second temporal difference -->
+        <l5> FLOAT </l5>  <!-- spatial roughness of the increment -->
+        <l6> FLOAT </l6>  <!-- spatial roughness of the tension -->
+        <l7> FLOAT </l7>  <!-- spatial roughness of the temporal increment -->
+
+        <!-- Optional -->
+        <Materials> 30,31 </Materials>
+        <NumberOfTargetNodes> INT </NumberOfTargetNodes>
+        <ReUseInverse> false </ReUseInverse>
+        <ExportFile> PATH </ExportFile>
+        <ExportLcurveDataFile> PATH </ExportLcurveDataFile>
+    </ActiveStressEstimator>
+</Solver>
+\end{lstlisting}
+
+The optional parameters are, in the order of the listing:
+\verb|Materials| restricts the estimation to the given material indices; if it is omitted, the tension of all elements is estimated.
+\verb|NumberOfTargetNodes| subsamples the master surface to approximately this number of nodes, which reduces the cost of the sensitivity computation at the price of a coarser measurement; if it is omitted, all master nodes are used.
+\verb|ReUseInverse| keeps the factorization of the tangent from the first iteration of a time step instead of rebuilding it in every iteration, which is faster but uses an increasingly outdated linearization.
+\verb|ExportFile| receives the residual norm of every iteration.
 
 \subsection{Solver Plugins}
 \label{settings:Plugins}
@@ -787,6 +865,7 @@ The following is a list of the most important ones:
         <ReferenceRecovery>true/false</ReferenceRecovery>
         <RobinBoundary>true/false</RobinBoundary>
         <RobinBoundaryGeneral>true/false</RobinBoundaryGeneral>
+        <PointsCtrl>true/false</PointsCtrl>
     </Plugins>
 </Solver>
 
@@ -876,6 +955,32 @@ Additionally, a text file with average contact distance and contact pressure is 
     <FlipSlaveNormals>true/false</FlipSlaveNormals>
     <SurfaceNormalDirection>unidirectional/bidirectional</SurfaceNormalDirection>
 </ContactHandling>
+\end{lstlisting}
+
+\subsubsection{PointsCtrl}
+\label{settings:PointsCtrl}
+
+This plugin prescribes the coordinates of a selected set of nodes over time, read from a file.
+The affected nodes are fixed by a Dirichlet boundary condition and are moved to the tabulated position in every time step, so they follow the prescribed trajectory exactly instead of responding to forces.
+Its main use is the inverse problem (\Sec{settings:ActiveStressEstimator}), where it moves the slave surface onto the measured target surface, but it can be used on its own to impose an arbitrary measured motion on part of a mesh.
+
+The controlled nodes are given either as a file listing one node index per line (\verb|Points.File|) or as a closed index range (\verb|Points.FromTo|); indices are one-based in both cases.
+The coordinates are given by \verb|Coordinates.File|, a list file that references one binary file of nodal coordinates per point in time, in the format described in \Sec{fileformats:TargetSurfaces}.
+Values between two tabulated points in time are interpolated linearly.
+The order of the coordinates in those files must match the order of the controlled nodes.
+
+\begin{lstlisting}[language=XML,caption=.xml settings for the PointsCtrl plugin]
+<PointsCtrl>
+    <Points>
+        <!-- Either a file with one node index per line ... -->
+        <File>PATH</File>
+        <!-- ... or a range of node indices, both ends included -->
+        <FromTo>INT,INT</FromTo>
+    </Points>
+    <Coordinates>
+        <File>PATH</File>
+    </Coordinates>
+</PointsCtrl>
 \end{lstlisting}
 
 \subsubsection{Circulation}

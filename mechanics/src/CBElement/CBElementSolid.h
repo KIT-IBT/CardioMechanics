@@ -87,6 +87,12 @@ public:
         throw std::runtime_error(
                                  "CBElementSolid::CalcNodalForcesDueActiveStress(): This function is not implemented for the requested child class:");
     }
+
+    /// derivative of the nodal forces with respect to the element active tension (inverse problem)
+    virtual CBStatus CalcNodalForcesActiveStressJacobian() {
+        throw std::runtime_error(
+                                 "CBElementSolid::CalcNodalForcesActiveStressJacobian(): This function is not implemented for the requested child class:");
+    }
     
     virtual Matrix3<TFloat> GetRightCauchyDeformationTensorWithGlobalBasis(TFloat l1, TFloat l2, TFloat l3, TFloat l4) {
         throw std::runtime_error(

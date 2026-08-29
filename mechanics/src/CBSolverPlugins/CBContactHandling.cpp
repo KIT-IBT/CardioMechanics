@@ -770,8 +770,11 @@ bool CBContactHandling::CheckIfSlave(TFloat *slaveNodes, int slaveInd, Vector3<T
     Vector3<TFloat>  ip = slaveTriangle.CalcIntersectionPoint(*p, *nv);
     
     if (slaveTriangle.IsPointWithinTriangle(ip)) {
-        dist = (ip-*p).Norm();
-        if (dist <= maxDistanceToSlave_) {
+        // ip lies on the ray p + t*nv, so (ip-p)*nv recovers the signed distance t. Keeping the sign
+        // (rather than the magnitude) makes nv*dist equal the true gap vector ip-p, which the inverse
+        // problem needs to know on which side of the master surface the target lies.
+        dist = (ip - *p) * (*nv);
+        if (std::abs(dist) <= maxDistanceToSlave_) {
             Vector3<TFloat> snv = slaveTriangle.GetNormalVector();
             if (*nv * snv * normalVectorSign_ > 0)
                 return true;
@@ -870,12 +873,12 @@ void CBContactHandling::DetermineSlaveElementsAtGaussPoints() {
             
             if (slave != -1) {
                 e->SetDistanceVectorToSlave(i, nv*dist);
-                averageDist_ += dist;
+                averageDist_ += std::abs(dist);
                 numContacts++;
             } else {
                 e->SetDistanceVectorToSlave(i, Vector3<TFloat>(0, 0, 0));
             }
-            
+
             e->SetSlaveAtGaussPoint(i, slave);
         }
     }
@@ -917,12 +920,12 @@ void CBContactHandling::DetermineSlaveElementsAtVertices() {
             
             if (slave != -1) {
                 e->SetDistanceVectorToSlave(i, nv*dist);
-                averageDist_ += dist;
+                averageDist_ += std::abs(dist);
                 numContacts++;
             } else {
                 e->SetDistanceVectorToSlave(i, Vector3<TFloat>(0, 0, 0));
             }
-            
+
             e->SetSlaveAtVertex(i, slave);
         }
     }

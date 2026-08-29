@@ -58,6 +58,15 @@ if(VTK_VERSION VERSION_GREATER_EQUAL "9.0")
     vtk_module_autoinit(TARGETS VTPExtractSurfaceFromMesh MODULES ${VTK_LIBRARIES})
 endif()
 
+add_executable(ExtractSurfaceNodesFromVTU MechanicsUtility/ExtractSurfaceNodesFromVTU.cpp)
+target_link_libraries(ExtractSurfaceNodesFromVTU PRIVATE
+    ${VTK_LIBRARIES}
+    cm_common_flags
+)
+if(VTK_VERSION VERSION_GREATER_EQUAL "9.0")
+    vtk_module_autoinit(TARGETS ExtractSurfaceNodesFromVTU MODULES ${VTK_LIBRARIES})
+endif()
+
 add_executable(FixNodes MechanicsUtility/FixNodes.cpp)
 target_link_libraries(FixNodes PRIVATE cm_common_flags)
 
@@ -68,6 +77,7 @@ install(TARGETS
     PETScVec2VTK
     BidomainMatrixGenerator
     VTPExtractSurfaceFromMesh
+    ExtractSurfaceNodesFromVTU
     FixNodes
     ConvertT4toT10
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

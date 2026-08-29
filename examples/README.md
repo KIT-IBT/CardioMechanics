@@ -39,6 +39,30 @@ mpirun -np <n> CardioMechanics -settings M_1mm.xml
 ```
 assuming you are in the EM01/settings directory.
 
+## inverseEllipsoid
+
+[inverseEllipsoid](./inverseEllipsoid) demonstrates the inverse problem: given a target deformed surface over time, the active-stress estimator recovers the scalar active stress in every element at each timestep.
+The example is a truncated-ellipsoid ventricle discretized with T4 elements and runs the full round-trip, so no external reference data is needed:
+```
+cd inverseEllipsoid
+mkdir -p Results
+
+CardioMechanics -settings forwardT4.xml
+
+python3 ../../tools/python/CreateTargetSurfaces.py \
+    -results Results/forward_vtu \
+    -node geometry/meshT4IP.node -sur geometry/meshT4IP.sur \
+    -output TargetSurfaces -list TargetSurfaces.list -dt 0.01
+
+CardioMechanics -settings inverseT4.xml
+```
+The forward run applies a known active tension and deforms the mesh, `CreateTargetSurfaces.py` turns the deformed surface of each exported timestep into the binary target format (it calls `ExtractSurfaceNodesFromVTU`, which has to be on your `PATH`), and the inverse run recovers the per-element active stress reproducing those targets.
+The recovered `ActiveStress` is written as cell data to `Results/Inverse_vtu/Inverse.<N>.vtu`.
+See the [example README](./inverseEllipsoid/README.md) for details.
+
+> [!IMPORTANT]
+> The estimator uses a direct solve and runs serially. Do not launch `inverseT4.xml` under `mpirun`.
+
 ## JPhys
 
 This folder contains the files required to reproduce the electromechanically coupled whole heart simulations shown in the latest publication by [Gerach and Loewe (2024)](https://doi.org/10.1113/JP285022).

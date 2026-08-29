@@ -25,6 +25,7 @@
 #include "CBRobinBoundary.h"
 #include "CBRobinBoundaryGeneral.h"
 #include "CBacCELLerate.h"
+#include "CBPointsCtrl.h"
 
 class CBSolverPlugin;
 
@@ -89,6 +90,12 @@ void CBSolverPluginFactory::LoadAllPlugins(std::vector<CBSolverPlugin *> &plugin
         solverPlugin->SetParameters(parameters);
         plugins_.push_back(solverPlugin);
     }
-    
+
+    if (parameters->Get<bool>("Solver.Plugins.PointsCtrl", false)) {
+        CBSolverPlugin *solverPlugin = new CBPointsCtrl();
+        solverPlugin->SetParameters(parameters);
+        plugins_.push_back(solverPlugin);
+    }
+
     plugins = plugins_;
 } // CBSolverPluginFactory::LoadAllPlugins

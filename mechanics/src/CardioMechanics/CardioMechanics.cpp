@@ -12,12 +12,15 @@
  */
 
 
+#include <filesystem>
+
 #include "filesystem.h"
 
 #include "CardioMechanics.h"
 #include "CBSolver.h"
 #include "CBSolverNewmarkBeta.h"
 #include "CBSolverEquilibrium.h"
+#include "CBSolverActiveStressEstimator.h"
 
 
 void CardioMechanics::Init1() {
@@ -44,6 +47,14 @@ void CardioMechanics::Init1() {
     DCCtrl::print << "\t\tAmount of elements: " << model_->GetElements().size() << " \n\n";
     
     InitModelExporter();
+    
+    // Keep a copy of the settings next to the results so that a simulation
+    // output can always be traced back to the parameters it was run with.
+    if (DCCtrl::IsProcessZero()) {
+        std::string settingsCopy = modelExporter_->GetExportDirPrefix() + "_settings.xml";
+        std::filesystem::copy_file(parameterFile_, settingsCopy,
+                                   std::filesystem::copy_options::overwrite_existing);
+    }
 }
 
 void CardioMechanics::Init2()
@@ -167,6 +178,8 @@ void CardioMechanics::InitSolver()
         solver_ = new CBSolverEquilibrium();
     else if(solverType == "NewmarkBeta")
         solver_ = new CBSolverNewmarkBeta();
+    else if(solverType == "ActiveStressEstimator")
+        solver_ = new CBSolverActiveStressEstimator();
     
     if(!solver_)
         throw std::runtime_error("CardioMechanics::InitSolver(): Solver type: " + solverType + " is unkown ");

@@ -18,6 +18,7 @@ add_library(CellModel STATIC
     OHaraRudyParameters.cpp
     OHaraRudyIsoParameters.cpp
     TomekParameters.cpp
+    TWorldParameters.cpp
     MitchellSchaefferParameters.cpp
     FitzhughNagumoParameters.cpp
     CourtemancheEtAl.cpp
@@ -36,6 +37,7 @@ add_library(CellModel STATIC
     OHaraRudy.cpp
     OHaraRudyIso.cpp
     Tomek.cpp
+    TWorld.cpp
     MitchellSchaeffer.cpp
     FitzhughNagumo.cpp
 )

@@ -46,6 +46,10 @@ protected:
     std::vector<TFloat> caiQP_;
     
     // CONSTANTS / PARAMETER VALUES
+
+    // scaling factor for lambda
+    TFloat lambdaScaling_ = 1.0;
+    
     // cooperativity of the calcium-troponin C binding rate
     TFloat TRPNn_ = 2.0;
     
@@ -112,6 +116,17 @@ protected:
     
     // constants that will be calculated once during initialize
     TFloat cw_, cs_, kwu_, ksu_, A_, XSSS_, XWSS_, ktm_block_;
+    
+    // PKA fractions from https://doi.org/10.1101/2025.03.24.645031
+    TFloat fTnI_PKA_ = 0.0;
+    TFloat fMyBPC_PKA_ = 0.0;
+
+    //sigmoidal scaling
+    TFloat a_sigmoid = 0.0;
+    TFloat b_sigmoid = 0.0;
+    TFloat c_sigmoid = 0.0;
+    TFloat d_sigmoid = 0.0;
+    bool use_sigmoid_scaling = false;
     
     // Initial values of state variables
     // XS

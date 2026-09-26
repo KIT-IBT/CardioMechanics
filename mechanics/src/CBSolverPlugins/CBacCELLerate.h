@@ -164,7 +164,23 @@ private:
 
     /// Per local acMesh_ cell: reference basis
     std::vector<Matrix3<TFloat>> Q_;
-    
+
+    /// Per local acMesh_ cell: vertices as indices into localPoints_
+    std::vector<std::array<PetscInt, 4>> localCells_;
+
+    /// Per local acMesh_ cell: material
+    std::vector<int> localMaterials_;
+
+    /// Global indices of the acMesh_ points used by local cells, sorted
+    std::vector<PetscInt> localPoints_;
+
+    /// Coordinates [mm] of localPoints_
+    std::vector<Vector3<TFloat>> localCoords_;
+
+    /// Gathers the coordinates of localPoints_ from accNodes_
+    VecScatter localNodesScatter_;
+    Vec localNodes_;
+
     /// for node permutation using pca
     std::vector<TInt> backwardMapping_;
     std::vector<TInt> forwardMapping_;
@@ -184,6 +200,8 @@ private:
     vtkIdType nPoints_;
     vtkIdType nCells_;
     std::vector<CBElementSolid *> elements_;
+
+    /// Full acMesh_, only held during Init(); afterwards each process keeps its local cells in localCells_
     vtkSmartPointer<vtkUnstructuredGrid> acMesh_;
     vtkSmartPointer<vtkDoubleArray> acMeshMaterials_;
     vtkSmartPointer<vtkDataArray> acMeshFiberValues_;

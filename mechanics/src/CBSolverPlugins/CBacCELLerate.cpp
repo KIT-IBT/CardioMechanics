@@ -71,8 +71,8 @@ void CBacCELLerate::Init() {
     
     InitMesh();
     InitPetscVec();
-    InitLocalMaps();
     InitMapping();
+    InitLocalMaps();
     
     /// copy sysMatrix and massMatrix allocation from acCELLerate instance
     sysMatrix_ = act_->GetSystemMatrix();
@@ -96,22 +96,11 @@ void CBacCELLerate::Prepare() {
     /// Set new reference configuration
     UpdateNodes(true);
     
-    /// not so nice....but vtk arrays have to be filled on process 0 to be correct and F was not computed before
-    Vec deformation;
-    if (DCCtrl::IsParallel())
-        VecCreateMPI(DCPetsc::Comm(), 9 * numLocalElements_, PETSC_DETERMINE, &deformation);
-    else
-        VecCreateSeq(PETSC_COMM_SELF, 9 * nCells_, &deformation);
-    
-    vtkSmartPointer<vtkIdList> pointIds = vtkSmartPointer<vtkIdList>::New();
     Vector3<TFloat> nodesCoords[4];
     Matrix3<TFloat> deformationTensor;
-    for (int i = localElementsFrom_; i <= localElementsTo_; i++) {
-        int localEleID = i - localElementsFrom_;
-        Q_[localEleID] = GetInitialBasisAtCell(i);
-        pointIds = acMesh_->GetCell(i)->GetPointIds();
+    for (int localEleID = 0; localEleID < numLocalElements_; localEleID++) {
         for (int j = 0; j < 4; j++) {
-            nodesCoords[j] = acMesh_->GetPoint(pointIds->GetId(j));
+            nodesCoords[j] = localCoords_[localCells_[localEleID][j]];
             nodesCoords[j] /= 1000.0; // adjust mm -> m
         }
         CalcDeformationTensor(localEleID, nodesCoords, deformationTensor);
@@ -131,56 +120,7 @@ void CBacCELLerate::Prepare() {
         
         /// set new reference basis
         Q_[localEleID] = {f(0), s(0), n(0), f(1), s(1), n(1), f(2), s(2), n(2)};
-        
-        /// carry F as PetscVec for export in P(0)
-        PetscInt index[9] = {9*i+0, 9*i+1, 9*i+2, 9*i+3, 9*i+4, 9*i+5, 9*i+6, 9*i+7, 9*i+8};
-        VecSetValues(deformation, 9, index, deformationTensor.GetArray(), INSERT_VALUES);
     }
-    VecAssemblyBegin(deformation);
-    VecAssemblyEnd(deformation);
-    
-    VecScatter ScatterDeformation;
-    PetscErrorCode ierr;
-    Vec localDeformation;
-    
-    ierr = VecScatterCreateToZero(deformation, &ScatterDeformation, &localDeformation); CHKERRQ(ierr);
-    ierr = VecScatterBegin(ScatterDeformation, deformation, localDeformation, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(
-                                                                                                                        ierr);
-    ierr = VecScatterEnd(ScatterDeformation, deformation, localDeformation, INSERT_VALUES, SCATTER_FORWARD);
-    CHKERRQ(ierr);
-    
-    PetscScalar *pD;
-    ierr = VecGetArray(localDeformation, &pD); CHKERRQ(ierr);
-    
-    if (mpirank_ == 0) {
-        for (int i = 0; i < nCells_; i++) {
-            // find new basis
-            Matrix3<TFloat> Q = GetInitialBasisAtCell(i);
-            Matrix3<TFloat> F =
-            {pD[9*i+0], pD[9*i+1], pD[9*i+2], pD[9*i+3], pD[9*i+4], pD[9*i+5], pD[9*i+6], pD[9*i+7], pD[9*i+8]};
-            
-            /// calculate deformed fibers
-            Vector3<TFloat> f = F * Q.GetCol(0);
-            Vector3<TFloat> s = F * Q.GetCol(1);
-            Vector3<TFloat> n = F * Q.GetCol(2);
-            
-            /// do Gram Schmidt orthonormalization
-            f.Normalize();
-            s.Normalize();
-            s = s - (f*s) * f;
-            n.Normalize();
-            n = n - (f*n) * f - (s*n) * s;
-            
-            acMeshFiberValues_->InsertTuple3(i, f(0), f(1), f(2));
-            acMeshSheetValues_->InsertTuple3(i, s(0), s(1), s(2));
-            acMeshNormalValues_->InsertTuple3(i, n(0), n(1), n(2));
-        }
-    }
-    
-    ierr = VecRestoreArray(localDeformation, &pD); CHKERRQ(ierr);
-    ierr = VecScatterDestroy(&ScatterDeformation); CHKERRQ(ierr);
-    ierr = VecDestroy(&localDeformation); CHKERRQ(ierr);
-    ierr = VecDestroy(&deformation); CHKERRQ(ierr);
     
     /// Calculate shape function derivatives with respect to reference coordinates
     CalcShapeFunctionDeriv();
@@ -475,7 +415,6 @@ void CBacCELLerate::UpdateVelocity() {
 } // CBacCELLerate::UpdateVelocity
 
 void CBacCELLerate::UpdateNodes(bool useReferenceNodes) {
-    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
     PetscErrorCode ierr;
     
     ierr = VecSet(accNodes_, 0); CHKERRQ(ierr);
@@ -536,39 +475,29 @@ void CBacCELLerate::UpdateNodes(bool useReferenceNodes) {
     ierr = VecAssemblyBegin(accNodes_); CHKERRQ(ierr);
     ierr = VecAssemblyEnd(accNodes_); CHKERRQ(ierr);
     
+    ierr = VecScatterBegin(localNodesScatter_, accNodes_, localNodes_, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
+    ierr = VecScatterEnd(localNodesScatter_, accNodes_, localNodes_, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
     
-    VecScatter  ScatterElePoints;
-    Vec localElePoints;
+    const PetscScalar *plN;
+    ierr = VecGetArrayRead(localNodes_, &plN); CHKERRQ(ierr);
     
-    ierr = VecScatterCreateToAll(accNodes_, &ScatterElePoints, &localElePoints); CHKERRQ(ierr);
-    ierr = VecScatterBegin(ScatterElePoints, accNodes_, localElePoints, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
-    ierr = VecScatterEnd(ScatterElePoints, accNodes_, localElePoints, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
+    /// the deformed EP geometry is held in single precision; the reference results of the coupled model depend on it
+    for (size_t k = 0; k < localPoints_.size(); k++)
+        localCoords_[k] = Vector3<TFloat>(float(plN[3*k+0]), float(plN[3*k+1]), float(plN[3*k+2]));
     
-    PetscScalar *plN;
-    ierr = VecGetArray(localElePoints, &plN); CHKERRQ(ierr);
-    
-    for (int i = 0; i < nPoints_; i++) {
-        points->InsertNextPoint(plN[i*3+0], plN[i*3+1], plN[i*3+2]);
-    }
-    
-    ierr = VecRestoreArray(localElePoints, &plN); CHKERRQ(ierr);
-    ierr = VecScatterDestroy(&ScatterElePoints); CHKERRQ(ierr);
-    ierr = VecDestroy(&localElePoints); CHKERRQ(ierr);
-    acMesh_->SetPoints(points);
+    ierr = VecRestoreArrayRead(localNodes_, &plN); CHKERRQ(ierr);
     DCCtrl::debug << "Done\n";
 } // CBacCELLerate::UpdateNodes
 
 void CBacCELLerate::CalcShapeFunctionDeriv() {
     /// this function is only to be called during Prepare()
-    vtkSmartPointer<vtkIdList> Points = vtkSmartPointer<vtkIdList>::New();
     Vector3<TFloat> nodesCoords[4];
     
     DCCtrl::debug << "Updating shape function derivatives ... ";
     
-    for (int CellId = localElementsFrom_; CellId <= localElementsTo_; CellId++) {
-        Points = acMesh_->GetCell(CellId)->GetPointIds();
+    for (int localEleID = 0; localEleID < numLocalElements_; localEleID++) {
         for (int i = 0; i < 4; i++) {
-            nodesCoords[i] = acMesh_->GetPoint(Points->GetId(i));
+            nodesCoords[i] = localCoords_[localCells_[localEleID][i]];
             nodesCoords[i] /= 1000.0; // adjust mm -> m
         }
         
@@ -591,8 +520,6 @@ void CBacCELLerate::CalcShapeFunctionDeriv() {
         TFloat x21 = (nodesCoords[1].X()- nodesCoords[0].X());
         
         TFloat detJ = x21 * (y31 * z41 - y41 * z31) + y21 * (x41 * z31 - x31 * z41) + z21 * (x31 * y41 - x41 * y31);
-        
-        int localEleID = CellId - localElementsFrom_;
         
         dNdX_[localEleID][0] = 1.0 / detJ *(nodesCoords[1].Y() * z43 - nodesCoords[2].Y() * z42 + nodesCoords[3].Y() * z32);
         dNdX_[localEleID][3] = 1.0 / detJ *(-nodesCoords[0].Y()* z43 + nodesCoords[2].Y() * z41 - nodesCoords[3].Y() * z31);
@@ -640,19 +567,16 @@ void CBacCELLerate::AssembleMatrix() {
     float AnisotropyX[256];
     float AnisotropyY[256];
     float AnisotropyZ[256];
-    int materialPriority[256];
     float K[256];
     static const double Frequency = 0.0;
     
     /// list of active materials in acMesh_
     MaterialListe materialProperties(MaterialFileName_.c_str());
-    std::vector<int> nodeMaterial(nPoints_, 0);
     
     DCCtrl::debug << "Assemble matrices ... ";
     
     /// find conductivities in each material
     for (int mat = 0; mat < 256; ++mat) {
-        materialPriority[mat] = 0;
         Material *material = materialProperties.Suchen(mat);
         if (material) {
             AnisotropyX[mat] = material->HoleAnisotropyX();
@@ -663,11 +587,6 @@ void CBacCELLerate::AssembleMatrix() {
             AnisotropyX[mat] = AnisotropyY[mat] = AnisotropyZ[mat] = K[mat] = -1.0;
         }
     }
-    
-    /// order material by priority
-    int prio = 0;
-    for (std::vector<TInt>::reverse_iterator i = priorityVector_.rbegin(); i != priorityVector_.rend(); ++i)
-        materialPriority[*i] = ++prio;
     
     /// allocate system matrix or set to 0 if it already exists
     if (sysMatrix_) {
@@ -699,28 +618,20 @@ void CBacCELLerate::AssembleMatrix() {
     }
     
     /// loop over cells
-    vtkSmartPointer<vtkIdList> pointIds = vtkSmartPointer<vtkIdList>::New();
     Vector3<TFloat> nodesCoords[4];
-    for (vtkIdType cellId = localElementsFrom_; cellId <= localElementsTo_; cellId++) {
-        int localEleID = cellId - localElementsFrom_;
-        int material = 1;
-        if (acMeshMaterials_)
-            material = acMeshMaterials_->GetValue(cellId);
+    for (int localEleID = 0; localEleID < numLocalElements_; localEleID++) {
+        int material = localMaterials_[localEleID];
         if (abs(K[material] - (-1.0)) < 1e-6) {
             throw std::runtime_error("\n\nMaterial " + std::to_string(
                                                                       material) + " does not exist in the material file " + MaterialFileName_ + ".");
         }
         
         /// loop over vertices
-        pointIds = acMesh_->GetCell(cellId)->GetPointIds();
         TInt p[4];
         for (int i = 0; i < 4; i++) {
-            nodesCoords[i] = acMesh_->GetPoint(pointIds->GetId(i));
+            nodesCoords[i] = localCoords_[localCells_[localEleID][i]];
             nodesCoords[i] /= 1000.0; // adjust mm -> m
-            p[i] = int(pointIds->GetId(i)); // pointIds as int for matrix assembly
-                                            /// assign correct material
-            if (materialPriority[material] >= materialPriority[nodeMaterial[pointIds->GetId(i)]])
-                nodeMaterial[pointIds->GetId(i)] = material;
+            p[i] = int(localPoints_[localCells_[localEleID][i]]); // global point index for matrix assembly
         } // end loop over vertices
         
         /// calc diffusion tensor
@@ -734,7 +645,7 @@ void CBacCELLerate::AssembleMatrix() {
         double J = F.Det();
         
         if (J <= 0) {
-            DCCtrl::debug << "\nCorrupt element ID: " << cellId << "\n";
+            DCCtrl::debug << "\nCorrupt element ID: " << localElementsFrom_ + localEleID << "\n";
             J = 1;
             F = Matrix3<TFloat>::Identity();
         }
@@ -1103,9 +1014,54 @@ void CBacCELLerate::InitPvdFile() {
 } // CBacCELLerate::InitPvdFile
 
 void CBacCELLerate::InitLocalMaps() {
-    /// only the local acMesh_ cells are stored to save memory
+    /// only the local acMesh_ cells and the points they use are kept, so that the full mesh can be released
     dNdX_.assign(numLocalElements_, {});
-    Q_.assign(numLocalElements_, Matrix3<TFloat>());
+    Q_.resize(numLocalElements_);
+    localCells_.resize(numLocalElements_);
+    localMaterials_.resize(numLocalElements_);
+    
+    localPoints_.clear();
+    localPoints_.reserve(4 * numLocalElements_);
+    for (vtkIdType cellId = localElementsFrom_; cellId <= localElementsTo_; cellId++) {
+        vtkIdList *pointIds = acMesh_->GetCell(cellId)->GetPointIds();
+        for (int i = 0; i < 4; i++)
+            localPoints_.push_back(PetscInt(pointIds->GetId(i)));
+    }
+    std::sort(localPoints_.begin(), localPoints_.end());
+    localPoints_.erase(std::unique(localPoints_.begin(), localPoints_.end()), localPoints_.end());
+    localPoints_.shrink_to_fit();
+    
+    for (vtkIdType cellId = localElementsFrom_; cellId <= localElementsTo_; cellId++) {
+        int localEleID = cellId - localElementsFrom_;
+        vtkIdList *pointIds = acMesh_->GetCell(cellId)->GetPointIds();
+        for (int i = 0; i < 4; i++)
+            localCells_[localEleID][i] = PetscInt(std::lower_bound(localPoints_.begin(), localPoints_.end(),
+                                                                   PetscInt(pointIds->GetId(i))) - localPoints_.begin());
+        localMaterials_[localEleID] = int(acMeshMaterials_->GetValue(cellId));
+        Q_[localEleID] = GetInitialBasisAtCell(cellId);
+    }
+    
+    localCoords_.resize(localPoints_.size());
+    for (size_t k = 0; k < localPoints_.size(); k++)
+        localCoords_[k] = acMesh_->GetPoint(localPoints_[k]);
+    
+    PetscErrorCode ierr;
+    std::vector<PetscInt> nodeIndices(3 * localPoints_.size());
+    for (size_t k = 0; k < localPoints_.size(); k++)
+        for (int c = 0; c < 3; c++)
+            nodeIndices[3*k + c] = 3 * localPoints_[k] + c;
+    IS nodeIS;
+    ierr = ISCreateGeneral(PETSC_COMM_SELF, PetscInt(nodeIndices.size()), nodeIndices.data(), PETSC_COPY_VALUES, &nodeIS);
+    CHKERRQ(ierr);
+    ierr = VecCreateSeq(PETSC_COMM_SELF, PetscInt(nodeIndices.size()), &localNodes_); CHKERRQ(ierr);
+    ierr = VecScatterCreate(accNodes_, nodeIS, localNodes_, NULL, &localNodesScatter_); CHKERRQ(ierr);
+    ierr = ISDestroy(&nodeIS); CHKERRQ(ierr);
+    
+    acMeshMaterials_ = nullptr;
+    acMeshFiberValues_ = nullptr;
+    acMeshSheetValues_ = nullptr;
+    acMeshNormalValues_ = nullptr;
+    acMesh_ = nullptr;
 }
 
 void CBacCELLerate::ApplySpatialSortPCA() {

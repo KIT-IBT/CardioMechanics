@@ -63,7 +63,7 @@
 #include <PETScLSE.h>
 #include <Material.h>
 #include <array>
-#include <map>
+#include <vector>
 
 class CBacCELLerate : public CBSolverPlugin {
 public:
@@ -128,9 +128,7 @@ private:
     Vec accNodes_;
     Vec stepbackForce_;
     Vec timestepForce_;
-    Vec ClosestEleShapeFun_;
-    Vec deformation_;
-    
+
     /// Global Matrices
     Mat sysMatrix_ = NULL;
     Mat massMatrix_ = NULL;
@@ -141,29 +139,31 @@ private:
     /// List of mech solid Elements
     std::vector<CBElementSolid *> solidElements_;
     
-    /// List that maps accNodes_ to solidElements_
-    std::map<PetscInt, CBElementSolid *> eleList_;
-    
-    /// List that maps accNodes_ to shape functions within closest solidElement
-    /// 1: numPoints*5
-    /// #1 is distance to ele centroid; #2-5: Shape fun
-    std::map<PetscInt, vector<double>> nearC_;
-    
-    /// List that maps Gauss point of solidElements_ to accNodes_
-    std::map<PetscInt, std::vector<PetscInt>> nearP_;
-    
-    /// List that maps Gauss point to shape functions within closest acc ele
-    std::map<PetscInt, Vector4<TFloat>> ForceSF_;
-    
-    /// List that maps acMesh_ elements to the respective dN/dX
-    /// index 0-11 contains dNdX; index 12 contains tet volume
-    std::map<vtkIdType, vector<double>> dNdX_;
-    
-    /// List that maps acMesh_ elements to current deformation tensor
-    std::map<vtkIdType, Matrix3<TFloat>> F_;
-    
-    /// List that maps acMesh_ elements to the reference basis
-    std::map<PetscInt, Matrix3<TFloat>> Q_;
+    /// acMesh_ point expressed in the shape functions of the solid element containing (or closest to) it
+    struct PointMapping {
+        PetscInt point;
+        CBElementSolid *element;
+        Vector4<TFloat> shapeFun;
+    };
+
+    /// Points owned by this process, sorted by point index. Each point is owned by exactly one process
+    /// so that UpdateNodes/UpdateStretch set every entry of the global vectors once.
+    std::vector<PointMapping> pointMappings_;
+
+    /// Quadrature point of a solid element expressed in the shape functions of the closest acMesh_ cell
+    struct QPMapping {
+        PetscInt points[4];
+        Vector4<TFloat> shapeFun;
+    };
+
+    /// Indexed by position in solidElements_ * NumQP_ + quadrature point; unused for uncoupled materials
+    std::vector<QPMapping> qpMappings_;
+
+    /// Per local acMesh_ cell: index 0-11 contains dN/dX; index 12 contains tet volume
+    std::vector<std::array<double, 13>> dNdX_;
+
+    /// Per local acMesh_ cell: reference basis
+    std::vector<Matrix3<TFloat>> Q_;
     
     /// for node permutation using pca
     std::vector<TInt> backwardMapping_;

@@ -26,6 +26,8 @@
 #include "vtksys/SystemTools.hxx"
 
 #include <algorithm>
+#include <limits>
+#include <unordered_map>
 extern "C" double dgesvd_(const char *, const char *, int *, int *, double *, int *, double *, double *, int *,
                           double *, int *, double *, int *, int *);
 
@@ -45,6 +47,7 @@ std::vector<unsigned char> split(const std::string &s, char delim) {
     split(s, delim, elems);
     return elems;
 }
+
 
 void CBacCELLerate::Init() {
     solidElements_ =  GetAdapter()->GetSolver()->GetSolidElementVector();
@@ -93,9 +96,16 @@ void CBacCELLerate::Prepare() {
     /// Set new reference configuration
     UpdateNodes(true);
     
-    /// not so nice....but vtk arrays have to be filled on process 0 to be correct and F_ was not computed before
+    /// not so nice....but vtk arrays have to be filled on process 0 to be correct and F was not computed before
+    Vec deformation;
+    if (DCCtrl::IsParallel())
+        VecCreateMPI(DCPetsc::Comm(), 9 * numLocalElements_, PETSC_DETERMINE, &deformation);
+    else
+        VecCreateSeq(PETSC_COMM_SELF, 9 * nCells_, &deformation);
+    
     vtkSmartPointer<vtkIdList> pointIds = vtkSmartPointer<vtkIdList>::New();
     Vector3<TFloat> nodesCoords[4];
+    Matrix3<TFloat> deformationTensor;
     for (int i = localElementsFrom_; i <= localElementsTo_; i++) {
         int localEleID = i - localElementsFrom_;
         Q_[localEleID] = GetInitialBasisAtCell(i);
@@ -104,13 +114,13 @@ void CBacCELLerate::Prepare() {
             nodesCoords[j] = acMesh_->GetPoint(pointIds->GetId(j));
             nodesCoords[j] /= 1000.0; // adjust mm -> m
         }
-        CalcDeformationTensor(localEleID, nodesCoords, F_[localEleID]);
+        CalcDeformationTensor(localEleID, nodesCoords, deformationTensor);
         Matrix3<TFloat> Q = GetBasisAtCell(localEleID);
         
         /// calculate deformed fibers "unloaded state"
-        Vector3<TFloat> f = F_[localEleID] * Q.GetCol(0);
-        Vector3<TFloat> s = F_[localEleID] * Q.GetCol(1);
-        Vector3<TFloat> n = F_[localEleID] * Q.GetCol(2);
+        Vector3<TFloat> f = deformationTensor * Q.GetCol(0);
+        Vector3<TFloat> s = deformationTensor * Q.GetCol(1);
+        Vector3<TFloat> n = deformationTensor * Q.GetCol(2);
         
         /// do Gram Schmidt orthonormalization
         f.Normalize();
@@ -122,25 +132,21 @@ void CBacCELLerate::Prepare() {
         /// set new reference basis
         Q_[localEleID] = {f(0), s(0), n(0), f(1), s(1), n(1), f(2), s(2), n(2)};
         
-        /// carry F_ as PetscVec for export in P(0)
-        PetscScalar F[9] =
-        {F_[localEleID].Get(0), F_[localEleID].Get(1), F_[localEleID].Get(2), F_[localEleID].Get(3), F_[localEleID].Get(4),
-            F_[localEleID].Get(5), F_[localEleID].Get(6), F_[localEleID].Get(7),
-            F_[localEleID].Get(8)};
+        /// carry F as PetscVec for export in P(0)
         PetscInt index[9] = {9*i+0, 9*i+1, 9*i+2, 9*i+3, 9*i+4, 9*i+5, 9*i+6, 9*i+7, 9*i+8};
-        VecSetValues(deformation_, 9, index, F, INSERT_VALUES);
+        VecSetValues(deformation, 9, index, deformationTensor.GetArray(), INSERT_VALUES);
     }
-    VecAssemblyBegin(deformation_);
-    VecAssemblyEnd(deformation_);
+    VecAssemblyBegin(deformation);
+    VecAssemblyEnd(deformation);
     
     VecScatter ScatterDeformation;
     PetscErrorCode ierr;
     Vec localDeformation;
     
-    ierr = VecScatterCreateToZero(deformation_, &ScatterDeformation, &localDeformation); CHKERRQ(ierr);
-    ierr = VecScatterBegin(ScatterDeformation, deformation_, localDeformation, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(
+    ierr = VecScatterCreateToZero(deformation, &ScatterDeformation, &localDeformation); CHKERRQ(ierr);
+    ierr = VecScatterBegin(ScatterDeformation, deformation, localDeformation, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(
                                                                                                                         ierr);
-    ierr = VecScatterEnd(ScatterDeformation, deformation_, localDeformation, INSERT_VALUES, SCATTER_FORWARD);
+    ierr = VecScatterEnd(ScatterDeformation, deformation, localDeformation, INSERT_VALUES, SCATTER_FORWARD);
     CHKERRQ(ierr);
     
     PetscScalar *pD;
@@ -169,11 +175,12 @@ void CBacCELLerate::Prepare() {
             acMeshSheetValues_->InsertTuple3(i, s(0), s(1), s(2));
             acMeshNormalValues_->InsertTuple3(i, n(0), n(1), n(2));
         }
-        
-        ierr = VecRestoreArray(localDeformation, &pD); CHKERRQ(ierr);
-        ierr = VecScatterDestroy(&ScatterDeformation); CHKERRQ(ierr);
-        ierr = VecDestroy(&localDeformation); CHKERRQ(ierr);
     }
+    
+    ierr = VecRestoreArray(localDeformation, &pD); CHKERRQ(ierr);
+    ierr = VecScatterDestroy(&ScatterDeformation); CHKERRQ(ierr);
+    ierr = VecDestroy(&localDeformation); CHKERRQ(ierr);
+    ierr = VecDestroy(&deformation); CHKERRQ(ierr);
     
     /// Calculate shape function derivatives with respect to reference coordinates
     CalcShapeFunctionDeriv();
@@ -239,15 +246,17 @@ void CBacCELLerate::Apply(TFloat CMtime) {
         ierr = VecGetArray(localForce, &pif); CHKERRQ(ierr);
         
         // Transfer calculated force to CM
-        for (auto &e : solidElements_) {
+        for (size_t eIdx = 0; eIdx < solidElements_.size(); eIdx++) {
+            CBElementSolid *e = solidElements_[eIdx];
             if (std::find(materialCoupling_.begin(), materialCoupling_.end(),
                           e->GetMaterialIndex()) != materialCoupling_.end()) {
                 for (int QPi = 0; QPi < NumQP_; QPi++) {
-                    Vector4<TFloat> ForceV4 = {pif[nearP_[e->GetIndex()*NumQP_ + QPi][0]],
-                        pif[nearP_[e->GetIndex()*NumQP_ + QPi][1]],
-                        pif[nearP_[e->GetIndex()*NumQP_ + QPi][2]],
-                        pif[nearP_[e->GetIndex()*NumQP_ + QPi][3]]};
-                    TFloat Force = ForceV4* ForceSF_[e->GetIndex()*NumQP_ + QPi];
+                    const QPMapping &qpMapping = qpMappings_[eIdx*NumQP_ + QPi];
+                    Vector4<TFloat> ForceV4 = {pif[qpMapping.points[0]],
+                        pif[qpMapping.points[1]],
+                        pif[qpMapping.points[2]],
+                        pif[qpMapping.points[3]]};
+                    TFloat Force = ForceV4* qpMapping.shapeFun;
                     
                     if (Force < 0) {
                         Force = 0; // negative Forces are rarely a nice thing to have
@@ -294,21 +303,23 @@ void CBacCELLerate::Apply(TFloat CMtime) {
         } else {
             DCCtrl::debug << "StepBackFactor: " << stepBackFactor << "\n";
             
-            for (auto &e : solidElements_) {
+            for (size_t eIdx = 0; eIdx < solidElements_.size(); eIdx++) {
+                CBElementSolid *e = solidElements_[eIdx];
                 if (find(materialCoupling_.begin(), materialCoupling_.end(),
                          e->GetMaterialIndex()) != materialCoupling_.end()) {
                     for (int QPi = 0; QPi < NumQP_; QPi++) {
-                        Vector4<TFloat> ForceV4sF = {ptsF[nearP_[e->GetIndex()*NumQP_ + QPi][0]],
-                            ptsF[nearP_[e->GetIndex()*NumQP_ + QPi][1]],
-                            ptsF[nearP_[e->GetIndex()*NumQP_ + QPi][2]],
-                            ptsF[nearP_[e->GetIndex()*NumQP_ + QPi][3]]};
-                        TFloat timeStepForce = ForceV4sF* ForceSF_[e->GetIndex()*NumQP_ + QPi];
+                        const QPMapping &qpMapping = qpMappings_[eIdx*NumQP_ + QPi];
+                        Vector4<TFloat> ForceV4sF = {ptsF[qpMapping.points[0]],
+                            ptsF[qpMapping.points[1]],
+                            ptsF[qpMapping.points[2]],
+                            ptsF[qpMapping.points[3]]};
+                        TFloat timeStepForce = ForceV4sF* qpMapping.shapeFun;
                         
-                        Vector4<TFloat> ForceV4bF = {psbF[nearP_[e->GetIndex()*NumQP_ + QPi][0]],
-                            psbF[nearP_[e->GetIndex()*NumQP_ + QPi][1]],
-                            psbF[nearP_[e->GetIndex()*NumQP_ + QPi][2]],
-                            psbF[nearP_[e->GetIndex()*NumQP_ + QPi][3]]};
-                        TFloat stepBackForce = ForceV4bF* ForceSF_[e->GetIndex()*NumQP_ + QPi];
+                        Vector4<TFloat> ForceV4bF = {psbF[qpMapping.points[0]],
+                            psbF[qpMapping.points[1]],
+                            psbF[qpMapping.points[2]],
+                            psbF[qpMapping.points[3]]};
+                        TFloat stepBackForce = ForceV4bF* qpMapping.shapeFun;
                         
                         TFloat Force = timeStepForce - (stepBackFactor * (timeStepForce - stepBackForce));
                         
@@ -372,21 +383,23 @@ void CBacCELLerate::Export(TFloat time) {
         VecGetArray(localCalcium, &piC);
         VecGetArray(localPotential, &piV);
         
-        for (auto &e : solidElements_) {
+        for (size_t eIdx = 0; eIdx < solidElements_.size(); eIdx++) {
+            CBElementSolid *e = solidElements_[eIdx];
             if (std::find(materialCoupling_.begin(), materialCoupling_.end(),
                           e->GetMaterialIndex()) != materialCoupling_.end()) {
                 for (int QPi = 0; QPi < NumQP_; QPi++) {
-                    Vector4<TFloat> CalciumV4 = {piC[nearP_[e->GetIndex()*NumQP_ + QPi][0]],
-                        piC[nearP_[e->GetIndex()*NumQP_ + QPi][1]],
-                        piC[nearP_[e->GetIndex()*NumQP_ + QPi][2]],
-                        piC[nearP_[e->GetIndex()*NumQP_ + QPi][3]]};
-                    TFloat Calcium = CalciumV4 * ForceSF_[e->GetIndex()*NumQP_ + QPi];
+                    const QPMapping &qpMapping = qpMappings_[eIdx*NumQP_ + QPi];
+                    Vector4<TFloat> CalciumV4 = {piC[qpMapping.points[0]],
+                        piC[qpMapping.points[1]],
+                        piC[qpMapping.points[2]],
+                        piC[qpMapping.points[3]]};
+                    TFloat Calcium = CalciumV4 * qpMapping.shapeFun;
                     
-                    Vector4<TFloat> PotentialV4 = {piV[nearP_[e->GetIndex()*NumQP_ + QPi][0]],
-                        piV[nearP_[e->GetIndex()*NumQP_ + QPi][1]],
-                        piV[nearP_[e->GetIndex()*NumQP_ + QPi][2]],
-                        piV[nearP_[e->GetIndex()*NumQP_ + QPi][3]]};
-                    TFloat Potential = PotentialV4 * ForceSF_[e->GetIndex()*NumQP_ + QPi] * 1000;
+                    Vector4<TFloat> PotentialV4 = {piV[qpMapping.points[0]],
+                        piV[qpMapping.points[1]],
+                        piV[qpMapping.points[2]],
+                        piV[qpMapping.points[3]]};
+                    TFloat Potential = PotentialV4 * qpMapping.shapeFun * 1000;
                     
                     VecSetValue(calcium, from2 + e->GetLocalIndex(), Calcium, INSERT_VALUES);
                     VecSetValue(potential, from1 + e->GetLocalIndex(), Potential, INSERT_VALUES);
@@ -429,20 +442,17 @@ void CBacCELLerate::UpdateStretch() {
     
     ierr = VecSet(stretchVecF_, 0); CHKERRQ(ierr);
     
-    for (auto it = eleList_.begin(); it != eleList_.end(); it++) {
-        it->second->GetDeformationTensorAtQuadraturePoints(f);
+    for (auto &pointMapping : pointMappings_) {
+        pointMapping.element->GetDeformationTensorAtQuadraturePoints(f);
         
-        Vector4<TFloat> LocalPos = Vector4<TFloat>(nearC_[it->first][1],
-                                                   nearC_[it->first][2],
-                                                   nearC_[it->first][3],
-                                                   nearC_[it->first][4]);
+        const Vector4<TFloat> &LocalPos = pointMapping.shapeFun;
         Vector4<TFloat> StretchAtQP = Vector4<TFloat>(sqrt(f[0].GetCol(0)*f[0].GetCol(0)),
                                                       sqrt(f[1].GetCol(0)*f[1].GetCol(0)),
                                                       sqrt(f[2].GetCol(0)*f[2].GetCol(0)),
                                                       sqrt(f[3].GetCol(0)*f[3].GetCol(0)));
         
         TFloat StretchVal = LocalPos * (QPInv * StretchAtQP);
-        ierr = VecSetValue(stretchVecF_, it->first, StretchVal, INSERT_VALUES);
+        ierr = VecSetValue(stretchVecF_, pointMapping.point, StretchVal, INSERT_VALUES);
     }
     ierr = VecAssemblyBegin(stretchVecF_); CHKERRQ(ierr);
     ierr = VecAssemblyEnd(stretchVecF_); CHKERRQ(ierr);
@@ -476,8 +486,9 @@ void CBacCELLerate::UpdateNodes(bool useReferenceNodes) {
     else
         DCCtrl::debug << "Updating Nodes ... ";
     
-    for (auto it = eleList_.begin(); it != eleList_.end(); it++) {
-        CBElementSolid *e = it->second;
+    for (auto &pointMapping : pointMappings_) {
+        CBElementSolid *e = pointMapping.element;
+        const Vector4<TFloat> &shapeFun = pointMapping.shapeFun;
         if (e == 0) {
             throw std::runtime_error(
                                      "An element of the list connecting the nodes to the corresponding CM elements seems to be empty");
@@ -501,25 +512,25 @@ void CBacCELLerate::UpdateNodes(bool useReferenceNodes) {
         Vector3<TFloat> p4(&coords[9]);
         
         Vector3<TFloat> p;
-        p(0) = (p1.X() * nearC_[it->first][1] +
-                p2.X() * nearC_[it->first][2] +
-                p3.X() * nearC_[it->first][3] +
-                p4.X() * nearC_[it->first][4]) * 1000;
+        p(0) = (p1.X() * shapeFun(0) +
+                p2.X() * shapeFun(1) +
+                p3.X() * shapeFun(2) +
+                p4.X() * shapeFun(3)) * 1000;
         
-        p(1) = (p1.Y() * nearC_[it->first][1] +
-                p2.Y() * nearC_[it->first][2] +
-                p3.Y() * nearC_[it->first][3] +
-                p4.Y() * nearC_[it->first][4]) * 1000;
+        p(1) = (p1.Y() * shapeFun(0) +
+                p2.Y() * shapeFun(1) +
+                p3.Y() * shapeFun(2) +
+                p4.Y() * shapeFun(3)) * 1000;
         
-        p(2) = (p1.Z() * nearC_[it->first][1] +
-                p2.Z() * nearC_[it->first][2] +
-                p3.Z() * nearC_[it->first][3] +
-                p4.Z() * nearC_[it->first][4]) * 1000;
+        p(2) = (p1.Z() * shapeFun(0) +
+                p2.Z() * shapeFun(1) +
+                p3.Z() * shapeFun(2) +
+                p4.Z() * shapeFun(3)) * 1000;
         
         
-        ierr = VecSetValue(accNodes_, it->first * 3 + 0, p(0), INSERT_VALUES); CHKERRQ(ierr);
-        ierr = VecSetValue(accNodes_, it->first * 3 + 1, p(1), INSERT_VALUES); CHKERRQ(ierr);
-        ierr = VecSetValue(accNodes_, it->first * 3 + 2, p(2), INSERT_VALUES); CHKERRQ(ierr);
+        ierr = VecSetValue(accNodes_, pointMapping.point * 3 + 0, p(0), INSERT_VALUES); CHKERRQ(ierr);
+        ierr = VecSetValue(accNodes_, pointMapping.point * 3 + 1, p(1), INSERT_VALUES); CHKERRQ(ierr);
+        ierr = VecSetValue(accNodes_, pointMapping.point * 3 + 2, p(2), INSERT_VALUES); CHKERRQ(ierr);
     }
     
     ierr = VecAssemblyBegin(accNodes_); CHKERRQ(ierr);
@@ -718,33 +729,25 @@ void CBacCELLerate::AssembleMatrix() {
             0, K[material] * AnisotropyY[material], 0,
             0, 0, K[material] * AnisotropyZ[material] };
         
-        CalcDeformationTensor(localEleID, nodesCoords, F_[localEleID]);
-        double J = F_[localEleID].Det();
+        Matrix3<TFloat> F;
+        CalcDeformationTensor(localEleID, nodesCoords, F);
+        double J = F.Det();
         
         if (J <= 0) {
             DCCtrl::debug << "\nCorrupt element ID: " << cellId << "\n";
             J = 1;
-            F_[localEleID] = Matrix3<TFloat>::Identity();
+            F = Matrix3<TFloat>::Identity();
         }
-        
-        PetscScalar F[9] =
-        {F_[localEleID].Get(0), F_[localEleID].Get(1), F_[localEleID].Get(2), F_[localEleID].Get(3), F_[localEleID].Get(4),
-            F_[localEleID].Get(5),
-            F_[localEleID].Get(
-                               6), F_[localEleID].Get(7), F_[localEleID].Get(8)};
-        PetscInt index[9] =
-        {9*cellId+0, 9*cellId+1, 9*cellId+2, 9*cellId+3, 9*cellId+4, 9*cellId+5, 9*cellId+6, 9*cellId+7, 9*cellId+8};
-        VecSetValues(deformation_, 9, index, F, INSERT_VALUES);
         
         if (MEF_ == "MINIMAL") {
             // no MEF on D
             D = Q * D * Q.GetTranspose();
-            D = J * F_[localEleID].GetInverse() * D * F_[localEleID].GetInverse().GetTranspose();
+            D = J * F.GetInverse() * D * F.GetInverse().GetTranspose();
         } else if (MEF_ == "FULL") {
             /// calculate deformed fibers
-            Vector3<TFloat> f = F_[localEleID] * Q.GetCol(0);
-            Vector3<TFloat> s = F_[localEleID] * Q.GetCol(1);
-            Vector3<TFloat> n = F_[localEleID] * Q.GetCol(2);
+            Vector3<TFloat> f = F * Q.GetCol(0);
+            Vector3<TFloat> s = F * Q.GetCol(1);
+            Vector3<TFloat> n = F * Q.GetCol(2);
             
             D =
             D(0,
@@ -755,7 +758,7 @@ void CBacCELLerate::AssembleMatrix() {
                                                                                         n, n)/(n.Norm()*n.Norm());
             
             // rotate
-            D = J * F_[localEleID].GetInverse() * D * F_[localEleID].GetInverse().GetTranspose();
+            D = J * F.GetInverse() * D * F.GetInverse().GetTranspose();
         }
         
         /// assemble mass (M) and stiffness (K) matrix
@@ -776,8 +779,6 @@ void CBacCELLerate::AssembleMatrix() {
         ierr = MatSetValues(massMatrix_, 4, p, 4, p, M, ADD_VALUES); CHKERRQ(ierr);
     } // end loop over cells
     
-    ierr = VecAssemblyBegin(deformation_);
-    ierr = VecAssemblyEnd(deformation_);
     ierr = MatAssemblyBegin(sysMatrix_, MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
     ierr = MatAssemblyEnd(sysMatrix_, MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
     ierr = MatAssemblyBegin(massMatrix_, MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
@@ -904,9 +905,17 @@ void CBacCELLerate::InitMapping() {
     
     PetscInt indices[12];
     PetscScalar coords[12];
-    for (int i = 0; i < nPoints_; i++) {
-        nearC_[i] = {INFINITY, 0, 0, 0, 0, 0};
-    }
+
+    /// candidate mapping of the points touched by local solid elements, with the distance to the element centroid
+    /// used to pick a single owning process
+    struct Candidate {
+        double dist;
+        CBElementSolid *element;
+        Vector4<TFloat> shapeFun;
+    };
+    std::unordered_map<PetscInt, Candidate> candidates;
+    qpMappings_.resize(solidElements_.size() * NumQP_);
+
     [[maybe_unused]] int skippedElement = 0;
     vtkSmartPointer<vtkPoints> CenterPoints = vtkSmartPointer<vtkPoints>::New();
     vtkSmartPointer<vtkUnstructuredGrid> TempVTK = vtkSmartPointer<vtkUnstructuredGrid>::New();
@@ -935,10 +944,9 @@ void CBacCELLerate::InitMapping() {
     PointLocator->BuildLocator();
     
     
-    PetscErrorCode ierr;
-    
     // For each CM element find the corresponding EP Points and vice versa
-    for (auto &e : solidElements_) {
+    for (size_t eIdx = 0; eIdx < solidElements_.size(); eIdx++) {
+        CBElementSolid *e = solidElements_[eIdx];
         if (std::find(materialCoupling_.begin(), materialCoupling_.end(),
                       e->GetMaterialIndex()) != materialCoupling_.end()) {
             indices[0] = 3 * (e)->GetNodeIndex(0);
@@ -985,34 +993,11 @@ void CBacCELLerate::InitMapping() {
                 
                 /// if point p is inside solidElement e, update map
                 if ((min >= 0) && (max <= 1)) {
-                    nearC_[i][0] = CDist;
-                    nearC_[i][1] = l(0);
-                    nearC_[i][2] = l(1);
-                    nearC_[i][3] = l(2);
-                    nearC_[i][4] = l(3);
-                    nearC_[i][5] = 1; // this value marks the point as mapped
-                    
-                    /// map current acc node i to solid element e
-                    eleList_[i] = (e);
-                    
-                    ierr =
-                    VecSetValue(ClosestEleShapeFun_, mpirank_* int(nPoints_)+ i,  CDist, INSERT_VALUES);
-                    CHKERRQ(ierr);
-                    
+                    candidates[i] = {CDist, e, l};
+
                     /// points that are not inside a tetrahedron are mapped to the closest centroid
-                } else if ((min >= -0.1) && (max <= 1.1) && (nearC_[i][0] == INFINITY)) {
-                    nearC_[i][0] = CDist;
-                    nearC_[i][1] = l(0);
-                    nearC_[i][2] = l(1);
-                    nearC_[i][3] = l(2);
-                    nearC_[i][4] = l(3);
-                    
-                    /// map current acc node i to solid element e
-                    eleList_[i] = (e);
-                    
-                    ierr =
-                    VecSetValue(ClosestEleShapeFun_, mpirank_* int(nPoints_)+ i,  CDist, INSERT_VALUES);
-                    CHKERRQ(ierr);
+                } else if ((min >= -0.1) && (max <= 1.1)) {
+                    candidates.try_emplace(i, Candidate{CDist, e, l});
                 }
             }
             
@@ -1039,11 +1024,12 @@ void CBacCELLerate::InitMapping() {
                 vtkIdType CellId = PointLocator->FindClosestPoint(QP);
                 Points = acMesh_->GetCell(CellId)->GetPointIds();
                 Vector3<TFloat> acCellPoints[4];
+                QPMapping &qpMapping = qpMappings_[eIdx*NumQP_ + QPi];
                 
                 /// assign acMesh_ nodes to QP
                 for (int i = 0; i < 4; i++) {
                     acCellPoints[i] = acMesh_->GetPoint(Points->GetId(i));
-                    nearP_[e->GetIndex()*NumQP_ + QPi].push_back(PetscInt(Points->GetId(i)));
+                    qpMapping.points[i] = PetscInt(Points->GetId(i));
                 }
                 
                 /// Determine Shape fun to interpolate force from Acc points to QP later on
@@ -1054,7 +1040,7 @@ void CBacCELLerate::InitMapping() {
                 mAcc.Invert();
                 
                 /// Gauss point of solid element e expressed with shape functions of acc element
-                ForceSF_[e->GetIndex()*NumQP_+ QPi] = mAcc * Vector4<TFloat>(QP[0],  QP[1], QP[2], 1);
+                qpMapping.shapeFun = mAcc * Vector4<TFloat>(QP[0],  QP[1], QP[2], 1);
             } // end loop over QPs
         } else {
             skippedElement++;
@@ -1062,61 +1048,28 @@ void CBacCELLerate::InitMapping() {
     } // end loop over solidElements_
     
     DCCtrl::debug << "Distribute mapping to processes...\n";
-    ierr = VecAssemblyBegin(ClosestEleShapeFun_); CHKERRQ(ierr);
-    ierr = VecAssemblyEnd(ClosestEleShapeFun_); CHKERRQ(ierr);
     
-    VecScatter  ScatterEleDist;
-    Vec localEleDist;
+    /// each point is owned by the process with the closest element centroid; MINLOC resolves ties to the lowest rank
+    struct DistRank { double dist; int rank; };  // layout of MPI_DOUBLE_INT
+    std::vector<DistRank> owner(nPoints_, {std::numeric_limits<double>::infinity(), mpirank_});
+    for (auto &c : candidates)
+        owner[c.first].dist = c.second.dist;
     
-    ierr = VecScatterCreateToAll(ClosestEleShapeFun_, &ScatterEleDist, &localEleDist); CHKERRQ(ierr);
-    ierr = VecScatterBegin(ScatterEleDist, ClosestEleShapeFun_, localEleDist, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(
-                                                                                                                       ierr);
-    ierr = VecScatterEnd(ScatterEleDist, ClosestEleShapeFun_, localEleDist, INSERT_VALUES, SCATTER_FORWARD);
+    PetscErrorCode ierr = MPI_Allreduce(MPI_IN_PLACE, owner.data(), int(nPoints_), MPI_DOUBLE_INT, MPI_MINLOC, PETSC_COMM_WORLD);
     CHKERRQ(ierr);
     
-    PetscScalar *pCESF;
-    ierr = VecGetArray(localEleDist, &pCESF); CHKERRQ(ierr);
+    for (auto &c : candidates)
+        if (owner[c.first].rank == mpirank_)
+            pointMappings_.push_back({c.first, c.second.element, c.second.shapeFun});
     
-    double closestPc = 1e6;
-    TInt closestPci = -1;
-    for (auto it = eleList_.begin(); it != eleList_.end();) {
-        closestPc = 1e6;
-        closestPci = -1;
-        
-        /// determine vertice distribution based on solidElements_
-        for (TInt Pci = 0; Pci < mpisize_; Pci++) {
-            if (pCESF[Pci*nPoints_+it->first] < closestPc) {
-                closestPci = Pci;
-                closestPc = pCESF[Pci*nPoints_+it->first];
-            }
-        }
-        
-        /// remove elements/mapping if it is not need by current process
-        if (closestPci != mpirank_) {
-            nearC_.erase(it->first);
-            it = eleList_.erase(it);
-        } else {
-            it++;
-        }
-    }
+    std::sort(pointMappings_.begin(), pointMappings_.end(),
+              [](const PointMapping &a, const PointMapping &b) {return a.point < b.point;});
     
     DCCtrl::debug << "Done\n";
-    
-    ierr = VecRestoreArray(localEleDist, &pCESF); CHKERRQ(ierr);
-    ierr = VecScatterDestroy(&ScatterEleDist); CHKERRQ(ierr);
-    ierr = VecDestroy(&localEleDist); CHKERRQ(ierr);
-    ierr = VecDestroy(&ClosestEleShapeFun_); CHKERRQ(ierr);
 } // CBacCELLerate::InitMapping
 
 void CBacCELLerate::InitPetscVec() {
     PetscErrorCode ierr;
-    
-    if (DCCtrl::IsParallel())
-        VecCreateMPI(DCPetsc::Comm(), 9 * numLocalElements_, PETSC_DETERMINE, &deformation_);
-    else
-        VecCreateSeq(PETSC_COMM_SELF, 9 * nCells_, &deformation_);
-    
-    VecZeroEntries(deformation_);
     
     ierr = VecCreate(PETSC_COMM_WORLD, &stretchVecF_); CHKERRQ(ierr);
     ierr = VecSetSizes(stretchVecF_, PETSC_DECIDE,  int(nPoints_)); CHKERRQ(ierr);
@@ -1126,10 +1079,6 @@ void CBacCELLerate::InitPetscVec() {
     ierr = VecSetSizes(accNodes_, PETSC_DECIDE,  int(nPoints_*3)); CHKERRQ(ierr);
     ierr = VecSetFromOptions(accNodes_); CHKERRQ(ierr);
     
-    ierr = VecCreate(PETSC_COMM_WORLD, &ClosestEleShapeFun_); CHKERRQ(ierr);
-    ierr = VecSetSizes(ClosestEleShapeFun_, PETSC_DECIDE, int(nPoints_ * (mpisize_))); CHKERRQ(ierr);
-    ierr = VecSetFromOptions(ClosestEleShapeFun_); CHKERRQ(ierr);
-    
     ierr = VecDuplicate(stretchVecF_, &velocityVec_); CHKERRQ(ierr);
     ierr = VecDuplicate(stretchVecF_, &timestepForce_); CHKERRQ(ierr);
     ierr = VecDuplicate(stretchVecF_, &stepbackForce_); CHKERRQ(ierr);
@@ -1137,7 +1086,6 @@ void CBacCELLerate::InitPetscVec() {
     ierr = VecSet(velocityVec_, 0); CHKERRQ(ierr);
     ierr = VecSet(timestepForce_, 0); CHKERRQ(ierr);
     ierr = VecSet(stepbackForce_, 0); CHKERRQ(ierr);
-    ierr = VecSet(ClosestEleShapeFun_, 1e6); CHKERRQ(ierr);
 } // CBacCELLerate::InitPetscVec
 
 void CBacCELLerate::InitPvdFile() {
@@ -1155,14 +1103,9 @@ void CBacCELLerate::InitPvdFile() {
 } // CBacCELLerate::InitPvdFile
 
 void CBacCELLerate::InitLocalMaps() {
-    /// populate these maps only on local processes to save memory
-    for (int globalID = localElementsFrom_; globalID <= localElementsTo_; globalID++) {
-        int localID = globalID - localElementsFrom_;
-        
-        dNdX_[localID] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        F_[localID] = Matrix3<TFloat>::Identity();
-        Q_[localID] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
-    }
+    /// only the local acMesh_ cells are stored to save memory
+    dNdX_.assign(numLocalElements_, {});
+    Q_.assign(numLocalElements_, Matrix3<TFloat>());
 }
 
 void CBacCELLerate::ApplySpatialSortPCA() {
@@ -1290,10 +1233,10 @@ void CBacCELLerate::GetFibersFromMechanicsMesh() {
     ierr = VecDuplicate(FiberVecX, &FiberVecY); CHKERRQ(ierr);
     ierr = VecDuplicate(FiberVecX, &FiberVecZ); CHKERRQ(ierr);
     
-    // Get fiber information for each AccNode from CMElement Centroid via eleList.
-    for (auto it = eleList_.begin(); it != eleList_.end(); it++) {
-        CBElementSolid *e = it->second;
-        PetscInt ix = {it->first};
+    // Get fiber information for each AccNode from CMElement Centroid via pointMappings_.
+    for (auto &pointMapping : pointMappings_) {
+        CBElementSolid *e = pointMapping.element;
+        PetscInt ix = {pointMapping.point};
         PetscScalar x = {e->GetBasis()->GetCol(0)(0)};
         PetscScalar y = {e->GetBasis()->GetCol(0)(1)};
         PetscScalar z = {e->GetBasis()->GetCol(0)(2)};

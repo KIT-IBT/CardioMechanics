@@ -21,6 +21,7 @@
 #include <vtkTetra.h>
 #include <vtkCellLocator.h>
 #include <vtkPointLocator.h>
+#include <vtkStaticPointLocator.h>
 #include "petscvec.h"
 #include <petscviewer.h>
 #include "vtksys/SystemTools.hxx"
@@ -763,46 +764,139 @@ void CBacCELLerate::InitMesh() {
         throw std::runtime_error(
                                  "Plugins.acCELLerate.acCELLerateMesh is of the wrong type. Please provide the file format .vtu.");
     }
-    vtkSmartPointer<vtkXMLUnstructuredGridReader> reader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
-    reader->SetFileName(acMeshFilename.c_str());
-    reader->Update();
-    acMesh_ = vtkSmartPointer<vtkUnstructuredGrid>::New();
-    acMesh_ = reader->GetOutput();
-    nPoints_ = acMesh_->GetNumberOfPoints();
-    nCells_ = acMesh_->GetNumberOfCells();
-    DCCtrl::debug << "\nACMesh Properties: \nPoints: " << nPoints_ << "\nCells: " << nCells_;
     
-    if (GetParameters()->Get<bool>("Plugins.acCELLerate.Permute", false)) {
-        DCCtrl::debug << "\nPermuting Acc-Mesh ... ";
-        ApplySpatialSortPCA();
-    }
-    
-    DCCtrl::debug << "\nLoading fiber orientation ... ";
-    acMeshFiberValues_ = acMesh_->GetCellData()->GetArray("Fiber");
-    acMeshSheetValues_ = acMesh_->GetCellData()->GetArray("Sheet");
-    acMeshNormalValues_ = acMesh_->GetCellData()->GetArray("Sheetnormal");
-    acMeshMaterials_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Material")));
-
-    if (!acMeshFiberValues_ || !acMeshSheetValues_ || !acMeshNormalValues_) {
-        DCCtrl::debug << "Info: No fiber orientation defined.\n";
-        throw std::runtime_error("Automatic mapping of fibers currently not supported.");
+    /// only process 0 reads the mesh, so that memory does not grow with the number of processes;
+    /// InitMapping() and InitLocalMaps() distribute what the other processes need
+    std::string error;
+    if (mpirank_ == 0) {
+        vtkSmartPointer<vtkXMLUnstructuredGridReader> reader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+        reader->SetFileName(acMeshFilename.c_str());
+        reader->Update();
+        acMesh_ = reader->GetOutput();
+        nPoints_ = acMesh_->GetNumberOfPoints();
+        nCells_ = acMesh_->GetNumberOfCells();
         
-        //    DCCtrl::debug << "Getting Fibres from CM Mesh ... ";
-        //    GetFibersFromMechanicsMesh();
-        //    acMeshFiberValues_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Fiber")));
+        if (GetParameters()->Get<bool>("Plugins.acCELLerate.Permute", false)) {
+            DCCtrl::debug << "\nPermuting Acc-Mesh ... ";
+            ApplySpatialSortPCA();
+        }
+        
+        acMeshFiberValues_ = acMesh_->GetCellData()->GetArray("Fiber");
+        acMeshSheetValues_ = acMesh_->GetCellData()->GetArray("Sheet");
+        acMeshNormalValues_ = acMesh_->GetCellData()->GetArray("Sheetnormal");
+        acMeshMaterials_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Material")));
+        
+        if (!acMeshFiberValues_ || !acMeshSheetValues_ || !acMeshNormalValues_) {
+            error = "Automatic mapping of fibers currently not supported.";
+
+            //    DCCtrl::debug << "Getting Fibres from CM Mesh ... ";
+            //    GetFibersFromMechanicsMesh();
+            //    acMeshFiberValues_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Fiber")));
+        } else if (!acMeshMaterials_)
+            error = "CBacCELLerate::InitMesh(): No Material defined.";
     }
-    DCCtrl::debug << "Done\n";
     
-    if (!acMeshMaterials_) {
-        throw std::runtime_error("CBacCELLerate::InitMesh(): No Material defined.");
-    }
+    /// every process raises the error, otherwise the others would wait for process 0 forever
+    long long header[3] = {nPoints_, nCells_, !error.empty()};
+    PetscErrorCode ierr = MPI_Bcast(header, 3, MPI_LONG_LONG, 0, PETSC_COMM_WORLD); CHKERRQ(ierr);
+    if (header[2])
+        throw std::runtime_error(mpirank_ == 0 ? error : "CBacCELLerate::InitMesh(): process 0 failed to load the mesh.");
+    nPoints_ = header[0];
+    nCells_ = header[1];
+    DCCtrl::debug << "\nACMesh Properties: \nPoints: " << nPoints_ << "\nCells: " << nCells_ << "\nDone\n";
     
     DetermineElementRanges();
 } // CBacCELLerate::InitMesh
 
+template<typename T>
+static MPI_Datatype CommitBytesType() {
+    MPI_Datatype type;
+    MPI_Type_contiguous(int(sizeof(T)), MPI_BYTE, &type);
+    MPI_Type_commit(&type);
+    return type;
+}
+
 void CBacCELLerate::InitMapping() {
     DCCtrl::debug << "Creating mesh connections ... \n";
     
+    /// the mapping is computed on process 0, which holds acMesh_
+    std::vector<MappingElement> elements;
+    for (size_t eIdx = 0; eIdx < solidElements_.size(); eIdx++) {
+        CBElementSolid *e = solidElements_[eIdx];
+        if (std::find(materialCoupling_.begin(), materialCoupling_.end(), e->GetMaterialIndex()) == materialCoupling_.end())
+            continue;
+        MappingElement element;
+        element.eIdx = PetscInt(eIdx);
+        PetscInt indices[12];
+        for (int i = 0; i < 4; i++)
+            for (int c = 0; c < 3; c++)
+                indices[3*i + c] = 3 * e->GetNodeIndex(i) + c;
+        GetAdapter()->GetNodesCoords(12, indices, element.coords);
+        elements.push_back(element);
+    }
+    
+    MPI_Datatype elementType = CommitBytesType<MappingElement>();
+    MPI_Datatype pointType = CommitBytesType<MappingPoint>();
+    MPI_Datatype qpType = CommitBytesType<MappingQP>();
+    
+    int numElements = int(elements.size());
+    std::vector<int> elementCounts(mpisize_), elementDispls(mpisize_ + 1, 0);
+    PetscErrorCode ierr = MPI_Gather(&numElements, 1, MPI_INT, elementCounts.data(), 1, MPI_INT, 0, PETSC_COMM_WORLD);
+    CHKERRQ(ierr);
+    for (int r = 0; r < mpisize_; r++)
+        elementDispls[r + 1] = elementDispls[r] + elementCounts[r];
+    
+    std::vector<MappingElement> allElements(mpirank_ == 0 ? elementDispls[mpisize_] : 0);
+    ierr = MPI_Gatherv(elements.data(), numElements, elementType, allElements.data(), elementCounts.data(),
+                       elementDispls.data(), elementType, 0, PETSC_COMM_WORLD); CHKERRQ(ierr);
+    
+    std::vector<int> pointCounts(mpisize_, 0), pointDispls(mpisize_ + 1, 0);
+    std::vector<int> qpCounts(mpisize_), qpDispls(mpisize_ + 1);
+    for (int r = 0; r <= mpisize_; r++) {
+        if (r < mpisize_)
+            qpCounts[r] = elementCounts[r] * NumQP_;
+        qpDispls[r] = elementDispls[r] * NumQP_;
+    }
+    std::vector<MappingPoint> allPoints;
+    std::vector<MappingQP> allQPs;
+    if (mpirank_ == 0)
+        MapElements(allElements, elementDispls, allPoints, pointCounts, allQPs);
+    for (int r = 0; r < mpisize_; r++)
+        pointDispls[r + 1] = pointDispls[r] + pointCounts[r];
+    
+    int numPoints;
+    ierr = MPI_Scatter(pointCounts.data(), 1, MPI_INT, &numPoints, 1, MPI_INT, 0, PETSC_COMM_WORLD); CHKERRQ(ierr);
+    std::vector<MappingPoint> points(numPoints);
+    ierr = MPI_Scatterv(allPoints.data(), pointCounts.data(), pointDispls.data(), pointType,
+                        points.data(), numPoints, pointType, 0, PETSC_COMM_WORLD); CHKERRQ(ierr);
+    std::vector<MappingQP> qps(numElements * NumQP_);
+    ierr = MPI_Scatterv(allQPs.data(), qpCounts.data(), qpDispls.data(), qpType,
+                        qps.data(), int(qps.size()), qpType, 0, PETSC_COMM_WORLD); CHKERRQ(ierr);
+    
+    MPI_Type_free(&elementType);
+    MPI_Type_free(&pointType);
+    MPI_Type_free(&qpType);
+    
+    pointMappings_.reserve(points.size());
+    for (auto &p : points)
+        pointMappings_.push_back({p.point, solidElements_[p.eIdx], Vector4<TFloat>(p.shapeFun)});
+    
+    qpMappings_.resize(solidElements_.size() * NumQP_);
+    for (size_t k = 0; k < elements.size(); k++) {
+        for (int QPi = 0; QPi < NumQP_; QPi++) {
+            const MappingQP &qp = qps[k*NumQP_ + QPi];
+            QPMapping &qpMapping = qpMappings_[elements[k].eIdx*NumQP_ + QPi];
+            std::copy(qp.points, qp.points + 4, qpMapping.points);
+            qpMapping.shapeFun = Vector4<TFloat>(qp.shapeFun);
+        }
+    }
+    
+    DCCtrl::debug << "Done\n";
+} // CBacCELLerate::InitMapping
+
+void CBacCELLerate::MapElements(const std::vector<MappingElement> &elements, const std::vector<int> &elementDispls,
+                                std::vector<MappingPoint> &points, std::vector<int> &pointCounts,
+                                std::vector<MappingQP> &qps) {
     /// shape functions for gauss points of tetrahedron
     std::vector<double> ShapeFunVec(20, 0);
     double alpha  = (5 + 3 * sqrt(5)) / 20;
@@ -814,20 +908,6 @@ void CBacCELLerate::InitMapping() {
         beta, beta, alpha, beta,
         beta, beta, beta, alpha };
     
-    PetscInt indices[12];
-    PetscScalar coords[12];
-
-    /// candidate mapping of the points touched by local solid elements, with the distance to the element centroid
-    /// used to pick a single owning process
-    struct Candidate {
-        double dist;
-        CBElementSolid *element;
-        Vector4<TFloat> shapeFun;
-    };
-    std::unordered_map<PetscInt, Candidate> candidates;
-    qpMappings_.resize(solidElements_.size() * NumQP_);
-
-    [[maybe_unused]] int skippedElement = 0;
     vtkSmartPointer<vtkPoints> CenterPoints = vtkSmartPointer<vtkPoints>::New();
     vtkSmartPointer<vtkUnstructuredGrid> TempVTK = vtkSmartPointer<vtkUnstructuredGrid>::New();
     vtkSmartPointer<vtkIdList> CellPoints = vtkSmartPointer<vtkIdList>::New();
@@ -854,35 +934,38 @@ void CBacCELLerate::InitMapping() {
     PointLocator->SetDataSet(TempVTK);
     PointLocator->BuildLocator();
     
+    /// locates the acMesh_ points that are candidates for a solid element
+    vtkSmartPointer<vtkStaticPointLocator> acPointLocator = vtkSmartPointer<vtkStaticPointLocator>::New();
+    acPointLocator->SetDataSet(acMesh_);
+    acPointLocator->BuildLocator();
+    vtkSmartPointer<vtkIdList> nearPoints = vtkSmartPointer<vtkIdList>::New();
     
-    // For each CM element find the corresponding EP Points and vice versa
-    for (size_t eIdx = 0; eIdx < solidElements_.size(); eIdx++) {
-        CBElementSolid *e = solidElements_[eIdx];
-        if (std::find(materialCoupling_.begin(), materialCoupling_.end(),
-                      e->GetMaterialIndex()) != materialCoupling_.end()) {
-            indices[0] = 3 * (e)->GetNodeIndex(0);
-            indices[1] = 3 * (e)->GetNodeIndex(0) + 1;
-            indices[2] = 3 * (e)->GetNodeIndex(0) + 2;
-            
-            indices[3] = 3 * (e)->GetNodeIndex(1);
-            indices[4] = 3 * (e)->GetNodeIndex(1) + 1;
-            indices[5] = 3 * (e)->GetNodeIndex(1) + 2;
-            
-            indices[6] = 3 * (e)->GetNodeIndex(2);
-            indices[7] = 3 * (e)->GetNodeIndex(2) + 1;
-            indices[8] = 3 * (e)->GetNodeIndex(2) + 2;
-            
-            indices[9] = 3 * (e)->GetNodeIndex(3);
-            indices[10] = 3 * (e)->GetNodeIndex(3) + 1;
-            indices[11] = 3 * (e)->GetNodeIndex(3) + 2;
-            
-            GetAdapter()->GetNodesCoords(12, indices, coords);
-            
-            /// vertices of solid element e
-            Vector3<TFloat> p1(&coords[0]);
-            Vector3<TFloat> p2(&coords[3]);
-            Vector3<TFloat> p3(&coords[6]);
-            Vector3<TFloat> p4(&coords[9]);
+    /// candidate of a process for a point, with the distance to the element centroid used to pick a single owner
+    struct Candidate {
+        double dist;
+        int element;  // index into elements
+        Vector4<TFloat> shapeFun;
+    };
+    
+    /// each point is owned by the process with the closest element centroid; ties resolve to the lowest rank
+    struct Owner {
+        double dist = std::numeric_limits<double>::infinity();
+        int rank = -1;
+        int element = -1;
+        Vector4<TFloat> shapeFun;
+    };
+    std::vector<Owner> owners(nPoints_);
+    qps.resize(elements.size() * NumQP_);
+    
+    for (int r = 0; r < mpisize_; r++) {
+        /// candidates of process r; the result depends on the order of the elements within a process
+        std::unordered_map<PetscInt, Candidate> candidates;
+        for (int k = elementDispls[r]; k < elementDispls[r + 1]; k++) {
+            /// vertices of solid element k
+            Vector3<TFloat> p1(&elements[k].coords[0]);
+            Vector3<TFloat> p2(&elements[k].coords[3]);
+            Vector3<TFloat> p3(&elements[k].coords[6]);
+            Vector3<TFloat> p4(&elements[k].coords[9]);
             
             /// Jacobian matrix of linear tetrahedron
             Matrix4<TFloat> m = {p1.X(), p2.X(), p3.X(), p4.X(),
@@ -891,7 +974,16 @@ void CBacCELLerate::InitMapping() {
                 1,      1,      1,      1};
             m.Invert();
             
-            for (PetscInt i = 0; i < nPoints_; i++) {
+            /// points with all shape functions >= -0.1 lie in the tetrahedron scaled by 1.4 about its centroid,
+            /// which is enclosed by a sphere of 1.4 times the largest centroid-vertex distance
+            Vector3<TFloat> centroid = (p1 + p2 + p3 + p4) / 4;
+            double radius = std::max({(p1 - centroid).Norm(), (p2 - centroid).Norm(),
+                                      (p3 - centroid).Norm(), (p4 - centroid).Norm()});
+            double center[3] = {centroid.X() * 1000, centroid.Y() * 1000, centroid.Z() * 1000};
+            acPointLocator->FindPointsWithinRadius(1.4 * radius * 1000 * (1 + 1e-3), center, nearPoints);
+            
+            for (vtkIdType n = 0; n < nearPoints->GetNumberOfIds(); n++) {
+                PetscInt i = PetscInt(nearPoints->GetId(n));
                 double p[3] = {acMesh_->GetPoint(i)[0], acMesh_->GetPoint(i)[1], acMesh_->GetPoint(i)[2]};
                 
                 /// l: point p expressed with shape functions of solidElement e
@@ -904,11 +996,11 @@ void CBacCELLerate::InitMapping() {
                 
                 /// if point p is inside solidElement e, update map
                 if ((min >= 0) && (max <= 1)) {
-                    candidates[i] = {CDist, e, l};
-
+                    candidates[i] = {CDist, k, l};
+                    
                     /// points that are not inside a tetrahedron are mapped to the closest centroid
                 } else if ((min >= -0.1) && (max <= 1.1)) {
-                    candidates.try_emplace(i, Candidate{CDist, e, l});
+                    candidates.try_emplace(i, Candidate{CDist, k, l});
                 }
             }
             
@@ -931,16 +1023,15 @@ void CBacCELLerate::InitMapping() {
                           p4.Get(2) * ShapeFunVec[QPi*NumQP_ + 3])) * 1000;
                 
                 /// Find closest Cell in accMesh to later interpolate Force/Cai from EP to CM
-                vtkSmartPointer<vtkIdList> Points = vtkSmartPointer<vtkIdList>::New();
                 vtkIdType CellId = PointLocator->FindClosestPoint(QP);
-                Points = acMesh_->GetCell(CellId)->GetPointIds();
+                vtkIdList *Points = acMesh_->GetCell(CellId)->GetPointIds();
                 Vector3<TFloat> acCellPoints[4];
-                QPMapping &qpMapping = qpMappings_[eIdx*NumQP_ + QPi];
+                MappingQP &qp = qps[k*NumQP_ + QPi];
                 
                 /// assign acMesh_ nodes to QP
                 for (int i = 0; i < 4; i++) {
                     acCellPoints[i] = acMesh_->GetPoint(Points->GetId(i));
-                    qpMapping.points[i] = PetscInt(Points->GetId(i));
+                    qp.points[i] = PetscInt(Points->GetId(i));
                 }
                 
                 /// Determine Shape fun to interpolate force from Acc points to QP later on
@@ -951,33 +1042,38 @@ void CBacCELLerate::InitMapping() {
                 mAcc.Invert();
                 
                 /// Gauss point of solid element e expressed with shape functions of acc element
-                qpMapping.shapeFun = mAcc * Vector4<TFloat>(QP[0],  QP[1], QP[2], 1);
+                Vector4<TFloat> shapeFun = mAcc * Vector4<TFloat>(QP[0],  QP[1], QP[2], 1);
+                for (int i = 0; i < 4; i++)
+                    qp.shapeFun[i] = shapeFun(i);
             } // end loop over QPs
-        } else {
-            skippedElement++;
+        } // end loop over elements of process r
+        
+        for (auto &c : candidates) {
+            Owner &owner = owners[c.first];
+            if (c.second.dist < owner.dist)
+                owner = {c.second.dist, r, c.second.element, c.second.shapeFun};
         }
-    } // end loop over solidElements_
+    } // end loop over processes
     
-    DCCtrl::debug << "Distribute mapping to processes...\n";
-    
-    /// each point is owned by the process with the closest element centroid; MINLOC resolves ties to the lowest rank
-    struct DistRank { double dist; int rank; };  // layout of MPI_DOUBLE_INT
-    std::vector<DistRank> owner(nPoints_, {std::numeric_limits<double>::infinity(), mpirank_});
-    for (auto &c : candidates)
-        owner[c.first].dist = c.second.dist;
-    
-    PetscErrorCode ierr = MPI_Allreduce(MPI_IN_PLACE, owner.data(), int(nPoints_), MPI_DOUBLE_INT, MPI_MINLOC, PETSC_COMM_WORLD);
-    CHKERRQ(ierr);
-    
-    for (auto &c : candidates)
-        if (owner[c.first].rank == mpirank_)
-            pointMappings_.push_back({c.first, c.second.element, c.second.shapeFun});
-    
-    std::sort(pointMappings_.begin(), pointMappings_.end(),
-              [](const PointMapping &a, const PointMapping &b) {return a.point < b.point;});
-    
-    DCCtrl::debug << "Done\n";
-} // CBacCELLerate::InitMapping
+    /// grouped by process and sorted by point within a process
+    for (auto &owner : owners)
+        if (owner.rank >= 0)
+            pointCounts[owner.rank]++;
+    std::vector<int> next(mpisize_, 0);
+    for (int r = 1; r < mpisize_; r++)
+        next[r] = next[r - 1] + pointCounts[r - 1];
+    points.resize(next[mpisize_ - 1] + pointCounts[mpisize_ - 1]);
+    for (PetscInt i = 0; i < nPoints_; i++) {
+        const Owner &owner = owners[i];
+        if (owner.rank < 0)
+            continue;
+        MappingPoint &point = points[next[owner.rank]++];
+        point.point = i;
+        point.eIdx = elements[owner.element].eIdx;
+        for (int j = 0; j < 4; j++)
+            point.shapeFun[j] = owner.shapeFun(j);
+    }
+} // CBacCELLerate::MapElements
 
 void CBacCELLerate::InitPetscVec() {
     PetscErrorCode ierr;
@@ -1014,38 +1110,72 @@ void CBacCELLerate::InitPvdFile() {
 } // CBacCELLerate::InitPvdFile
 
 void CBacCELLerate::InitLocalMaps() {
-    /// only the local acMesh_ cells and the points they use are kept, so that the full mesh can be released
-    dNdX_.assign(numLocalElements_, {});
-    Q_.resize(numLocalElements_);
-    localCells_.resize(numLocalElements_);
-    localMaterials_.resize(numLocalElements_);
+    /// process 0 sends every process its cells, one process at a time so that it holds a single extra block
+    struct CellData {
+        PetscInt points[4];
+        double material;
+        double basis[9];  // row-major, columns fiber, sheet, sheet normal
+    };
+    MPI_Datatype cellType = CommitBytesType<CellData>();
+    PetscErrorCode ierr;
+    
+    auto packCell = [&](PetscInt cellId) {
+        CellData cell;
+        vtkIdList *pointIds = acMesh_->GetCell(cellId)->GetPointIds();
+        for (int i = 0; i < 4; i++)
+            cell.points[i] = PetscInt(pointIds->GetId(i));
+        cell.material = acMeshMaterials_->GetValue(cellId);
+        for (int i = 0; i < 3; i++) {
+            cell.basis[3*i + 0] = acMeshFiberValues_->GetComponent(cellId, i);
+            cell.basis[3*i + 1] = acMeshSheetValues_->GetComponent(cellId, i);
+            cell.basis[3*i + 2] = acMeshNormalValues_->GetComponent(cellId, i);
+        }
+        return cell;
+    };
+    
+    /// process 0 reads its own cells directly from acMesh_
+    std::vector<CellData> cells;
+    if (mpirank_ == 0) {
+        for (int r = 1; r < mpisize_; r++) {
+            std::vector<CellData> block(elementRanges_[r + 1] - elementRanges_[r]);
+            for (size_t k = 0; k < block.size(); k++)
+                block[k] = packCell(elementRanges_[r] + PetscInt(k));
+            ierr = MPI_Send(block.data(), int(block.size()), cellType, r, 0, PETSC_COMM_WORLD); CHKERRQ(ierr);
+        }
+    } else {
+        cells.resize(numLocalElements_);
+        ierr = MPI_Recv(cells.data(), int(numLocalElements_), cellType, 0, 0, PETSC_COMM_WORLD, MPI_STATUS_IGNORE);
+        CHKERRQ(ierr);
+    }
+    MPI_Type_free(&cellType);
+    auto localCell = [&](PetscInt localEleID) {
+        return mpirank_ == 0 ? packCell(localElementsFrom_ + localEleID) : cells[localEleID];
+    };
     
     localPoints_.clear();
     localPoints_.reserve(4 * numLocalElements_);
-    for (vtkIdType cellId = localElementsFrom_; cellId <= localElementsTo_; cellId++) {
-        vtkIdList *pointIds = acMesh_->GetCell(cellId)->GetPointIds();
-        for (int i = 0; i < 4; i++)
-            localPoints_.push_back(PetscInt(pointIds->GetId(i)));
+    for (PetscInt localEleID = 0; localEleID < numLocalElements_; localEleID++) {
+        CellData cell = localCell(localEleID);
+        localPoints_.insert(localPoints_.end(), cell.points, cell.points + 4);
     }
     std::sort(localPoints_.begin(), localPoints_.end());
     localPoints_.erase(std::unique(localPoints_.begin(), localPoints_.end()), localPoints_.end());
     localPoints_.shrink_to_fit();
     
-    for (vtkIdType cellId = localElementsFrom_; cellId <= localElementsTo_; cellId++) {
-        int localEleID = cellId - localElementsFrom_;
-        vtkIdList *pointIds = acMesh_->GetCell(cellId)->GetPointIds();
+    dNdX_.assign(numLocalElements_, {});
+    Q_.resize(numLocalElements_);
+    localCells_.resize(numLocalElements_);
+    localMaterials_.resize(numLocalElements_);
+    for (PetscInt localEleID = 0; localEleID < numLocalElements_; localEleID++) {
+        CellData cell = localCell(localEleID);
         for (int i = 0; i < 4; i++)
             localCells_[localEleID][i] = PetscInt(std::lower_bound(localPoints_.begin(), localPoints_.end(),
-                                                                   PetscInt(pointIds->GetId(i))) - localPoints_.begin());
-        localMaterials_[localEleID] = int(acMeshMaterials_->GetValue(cellId));
-        Q_[localEleID] = GetInitialBasisAtCell(cellId);
+                                                                   cell.points[i]) - localPoints_.begin());
+        localMaterials_[localEleID] = int(cell.material);
+        Q_[localEleID] = Matrix3<TFloat>(cell.basis);
     }
+    cells = {};
     
-    localCoords_.resize(localPoints_.size());
-    for (size_t k = 0; k < localPoints_.size(); k++)
-        localCoords_[k] = acMesh_->GetPoint(localPoints_[k]);
-    
-    PetscErrorCode ierr;
     std::vector<PetscInt> nodeIndices(3 * localPoints_.size());
     for (size_t k = 0; k < localPoints_.size(); k++)
         for (int c = 0; c < 3; c++)
@@ -1057,12 +1187,31 @@ void CBacCELLerate::InitLocalMaps() {
     ierr = VecScatterCreate(accNodes_, nodeIS, localNodes_, NULL, &localNodesScatter_); CHKERRQ(ierr);
     ierr = ISDestroy(&nodeIS); CHKERRQ(ierr);
     
+    /// the reference coordinates reach the other processes through accNodes_
+    if (mpirank_ == 0) {
+        for (PetscInt i = 0; i < nPoints_; i++) {
+            PetscInt indices[3] = {3*i, 3*i + 1, 3*i + 2};
+            ierr = VecSetValues(accNodes_, 3, indices, acMesh_->GetPoint(i), INSERT_VALUES); CHKERRQ(ierr);
+        }
+    }
+    ierr = VecAssemblyBegin(accNodes_); CHKERRQ(ierr);
+    ierr = VecAssemblyEnd(accNodes_); CHKERRQ(ierr);
+    
     acMeshMaterials_ = nullptr;
     acMeshFiberValues_ = nullptr;
     acMeshSheetValues_ = nullptr;
     acMeshNormalValues_ = nullptr;
     acMesh_ = nullptr;
-}
+    
+    ierr = VecScatterBegin(localNodesScatter_, accNodes_, localNodes_, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
+    ierr = VecScatterEnd(localNodesScatter_, accNodes_, localNodes_, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
+    const PetscScalar *plN;
+    ierr = VecGetArrayRead(localNodes_, &plN); CHKERRQ(ierr);
+    localCoords_.resize(localPoints_.size());
+    for (size_t k = 0; k < localPoints_.size(); k++)
+        localCoords_[k] = Vector3<TFloat>(&plN[3*k]);
+    ierr = VecRestoreArrayRead(localNodes_, &plN); CHKERRQ(ierr);
+} // CBacCELLerate::InitLocalMaps
 
 void CBacCELLerate::ApplySpatialSortPCA() {
     /// Adapted from the PCA sorting done in CM
@@ -1266,18 +1415,6 @@ void CBacCELLerate::GetFibersFromMechanicsMesh() {
     ierr = VecDestroy(&FiberVecY); CHKERRQ(ierr);
     ierr = VecDestroy(&FiberVecZ); CHKERRQ(ierr);
 } // CBacCELLerate::GetFibersfromMechanicsMesh
-
-Matrix3<TFloat> CBacCELLerate::GetInitialBasisAtCell(vtkIdType cellID) {
-    Matrix3<TFloat> basis =
-    { acMeshFiberValues_->GetComponent(cellID, 0), acMeshSheetValues_->GetComponent(cellID, 0),
-        acMeshNormalValues_->GetComponent(cellID, 0),
-        acMeshFiberValues_->GetComponent(cellID, 1), acMeshSheetValues_->GetComponent(cellID, 1),
-        acMeshNormalValues_->GetComponent(cellID, 1),
-        acMeshFiberValues_->GetComponent(cellID, 2), acMeshSheetValues_->GetComponent(cellID, 2),
-        acMeshNormalValues_->GetComponent(cellID, 2)};
-    
-    return basis;
-}
 
 void CBacCELLerate::DetermineElementRanges() {
     /// This function creates a parallel layout for the acMesh_ elements

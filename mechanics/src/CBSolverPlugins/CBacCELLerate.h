@@ -93,7 +93,6 @@ private:
     void InitLocalMaps();
     void CalcShapeFunctionDeriv();
     void CalcDeformationTensor(vtkIdType cellID, const Vector3<TFloat> *nodesCoords, Matrix3<TFloat> &deformationTensor);
-    Matrix3<TFloat> GetInitialBasisAtCell(vtkIdType cellID);
     
     Matrix3<TFloat> GetBasisAtCell(vtkIdType cellID) {return Q_[cellID];}
     
@@ -159,6 +158,30 @@ private:
     /// Indexed by position in solidElements_ * NumQP_ + quadrature point; unused for uncoupled materials
     std::vector<QPMapping> qpMappings_;
 
+    /// Coupled solid element as sent to process 0 for the mapping
+    struct MappingElement {
+        PetscInt eIdx;      // position in solidElements_ of the sending process
+        double coords[12];  // vertices [m]
+    };
+
+    /// acMesh_ point mapped to the solid element at position eIdx in solidElements_ of the owning process
+    struct MappingPoint {
+        PetscInt point;
+        PetscInt eIdx;
+        double shapeFun[4];
+    };
+
+    /// Quadrature point mapped to an acMesh_ cell
+    struct MappingQP {
+        PetscInt points[4];
+        double shapeFun[4];
+    };
+
+    /// Computes on process 0 the mapping of the coupled solid elements of all processes; elements of process r
+    /// are elements[elementDispls[r]:elementDispls[r+1]]. points are grouped by owning process, qps follow elements.
+    void MapElements(const std::vector<MappingElement> &elements, const std::vector<int> &elementDispls,
+                     std::vector<MappingPoint> &points, std::vector<int> &pointCounts, std::vector<MappingQP> &qps);
+
     /// Per local acMesh_ cell: index 0-11 contains dN/dX; index 12 contains tet volume
     std::vector<std::array<double, 13>> dNdX_;
 
@@ -201,7 +224,7 @@ private:
     vtkIdType nCells_;
     std::vector<CBElementSolid *> elements_;
 
-    /// Full acMesh_, only held during Init(); afterwards each process keeps its local cells in localCells_
+    /// Full acMesh_, only held by process 0 during Init(); afterwards each process keeps its local cells in localCells_
     vtkSmartPointer<vtkUnstructuredGrid> acMesh_;
     vtkSmartPointer<vtkDoubleArray> acMeshMaterials_;
     vtkSmartPointer<vtkDataArray> acMeshFiberValues_;

@@ -67,7 +67,10 @@
 
 class CBacCELLerate : public CBSolverPlugin {
 public:
-    ~CBacCELLerate() {}
+    ~CBacCELLerate() {
+        VecScatterDestroy(&localNodesScatter_);
+        VecDestroy(&localNodes_);
+    }
     
     std::string GetName() override { return std::string("acCELLerate"); }
     
@@ -201,8 +204,8 @@ private:
     std::vector<Vector3<TFloat>> localCoords_;
 
     /// Gathers the coordinates of localPoints_ from accNodes_
-    VecScatter localNodesScatter_;
-    Vec localNodes_;
+    VecScatter localNodesScatter_ = NULL;
+    Vec localNodes_ = NULL;
 
     /// for node permutation using pca
     std::vector<TInt> backwardMapping_;

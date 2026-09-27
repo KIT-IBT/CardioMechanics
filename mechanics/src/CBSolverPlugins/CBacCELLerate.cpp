@@ -53,7 +53,7 @@ std::vector<unsigned char> split(const std::string &s, char delim) {
 void CBacCELLerate::Init() {
     solidElements_ =  GetAdapter()->GetSolver()->GetSolidElementVector();
     PetscErrorCode ierr;
-    ierr = MPI_Comm_rank(MPI_COMM_WORLD, &mpirank_); CHKERRQ(ierr);
+    ierr = MPI_Comm_rank(PETSC_COMM_WORLD, &mpirank_); CHKERRQ(ierr);
     ierr = MPI_Comm_size(PETSC_COMM_WORLD, &mpisize_); CHKERRQ(ierr);
     DCCtrl::debug << "\n--- --- acCELLerate --- ---" << std::endl;
     
@@ -863,7 +863,15 @@ void CBacCELLerate::InitMapping() {
         MapElements(allElements, elementDispls, allPoints, pointCounts, allQPs);
     for (int r = 0; r < mpisize_; r++)
         pointDispls[r + 1] = pointDispls[r] + pointCounts[r];
-    
+
+    /// UpdateNodes() places a point that no solid element maps at the origin, which would silently distort its cells
+    long long numUnmapped = mpirank_ == 0 ? nPoints_ - pointDispls[mpisize_] : 0;
+    ierr = MPI_Bcast(&numUnmapped, 1, MPI_LONG_LONG, 0, PETSC_COMM_WORLD); CHKERRQ(ierr);
+    if (numUnmapped > 0)
+        throw std::runtime_error("CBacCELLerate::InitMapping(): " + std::to_string(numUnmapped) + " of " +
+                                 std::to_string(nPoints_) + " acCELLerate mesh points lie outside all solid elements "
+                                 "of the coupled materials (Plugins.acCELLerate.Material).");
+
     int numPoints;
     ierr = MPI_Scatter(pointCounts.data(), 1, MPI_INT, &numPoints, 1, MPI_INT, 0, PETSC_COMM_WORLD); CHKERRQ(ierr);
     std::vector<MappingPoint> points(numPoints);
@@ -1133,34 +1141,56 @@ void CBacCELLerate::InitLocalMaps() {
         return cell;
     };
     
+    /// sorted global ids of the points used by cells [from, to), and their coordinates [mm]
+    auto packPoints = [&](PetscInt from, PetscInt to, std::vector<PetscInt> &points, std::vector<double> &coords) {
+        points.clear();
+        points.reserve(4 * (to - from));
+        for (PetscInt cellId = from; cellId < to; cellId++) {
+            vtkIdList *pointIds = acMesh_->GetCell(cellId)->GetPointIds();
+            for (int i = 0; i < 4; i++)
+                points.push_back(PetscInt(pointIds->GetId(i)));
+        }
+        std::sort(points.begin(), points.end());
+        points.erase(std::unique(points.begin(), points.end()), points.end());
+        points.shrink_to_fit();
+        coords.resize(3 * points.size());
+        for (size_t k = 0; k < points.size(); k++)
+            std::copy_n(acMesh_->GetPoint(points[k]), 3, &coords[3*k]);
+    };
+    
     /// process 0 reads its own cells directly from acMesh_
     std::vector<CellData> cells;
+    std::vector<double> coords;
     if (mpirank_ == 0) {
+        std::vector<PetscInt> points;
         for (int r = 1; r < mpisize_; r++) {
             std::vector<CellData> block(elementRanges_[r + 1] - elementRanges_[r]);
             for (size_t k = 0; k < block.size(); k++)
                 block[k] = packCell(elementRanges_[r] + PetscInt(k));
             ierr = MPI_Send(block.data(), int(block.size()), cellType, r, 0, PETSC_COMM_WORLD); CHKERRQ(ierr);
+            block = {};
+            packPoints(elementRanges_[r], elementRanges_[r + 1], points, coords);
+            ierr = MPI_Send(points.data(), int(points.size()), MPIU_INT, r, 1, PETSC_COMM_WORLD); CHKERRQ(ierr);
+            ierr = MPI_Send(coords.data(), int(coords.size()), MPI_DOUBLE, r, 2, PETSC_COMM_WORLD); CHKERRQ(ierr);
         }
+        packPoints(localElementsFrom_, localElementsTo_ + 1, localPoints_, coords);
     } else {
         cells.resize(numLocalElements_);
         ierr = MPI_Recv(cells.data(), int(numLocalElements_), cellType, 0, 0, PETSC_COMM_WORLD, MPI_STATUS_IGNORE);
         CHKERRQ(ierr);
+        MPI_Status status;
+        int numPoints;
+        ierr = MPI_Probe(0, 1, PETSC_COMM_WORLD, &status); CHKERRQ(ierr);
+        ierr = MPI_Get_count(&status, MPIU_INT, &numPoints); CHKERRQ(ierr);
+        localPoints_.resize(numPoints);
+        coords.resize(3 * size_t(numPoints));
+        ierr = MPI_Recv(localPoints_.data(), numPoints, MPIU_INT, 0, 1, PETSC_COMM_WORLD, MPI_STATUS_IGNORE); CHKERRQ(ierr);
+        ierr = MPI_Recv(coords.data(), 3 * numPoints, MPI_DOUBLE, 0, 2, PETSC_COMM_WORLD, MPI_STATUS_IGNORE); CHKERRQ(ierr);
     }
     MPI_Type_free(&cellType);
     auto localCell = [&](PetscInt localEleID) {
         return mpirank_ == 0 ? packCell(localElementsFrom_ + localEleID) : cells[localEleID];
     };
-    
-    localPoints_.clear();
-    localPoints_.reserve(4 * numLocalElements_);
-    for (PetscInt localEleID = 0; localEleID < numLocalElements_; localEleID++) {
-        CellData cell = localCell(localEleID);
-        localPoints_.insert(localPoints_.end(), cell.points, cell.points + 4);
-    }
-    std::sort(localPoints_.begin(), localPoints_.end());
-    localPoints_.erase(std::unique(localPoints_.begin(), localPoints_.end()), localPoints_.end());
-    localPoints_.shrink_to_fit();
     
     dNdX_.assign(numLocalElements_, {});
     Q_.resize(numLocalElements_);
@@ -1187,30 +1217,15 @@ void CBacCELLerate::InitLocalMaps() {
     ierr = VecScatterCreate(accNodes_, nodeIS, localNodes_, NULL, &localNodesScatter_); CHKERRQ(ierr);
     ierr = ISDestroy(&nodeIS); CHKERRQ(ierr);
     
-    /// the reference coordinates reach the other processes through accNodes_
-    if (mpirank_ == 0) {
-        for (PetscInt i = 0; i < nPoints_; i++) {
-            PetscInt indices[3] = {3*i, 3*i + 1, 3*i + 2};
-            ierr = VecSetValues(accNodes_, 3, indices, acMesh_->GetPoint(i), INSERT_VALUES); CHKERRQ(ierr);
-        }
-    }
-    ierr = VecAssemblyBegin(accNodes_); CHKERRQ(ierr);
-    ierr = VecAssemblyEnd(accNodes_); CHKERRQ(ierr);
+    localCoords_.resize(localPoints_.size());
+    for (size_t k = 0; k < localPoints_.size(); k++)
+        localCoords_[k] = Vector3<TFloat>(&coords[3*k]);
     
     acMeshMaterials_ = nullptr;
     acMeshFiberValues_ = nullptr;
     acMeshSheetValues_ = nullptr;
     acMeshNormalValues_ = nullptr;
     acMesh_ = nullptr;
-    
-    ierr = VecScatterBegin(localNodesScatter_, accNodes_, localNodes_, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
-    ierr = VecScatterEnd(localNodesScatter_, accNodes_, localNodes_, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
-    const PetscScalar *plN;
-    ierr = VecGetArrayRead(localNodes_, &plN); CHKERRQ(ierr);
-    localCoords_.resize(localPoints_.size());
-    for (size_t k = 0; k < localPoints_.size(); k++)
-        localCoords_[k] = Vector3<TFloat>(&plN[3*k]);
-    ierr = VecRestoreArrayRead(localNodes_, &plN); CHKERRQ(ierr);
 } // CBacCELLerate::InitLocalMaps
 
 void CBacCELLerate::ApplySpatialSortPCA() {

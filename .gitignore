@@ -28,6 +28,10 @@ __pycache__/
 # AI coding assistants
 .claude/
 CLAUDE.md
+docs/agents/
+docs/adr/
+CONTEXT.md
+.scratch/
 .cursor/
 .cursorrules
 .aider*

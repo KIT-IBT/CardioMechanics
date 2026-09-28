@@ -578,6 +578,25 @@ void CBContactHandling::ApplyToNodalForcesJacobian() {
 }  // CBContactHandling::ApplyToNodalForcesJacobian
 
 void CBContactHandling::Export(TFloat time) {
+    /// contact pressure of master element i, negative where the contact force points along the slave normal
+    auto pressureAt = [this](size_t i) {
+        PetscScalar p = masterContactForces_.at(i).Norm() / masterElements_.at(i)->GetArea();
+        return masterContactForces_.at(i) * masterCorrespondingSlaveNormal_.at(i) < 0 ? -p : p;
+    };
+    
+    /// WriteToFile() writes the average in every step, so it is needed whether or not the element data is exported
+    averageContactPressure_ = 0;
+    for (size_t i = 0; i < masterElements_.size(); i++)
+        averageContactPressure_ += pressureAt(i);
+    if (masterElements_.size() != 0)
+        averageContactPressure_ /= masterElements_.size();
+    
+    if (DCCtrl::IsParallel()) {
+        DCCtrl::WeightedAverage(averageContactPressure_, double(masterElements_.size()), globalAverageContactPressure_);
+    } else {
+        globalAverageContactPressure_ = averageContactPressure_;
+    }
+    
     if (export_) {
         if (DCCtrl::IsParallel()) {
             DCCtrl::WeightedAverage(averageDist_, double(masterElements_.size()), globalAverageDist_);
@@ -611,11 +630,8 @@ void CBContactHandling::Export(TFloat time) {
         VecZeroEntries(contactForce);
         VecZeroEntries(contactSlaveFound);
         
-        averageContactPressure_ = 0;
-        
         for (int i = 0; i < masterElements_.size(); i++) {
             auto e = masterElements_.at(i);
-            Vector3<TFloat> sn = masterCorrespondingSlaveNormal_.at(i);
             Vector3<TFloat> cf = masterContactForces_.at(i);
             
             Vector3<TFloat> dist = masterContactDistances_.at(i);
@@ -627,25 +643,11 @@ void CBContactHandling::Export(TFloat time) {
             
             VecSetValues(contactForce, 3, indices, f, INSERT_VALUES);
             
-            PetscScalar p = cf.Norm() / e->GetArea();
-            
-            if (cf * sn < 0)
-                p *= -1;
-            
-            averageContactPressure_ += p;
-            VecSetValue(contactPressure, from2 + e->GetLocalIndex(), p, INSERT_VALUES);
+            VecSetValue(contactPressure, from2 + e->GetLocalIndex(), pressureAt(i), INSERT_VALUES);
             
             PetscScalar slaveFound = masterCorrespondingSlaveFound_.at(i);  // alternative: masterCorrespondingSlaveFound_.at(i)
                                                                             // * e->GetArea()
             VecSetValue(contactSlaveFound, from3 + e->GetLocalIndex(), slaveFound, INSERT_VALUES);
-        }
-        if (masterElements_.size() != 0)
-            averageContactPressure_ /= masterElements_.size();
-        
-        if (DCCtrl::IsParallel()) {
-            DCCtrl::WeightedAverage(averageContactPressure_, double(masterElements_.size()), globalAverageContactPressure_);
-        } else {
-            globalAverageContactPressure_ = averageContactPressure_;
         }
         
         GetAdapter()->GetSolver()->ExportElementsVectorData("ContactForce", contactForce);

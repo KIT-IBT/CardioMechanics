@@ -63,11 +63,14 @@
 #include <PETScLSE.h>
 #include <Material.h>
 #include <array>
-#include <map>
+#include <vector>
 
 class CBacCELLerate : public CBSolverPlugin {
 public:
-    ~CBacCELLerate() {}
+    ~CBacCELLerate() {
+        VecScatterDestroy(&localNodesScatter_);
+        VecDestroy(&localNodes_);
+    }
     
     std::string GetName() override { return std::string("acCELLerate"); }
     
@@ -93,7 +96,6 @@ private:
     void InitLocalMaps();
     void CalcShapeFunctionDeriv();
     void CalcDeformationTensor(vtkIdType cellID, const Vector3<TFloat> *nodesCoords, Matrix3<TFloat> &deformationTensor);
-    Matrix3<TFloat> GetInitialBasisAtCell(vtkIdType cellID);
     
     Matrix3<TFloat> GetBasisAtCell(vtkIdType cellID) {return Q_[cellID];}
     
@@ -128,9 +130,7 @@ private:
     Vec accNodes_;
     Vec stepbackForce_;
     Vec timestepForce_;
-    Vec ClosestEleShapeFun_;
-    Vec deformation_;
-    
+
     /// Global Matrices
     Mat sysMatrix_ = NULL;
     Mat massMatrix_ = NULL;
@@ -141,30 +141,72 @@ private:
     /// List of mech solid Elements
     std::vector<CBElementSolid *> solidElements_;
     
-    /// List that maps accNodes_ to solidElements_
-    std::map<PetscInt, CBElementSolid *> eleList_;
-    
-    /// List that maps accNodes_ to shape functions within closest solidElement
-    /// 1: numPoints*5
-    /// #1 is distance to ele centroid; #2-5: Shape fun
-    std::map<PetscInt, vector<double>> nearC_;
-    
-    /// List that maps Gauss point of solidElements_ to accNodes_
-    std::map<PetscInt, std::vector<PetscInt>> nearP_;
-    
-    /// List that maps Gauss point to shape functions within closest acc ele
-    std::map<PetscInt, Vector4<TFloat>> ForceSF_;
-    
-    /// List that maps acMesh_ elements to the respective dN/dX
-    /// index 0-11 contains dNdX; index 12 contains tet volume
-    std::map<vtkIdType, vector<double>> dNdX_;
-    
-    /// List that maps acMesh_ elements to current deformation tensor
-    std::map<vtkIdType, Matrix3<TFloat>> F_;
-    
-    /// List that maps acMesh_ elements to the reference basis
-    std::map<PetscInt, Matrix3<TFloat>> Q_;
-    
+    /// acMesh_ point expressed in the shape functions of the solid element containing (or closest to) it
+    struct PointMapping {
+        PetscInt point;
+        CBElementSolid *element;
+        Vector4<TFloat> shapeFun;
+    };
+
+    /// Points owned by this process, sorted by point index. Each point is owned by exactly one process
+    /// so that UpdateNodes/UpdateStretch set every entry of the global vectors once.
+    std::vector<PointMapping> pointMappings_;
+
+    /// Quadrature point of a solid element expressed in the shape functions of the closest acMesh_ cell
+    struct QPMapping {
+        PetscInt points[4];
+        Vector4<TFloat> shapeFun;
+    };
+
+    /// Indexed by position in solidElements_ * NumQP_ + quadrature point; unused for uncoupled materials
+    std::vector<QPMapping> qpMappings_;
+
+    /// Coupled solid element as sent to process 0 for the mapping
+    struct MappingElement {
+        PetscInt eIdx;      // position in solidElements_ of the sending process
+        double coords[12];  // vertices [m]
+    };
+
+    /// acMesh_ point mapped to the solid element at position eIdx in solidElements_ of the owning process
+    struct MappingPoint {
+        PetscInt point;
+        PetscInt eIdx;
+        double shapeFun[4];
+    };
+
+    /// Quadrature point mapped to an acMesh_ cell
+    struct MappingQP {
+        PetscInt points[4];
+        double shapeFun[4];
+    };
+
+    /// Computes on process 0 the mapping of the coupled solid elements of all processes; elements of process r
+    /// are elements[elementDispls[r]:elementDispls[r+1]]. points are grouped by owning process, qps follow elements.
+    void MapElements(const std::vector<MappingElement> &elements, const std::vector<int> &elementDispls,
+                     std::vector<MappingPoint> &points, std::vector<int> &pointCounts, std::vector<MappingQP> &qps);
+
+    /// Per local acMesh_ cell: index 0-11 contains dN/dX; index 12 contains tet volume
+    std::vector<std::array<double, 13>> dNdX_;
+
+    /// Per local acMesh_ cell: reference basis
+    std::vector<Matrix3<TFloat>> Q_;
+
+    /// Per local acMesh_ cell: vertices as indices into localPoints_
+    std::vector<std::array<PetscInt, 4>> localCells_;
+
+    /// Per local acMesh_ cell: material
+    std::vector<int> localMaterials_;
+
+    /// Global indices of the acMesh_ points used by local cells, sorted
+    std::vector<PetscInt> localPoints_;
+
+    /// Coordinates [mm] of localPoints_
+    std::vector<Vector3<TFloat>> localCoords_;
+
+    /// Gathers the coordinates of localPoints_ from accNodes_
+    VecScatter localNodesScatter_ = NULL;
+    Vec localNodes_ = NULL;
+
     /// for node permutation using pca
     std::vector<TInt> backwardMapping_;
     std::vector<TInt> forwardMapping_;
@@ -184,6 +226,8 @@ private:
     vtkIdType nPoints_;
     vtkIdType nCells_;
     std::vector<CBElementSolid *> elements_;
+
+    /// Full acMesh_, only held by process 0 during Init(); afterwards each process keeps its local cells in localCells_
     vtkSmartPointer<vtkUnstructuredGrid> acMesh_;
     vtkSmartPointer<vtkDoubleArray> acMeshMaterials_;
     vtkSmartPointer<vtkDataArray> acMeshFiberValues_;

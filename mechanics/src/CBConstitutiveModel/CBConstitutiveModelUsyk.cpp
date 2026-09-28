@@ -145,7 +145,8 @@ CBStatus CBConstitutiveModelUsyk::CalcPK2Stress(const Matrix3<TFloat> &deformati
     Matrix3<TFloat> E     = 0.5 * (C - identity_);
     TFloat *e             = E.GetArray();
     TFloat *p             = pk2Stress.GetArray();
-    TFloat *c             = C.GetInverse().GetArray();
+    Matrix3<TFloat> CInv  = C.GetInverse();
+    TFloat *c             = CInv.GetArray();
     
     /// second Piola Kirchoff stress tensor
     TFloat Q = bff_ * e[0] * e[0] + bss_ * e[4] * e[4] + bnn_ * e[8] * e[8] + bfs_ * (e[1] * e[1] + e[3] * e[3]) + bfn_ *

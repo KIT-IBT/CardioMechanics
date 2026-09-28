@@ -14,11 +14,15 @@ ENV PETSC_VERSION=v3.24.0
 # tangent stiffness as numerically singular. If that recurs on the CI runner, switch back
 # to --download-fblaslapack. --download-cmake: some PETSc packages need CMake >= 3.26,
 # newer than the 3.22 in Ubuntu 22.04, so PETSc builds its own for the package builds.
+# DYNAMIC_ARCH/TARGET: OpenBLAS otherwise compiles only for the build host's CPU (e.g.
+# AVX-512 kernels), and the image then dies with SIGILL on CPUs lacking those
+# instructions. Build all kernels, select at runtime, keep common code at baseline x86-64.
 RUN git clone --depth 1 --branch ${PETSC_VERSION} https://gitlab.com/petsc/petsc.git /tmp/petsc \
     && cd /tmp/petsc \
     && if ! ./configure --prefix=/opt/petsc-${PETSC_VERSION} \
         --download-cmake \
-        --download-openblas --download-mumps --download-scalapack \
+        --download-openblas --download-openblas-make-options="DYNAMIC_ARCH=1 TARGET=PRESCOTT" \
+        --download-mumps --download-scalapack \
         --download-superlu --download-superlu_dist \
         --download-metis --download-parmetis --download-hypre \
         --with-shared-libraries=0 --with-x=0 --with-debugging=0 \

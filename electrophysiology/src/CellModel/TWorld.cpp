@@ -187,12 +187,12 @@ ML_CalcType TWorld::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_external,  
   // Constants
   double R = 8314.0; // [J/kmol*K]
   double F = 96485.0; // [C/mol]
-  double T = 310.0; // [K]
-  double frt = F / (R * T);
+  double Temperature = 310.0; // [K]
+  double frt = F / (R * Temperature);
   double vfrt = V_m  * frt;
   double vffrt = V_m * F * frt;
   double Cmem = 1.3810e-10; // [F] membrane capacitance
-  double Qpow = (T - 310.0) / 10.0;
+  double Qpow = (Temperature - 310.0) / 10.0;
     
   // Cell Tometry
   double cellLength = 100.0; // cell length [um]
@@ -208,7 +208,6 @@ ML_CalcType TWorld::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_external,  
   double Fsl = 1 - Fdyad;
     
   // Fixed ion concentrations
-  double Cl_o = 150.0; // Extracellular Cl  [mM]
   double Mg_myo = 0.5; // Intracellular Mg  [mM]
     
   // Nerst Potentials
@@ -217,7 +216,7 @@ ML_CalcType TWorld::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_external,  
   const ML_CalcType E_K = (1.0 / frt) * log(v(VT_K_o) / K_myo);
   const ML_CalcType E_Ca_dyad = (1.0 / frt / 2.0) * log(v(VT_Ca_o) / Ca_dyad);
   const ML_CalcType E_Ca_sl = (1.0 / frt / 2.0) * log(v(VT_Ca_o) / Ca_sl);
-  const ML_CalcType E_Cl = (1.0 / frt) * log(Cl_myo / Cl_o);
+  const ML_CalcType E_Cl = (1.0 / frt) * log(Cl_myo / v(VT_Cl_o));
 
     
   /////////////////////////////////////////////////////////////////////////////////////////
@@ -496,8 +495,7 @@ ML_CalcType TWorld::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_external,  
   const ML_CalcType I_sl = (0.5 * (Na_myo + K_myo + Cl_myo + (4.0 * Ca_i))) / 1000.0;
     
   double dielConstant = 74.0; // water at 37°
-  double temp = 310.0; // body temp in kelvins.
-  double constA = 1.82e6 * pow((dielConstant * temp), -1.5);
+  double constA = 1.82e6 * pow((dielConstant * Temperature), -1.5);
     
   const ML_CalcType gamma_Ca_o = pow(10.0, -constA * 4.0 * (sqrt(I_o)/(1.0 + sqrt(I_o)) - 0.3 * I_o));
   const ML_CalcType gamma_Ca_dyad = pow(10.0, -constA * 4.0 * (sqrt(I_dyad)/(1.0 + sqrt(I_dyad)) - 0.3 * I_dyad));
@@ -1075,7 +1073,7 @@ ML_CalcType TWorld::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_external,  
   double diff_XW      = xb_uw - xb_wu - xb_ws - xb_wu_gamma;
   XW += tinc * diff_XW;
 
-  double ca50_     = (v(VT_ca50) * fPKA_TnI) + v(VT_beta_1) * min(0.2,(lambda_m - 1.0));
+  double ca50_     = (v(VT_ca50) * fPKA_TnI) + v(VT_beta_1) * (lambda_m - 1.0);
   double diff_TRPN = v(VT_koff) * (pow((1000*Ca_i/ca50_), v(VT_TRPN_n)) * (1.0 - CaTRPN) - CaTRPN);
   CaTRPN += tinc * diff_TRPN;
 

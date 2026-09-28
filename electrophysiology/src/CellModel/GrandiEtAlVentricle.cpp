@@ -287,13 +287,13 @@ ML_CalcType GrandiEtAlVentricle::Calc(double tinc,  ML_CalcType V,  ML_CalcType 
   volatile ML_CalcType Ca_sr1, Ca_sr2, Ca_i1, Ca_i2, Csqn_b1, Csqn_b2;  // derivatives for each variable at beginning (1) and end
   // (2) of time step
   for (int i = 0; i < NDERIVS; i++) {
-    Ca_sr1 = (srconst1 - (srconst2*Ca_sr*(srconst3 - Csqn_b) -  srconst4*Csqn_b));
-    Ca_sr2 = (srconst1 - (srconst2*(Ca_sr+h1*Ca_sr1)*(srconst3 - (Csqn_b+h1*Csqn_b2)) -  srconst4*(Csqn_b+h1*Csqn_b2)));
+    Ca_sr1  = (srconst1 - (srconst2*Ca_sr*(srconst3 - Csqn_b) -  srconst4*Csqn_b));
+    Csqn_b1 = srconst2*Ca_sr*(srconst3 - Csqn_b) -  srconst4*Csqn_b;
+    Ca_sr2  = (srconst1 - (srconst2*(Ca_sr+h1*Ca_sr1)*(srconst3 - (Csqn_b+h1*Csqn_b1)) -  srconst4*(Csqn_b+h1*Csqn_b1)));
 
     Ca_i1 = (iconst1+ iconst2*(Ca_sl - Ca_i));
     Ca_i2 = (iconst1+ iconst2*(Ca_sl - (Ca_i+h1*Ca_i1)));
 
-    Csqn_b1 = srconst2*Ca_sr*(srconst3 - Csqn_b) -  srconst4*Csqn_b;
     Csqn_b2 = srconst2*(Ca_sr+h1*Ca_sr2)*(srconst3 - (Csqn_b+h1*Csqn_b1)) -  srconst4*(Csqn_b+h1*Csqn_b1);
 
     Ca_sr  += h2*Ca_sr2;

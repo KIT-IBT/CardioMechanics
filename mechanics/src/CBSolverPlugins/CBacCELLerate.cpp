@@ -712,17 +712,6 @@ void CBacCELLerate::InitParameters() {
     MaterialFileName_ = GetParameters()->Get<std::string>("Plugins.acCELLerate.MaterialFile");
     DCCtrl::debug << "\n Material File: " << MaterialFileName_;
 
-    priorityVector_ = parameters_->GetArray<TInt>("Plugins.acCELLerate.TissuePriority", priorityVector_);
-    if (priorityVector_.empty()) {
-        for (TInt i = 0; i < 256; i++)
-            priorityVector_.push_back(i);
-        DCCtrl::debug << "\n Tissue Priority: 0, 1, 2, 3, 4, ... (default)";
-    } else {
-        DCCtrl::debug << "\n Tissue Priority: ";
-        for (std::vector<TInt>::const_iterator i = priorityVector_.begin(); i != priorityVector_.end(); ++i)
-            DCCtrl::debug << *i << ", ";
-    }
-    
     resPreFix_ = GetParameters()->Get<std::string>("Plugins.acCELLerate.ResultPreFix");
     DCCtrl::debug << "\n Result Prefix: " << resPreFix_;
     

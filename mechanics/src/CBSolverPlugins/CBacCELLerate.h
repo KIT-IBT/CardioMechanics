@@ -63,13 +63,20 @@
 #include <PETScLSE.h>
 #include <Material.h>
 #include <array>
+#include <memory>
 #include <vector>
 
 class CBacCELLerate : public CBSolverPlugin {
 public:
+    /// sysMatrix_ and massMatrix_ belong to act_, which frees them after the body has run
     ~CBacCELLerate() {
         VecScatterDestroy(&localNodesScatter_);
         VecDestroy(&localNodes_);
+        VecDestroy(&stretchVecF_);
+        VecDestroy(&velocityVec_);
+        VecDestroy(&accNodes_);
+        VecDestroy(&stepbackForce_);
+        VecDestroy(&timestepForce_);
     }
     
     std::string GetName() override { return std::string("acCELLerate"); }
@@ -125,18 +132,18 @@ private:
     std::vector<TInt> priorityVector_;
     
     /// Global vectors
-    Vec stretchVecF_;
-    Vec velocityVec_;
-    Vec accNodes_;
-    Vec stepbackForce_;
-    Vec timestepForce_;
+    Vec stretchVecF_ = NULL;
+    Vec velocityVec_ = NULL;
+    Vec accNodes_ = NULL;
+    Vec stepbackForce_ = NULL;
+    Vec timestepForce_ = NULL;
 
     /// Global Matrices
     Mat sysMatrix_ = NULL;
     Mat massMatrix_ = NULL;
     
     /// acCELLerate instance
-    acCELLerate *act_ = NULL;
+    std::unique_ptr<acCELLerate> act_;
     
     /// List of mech solid Elements
     std::vector<CBElementSolid *> solidElements_;

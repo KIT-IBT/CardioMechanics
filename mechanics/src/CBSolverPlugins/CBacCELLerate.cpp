@@ -19,6 +19,7 @@
 #include "CBElementSolidT4.h"
 #include <iostream>
 #include <vtkTetra.h>
+#include <vtkCellTypes.h>
 #include <vtkCellLocator.h>
 #include <vtkPointLocator.h>
 #include <vtkStaticPointLocator.h>
@@ -61,7 +62,7 @@ void CBacCELLerate::Init() {
     
     /// Create accelerate instance and call acCELLerate constructor with the project file
     const char *pf = accprojectFile_.c_str();
-    act_ = new acCELLerate();
+    act_ = std::make_unique<acCELLerate>();
     DCCtrl::debug << "\nLoad project file ... ";
     InitPvdFile();
     act_->LoadProject(pf);
@@ -776,24 +777,32 @@ void CBacCELLerate::InitMesh() {
         nPoints_ = acMesh_->GetNumberOfPoints();
         nCells_ = acMesh_->GetNumberOfCells();
         
-        if (GetParameters()->Get<bool>("Plugins.acCELLerate.Permute", false)) {
-            DCCtrl::debug << "\nPermuting Acc-Mesh ... ";
-            ApplySpatialSortPCA();
-        }
-        
         acMeshFiberValues_ = acMesh_->GetCellData()->GetArray("Fiber");
         acMeshSheetValues_ = acMesh_->GetCellData()->GetArray("Sheet");
         acMeshNormalValues_ = acMesh_->GetCellData()->GetArray("Sheetnormal");
         acMeshMaterials_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Material")));
         
-        if (!acMeshFiberValues_ || !acMeshSheetValues_ || !acMeshNormalValues_) {
+        /// the coupling reads every cell as a linear tetrahedron, so any other cell would be silently misread
+        vtkIdType cellId = 0;
+        while (cellId < nCells_ && acMesh_->GetCellType(cellId) == VTK_TETRA)
+            cellId++;
+        
+        if (cellId < nCells_) {
+            error = "CBacCELLerate::InitMesh(): " + acMeshFilename + " contains a cell of type " +
+                    vtkCellTypes::GetClassNameFromTypeId(acMesh_->GetCellType(cellId)) +
+                    " (cell " + std::to_string(cellId) + "), but only linear tetrahedra (vtkTetra) are supported.";
+        } else if (!acMeshFiberValues_ || !acMeshSheetValues_ || !acMeshNormalValues_) {
             error = "Automatic mapping of fibers currently not supported.";
 
             //    DCCtrl::debug << "Getting Fibres from CM Mesh ... ";
             //    GetFibersFromMechanicsMesh();
             //    acMeshFiberValues_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Fiber")));
-        } else if (!acMeshMaterials_)
+        } else if (!acMeshMaterials_) {
             error = "CBacCELLerate::InitMesh(): No Material defined.";
+        } else if (GetParameters()->Get<bool>("Plugins.acCELLerate.Permute", false)) {
+            DCCtrl::debug << "\nPermuting Acc-Mesh ... ";
+            ApplySpatialSortPCA();
+        }
     }
     
     /// every process raises the error, otherwise the others would wait for process 0 forever
@@ -1234,10 +1243,7 @@ void CBacCELLerate::ApplySpatialSortPCA() {
     int             mDim = 3, nDim = int(nPoints_);
     int             lda  = mDim, ldu = mDim, ldvt = nDim, info, lwork;
     double          wkopt;
-    double *work;
-    double *sVec = new double[nDim];
-    double *uVec = new double[lda * mDim];
-    double *a = new double[lda * nDim];
+    std::vector<double> sVec(nDim), uVec(lda * mDim), a(lda * nDim);
     Vector3<TFloat> mean(0, 0, 0);
     
     backwardMapping_.resize(nPoints_);
@@ -1263,15 +1269,16 @@ void CBacCELLerate::ApplySpatialSortPCA() {
     }
     
     lwork = -1;
-    dgesvd_("S", "N", &mDim, &nDim, a, &lda, sVec, uVec, &ldu, 0, &ldvt, &wkopt, &lwork, &info);
+    dgesvd_("S", "N", &mDim, &nDim, a.data(), &lda, sVec.data(), uVec.data(), &ldu, 0, &ldvt, &wkopt, &lwork, &info);
     lwork = (int)wkopt;
-    work  = new double[lwork];
-    dgesvd_("S", "N", &mDim, &nDim, a, &lda, sVec, uVec, &ldu, 0, &ldvt, work, &lwork, &info);
+    std::vector<double> work(lwork);
+    dgesvd_("S", "N", &mDim, &nDim, a.data(), &lda, sVec.data(), uVec.data(), &ldu, 0, &ldvt, work.data(), &lwork,
+            &info);
     if (info > 0) {
-        throw std::runtime_error("CBModel::ApplySpatialSortPCA(): The algorithm computing SVD failed to converge");
+        throw std::runtime_error("CBacCELLerate::ApplySpatialSortPCA(): The algorithm computing SVD failed to converge");
     }
     
-    double *score = new double[nPoints_];
+    std::vector<double> score(nPoints_);
     
     for (TInt i = 0; i < nPoints_; i++) {
         double          s    = 0;
@@ -1300,13 +1307,7 @@ void CBacCELLerate::ApplySpatialSortPCA() {
         return f.second < b.second;
     });
     
-    TInt *mapping = new TInt[nPoints_];
-    
-    std::vector<Vector3<TFloat>> sortedNodes;
-    std::vector<TInt>             sortedNodesComponentsBoundaryConditions;
-    
-    sortedNodes.reserve(nPoints_);
-    sortedNodesComponentsBoundaryConditions.reserve(nPoints_);
+    std::vector<TInt> mapping(nPoints_);
     
     std::vector<TInt> tmpMapping = backwardMapping_;
     
@@ -1332,12 +1333,6 @@ void CBacCELLerate::ApplySpatialSortPCA() {
     }
     acMesh_->SetPoints(sortedpoints);
     acMesh_->SetCells(VTK_TETRA, cellArray);
-    delete[] work;
-    delete[] score;
-    delete[] sVec;
-    delete[] uVec;
-    
-    delete[] a;
 } // CBacCELLerate::ApplySpatialSortPCA
 
 void CBacCELLerate::GetFibersFromMechanicsMesh() {

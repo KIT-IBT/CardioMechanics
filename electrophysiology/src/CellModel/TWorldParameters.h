@@ -29,6 +29,7 @@ enum varType {
   VT_Ca_o,
   VT_K_o,
   VT_Cl_o,
+  VT_Temperature,
     
   /// Multipliers
   VT_ICaL_fractionSS,
@@ -53,6 +54,7 @@ enum varType {
   VT_Jrel_Multiplier,
   VT_Jup_Multiplier,
   VT_CMDN_Multiplier,
+  VT_LambdaMultiplier,
     
   /// PKA fractions
   VT_fINa_PKA,

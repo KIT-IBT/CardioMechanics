@@ -42,7 +42,7 @@ class TWorld : public vbElphyModel<ML_CalcType> {
   /// currents
     ML_CalcType I_Na_Base_NP, I_Na_Base_CaMK, I_Na_Base_PKA, I_Na_Base_Both, I_Na_Base, I_NaFast_dyad, I_NaFast_sl, I_NaL_dyad, I_NaL_sl, I_Na_dyad, I_Na_sl, I_NaFast, I_NaL; // Sodium current (INa, INaL)
     ML_CalcType I_CaL_pureCDI_dyad, I_CaL_pureCDI_sl, I_CaL_dyad_NP, I_CaL_dyad_CaMK, I_CaL_dyad_PKA, I_CaL_dyad_Both, I_CaL_sl_NP, I_CaL_sl_CaMK, I_CaL_sl_PKA, I_CaL_sl_Both, I_CaNa_dyad_NP, I_CaNa_dyad_CaMK, I_CaNa_dyad_PKA, I_CaNa_dyad_Both, I_CaNa_sl_NP, I_CaNa_sl_CaMK, I_CaNa_sl_PKA, I_CaNa_sl_Both, I_CaK_dyad_NP, I_CaK_dyad_CaMK, I_CaK_dyad_PKA, I_CaK_dyad_Both, I_CaK_sl_NP, I_CaK_sl_CaMK, I_CaK_sl_PKA, I_CaK_sl_Both, I_CaL_dyad, I_CaNa_dyad, I_CaK_dyad, I_CaL_sl, I_CaNa_sl, I_CaK_sl; // L-type calcium current (I_CaL, I_CaNa, I_CaK)
-    ML_CalcType I_to_slow, I_to_fast, I_to; // Rapid delayed rectifier current (IKr)
+    ML_CalcType I_to_slow, I_to_fast, I_to; // Transient outward current (Ito)
     ML_CalcType I_Kr; // Rapid delayed rectifier current (IKr)
     ML_CalcType I_Ks_dyad, I_Ks_sl, I_Ks; // Slow delayed rectifier current (IKs)
     ML_CalcType I_K1; // Inward rectifier current (IK1)
@@ -108,11 +108,11 @@ class TWorld : public vbElphyModel<ML_CalcType> {
 
   virtual inline  ML_CalcType *GetBase(void) {return &m; }
 
-  virtual inline  ML_CalcType GetIto() {return 0.0; }
+  virtual inline  ML_CalcType GetIto() {return I_to; }
 
-  virtual inline  ML_CalcType GetIKr() {return 0.0; }
+  virtual inline  ML_CalcType GetIKr() {return I_Kr; }
 
-  virtual inline  ML_CalcType GetIKs() {return 0.0; }
+  virtual inline  ML_CalcType GetIKs() {return I_Ks; }
 
   virtual inline int GetSize(void);
 

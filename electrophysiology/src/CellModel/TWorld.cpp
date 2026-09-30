@@ -177,9 +177,7 @@ void TWorld::Init() {
 ML_CalcType TWorld::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_external,  ML_CalcType stretch, int euler) {
   tinc *= 1000.0;  // second to millisecond conversion
   ML_CalcType V_m = V * 1000.0;
-  double VEL = 0.0; //velocity/1000.0;  // 1/s to 1/ms
-
-  const int Vi = (int)(DivisionTab*(RangeTabhalf+V_m)+.5);  // array position
+  double VEL = 0.0; //velocity dependence turned off in internal Land model, no mechanics in standalone runs and no effect on calcium handling. Active tension in coupled runs is handled by the CBTensionModelLand17.
 
   /////////////////////////////////////////////////////////////////////////////////////////
   ///        Model parameters
@@ -187,7 +185,7 @@ ML_CalcType TWorld::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_external,  
   // Constants
   double R = 8314.0; // [J/kmol*K]
   double F = 96485.0; // [C/mol]
-  double Temperature = 310.0; // [K]
+  double Temperature = v(VT_Temperature);
   double frt = F / (R * Temperature);
   double vfrt = V_m  * frt;
   double vffrt = V_m * F * frt;
@@ -312,7 +310,7 @@ ML_CalcType TWorld::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_external,  
   ///////////// calulate I_Na //////////
   // m gate
   const ML_CalcType m_inf = 1.0 / ((1.0 + exp(-(V_m + 56.86)/9.03))*(1.0 + exp(-(V_m + 56.86)/9.03)));
-  const ML_CalcType tau_m = std::min(0.02, 0.1292 * exp(-(((V_m + 45.79)/15.54) * ((V_m + 45.79)/15.54))) + 0.06487 * exp(-(((V_m - 4.823)/51.12) * ((V_m - 4.823)/51.12)))); // min set based on discussion with Tomek himself 
+  const ML_CalcType tau_m = std::min(0.02, 0.1292 * exp(-(((V_m + 45.79)/15.54) * ((V_m + 45.79)/15.54))) + 0.06487 * exp(-(((V_m - 4.823)/51.12) * ((V_m - 4.823)/51.12)))); // min set based on discussion with Tomek himself to "destiffen" the model and avoid numerical instability
   m = m_inf - (m_inf - m) * exp(-tinc / tau_m);
     
   // h and j gate
@@ -757,8 +755,8 @@ ML_CalcType TWorld::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_external,  
   double kcaoff = 3.8532e+03;
   double qna = 0.6718;
   double qca  = 0.0955;
-  const ML_CalcType h_Ca = exp((qca * (V_m - 8.3117) * F) / (R * T));
-  const ML_CalcType h_Na = exp((qna * (V_m - 8.3117) * F) / (R * T));
+  const ML_CalcType h_Ca = exp((qca * (V_m - 8.3117) * F) / (R * Temperature));
+  const ML_CalcType h_Na = exp((qna * (V_m - 8.3117) * F) / (R * Temperature));
     
   // calculate I_NaCa_sl
   const ML_CalcType h_1_sl = 1.0 + Na_myo/kna3 * (1.0 + h_Na);
@@ -1048,7 +1046,7 @@ ML_CalcType TWorld::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_external,  
   double PKAForceMultiplier = 1.0 + fMyBPC_PKA * 0.26;
   double PKAXBacceleration = 1.0 + fMyBPC_PKA/2;
     
-  double lambda_m = std::min(1.2, stretch);
+  double lambda_m = std::min(1.2, stretch * v(VT_LambdaMultiplier));
   double overlap  = 1.0 + v(VT_beta_0) * (lambda_m + std::min(0.87, lambda_m) - 1.87);
   double h        = std::max(0.0, overlap);
     

@@ -40,6 +40,7 @@ void TWorldParameters::Init(const char *initFile, ML_CalcType tinc) {
   P[VT_Ca_o].name = "Ca_o";
   P[VT_K_o].name = "K_o";
   P[VT_Cl_o].name = "Cl_o";
+  P[VT_Temperature].name = "temperature";
     
   /// Multipliers
   P[VT_ICaL_fractionSS].name = "ICaL_fractionSS";
@@ -64,6 +65,7 @@ void TWorldParameters::Init(const char *initFile, ML_CalcType tinc) {
   P[VT_Jrel_Multiplier].name = "Jrel_Multiplier";
   P[VT_Jup_Multiplier].name = "Jup_Multiplier";
   P[VT_CMDN_Multiplier].name = "CMDN_Multiplier";
+  P[VT_LambdaMultiplier].name = "LambdaMultiplier";
 
   /// PKA Fractions
   P[VT_fINa_PKA].name = "fINa_PKA";
@@ -203,6 +205,9 @@ void TWorldParameters::Init(const char *initFile, ML_CalcType tinc) {
   P[VT_k_wu].name = "VT_k_wu";
   P[VT_k_su].name = "VT_k_su";
   P[VT_A].name = "VT_A";
+  P[VT_XSSS].name = "VT_XSSS";
+  P[VT_XWSS].name = "VT_XWSS";
+  P[VT_ktm_block].name = "VT_ktm_block";
     
   P[VT_XS_init].name = "XS_init";
   P[VT_XW_init].name = "XW_init";

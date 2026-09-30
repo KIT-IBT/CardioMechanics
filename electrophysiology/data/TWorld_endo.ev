@@ -1,6 +1,6 @@
 CELLMODEL*IBT*KA
 TWorld
-153
+155
 amplitude -53.0
 duration 0.001
 celltype 0.0
@@ -8,6 +8,7 @@ Na_o 140.0
 Ca_o 1.8
 K_o 5.0
 Cl_o 150.0
+temperature 310.0
 ICaL_fractionSS 0.8
 INaCa_fractionSS 0.31
 INaF_Multiplier 1.0
@@ -30,6 +31,7 @@ IClb_Multiplier 1.0
 Jrel_Multiplier 1.0
 Jup_Multiplier 1.0
 CMDN_Multiplier 1.0
+LambdaMultiplier 1.0
 fINa_PKA 0.0
 fICaL_PKA 0.0
 fINaK_PKA 0.0

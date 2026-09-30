@@ -34,6 +34,7 @@
 #include <OHaraRudy.h>
 #include <OHaraRudyIso.h>
 #include <Tomek.h>
+#include <TWorld.h>
 #include <MitchellSchaeffer.h>
 #include <FitzhughNagumo.h>
 
@@ -134,6 +135,9 @@ inline void initElphyParameters(vbElphyParameters<CalcType> **pep, const char *i
     case EMT_Tomek:
       *pep = new TomekParameters(initEVFile, tinc); return;
 
+    case EMT_TWorld:
+      *pep = new TWorldParameters(initEVFile, tinc); return;
+
     case EMT_MitchellSchaeffer:
       *pep = new MitchellSchaefferParameters(initEVFile); return;
 
@@ -216,6 +220,10 @@ inline void initElphyModel(vbElphyModel<CalcType> **pem, vbElphyParameters<CalcT
 
     case EMT_Tomek:
       *pem = new Tomek((TomekParameters *)pep);
+      break;
+
+    case EMT_TWorld:
+      *pem = new TWorld((TWorldParameters *)pep);
       break;
 
     case EMT_MitchellSchaeffer:

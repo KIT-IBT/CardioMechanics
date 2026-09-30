@@ -75,6 +75,7 @@ enum ElphyModelType {
   EMT_OHaraRudy,
   EMT_OHaraRudyIso,
   EMT_Tomek,
+  EMT_TWorld,
   EMT_MitchellSchaeffer,
   EMT_FitzhughNagumo,
   EMT_Last
@@ -96,6 +97,7 @@ static const char *ElphyModelDescriptor[] = {
   "OHaraRudy",
   "OHaraRudyIso",
   "Tomek",
+  "TWorld",
   "MitchellSchaeffer",
   "FitzhughNagumo",
   "Last"

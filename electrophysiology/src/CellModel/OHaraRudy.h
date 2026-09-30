@@ -80,11 +80,11 @@ class OHaraRudy : public vbElphyModel<ML_CalcType> {
 
   virtual inline  ML_CalcType *GetBase(void) {return &m; }
 
-  virtual inline  ML_CalcType GetIto() {return 0.0; }
+  virtual inline  ML_CalcType GetIto() {return I_to; }
 
-  virtual inline  ML_CalcType GetIKr() {return 0.0; }
+  virtual inline  ML_CalcType GetIKr() {return I_Kr; }
 
-  virtual inline  ML_CalcType GetIKs() {return 0.0; }
+  virtual inline  ML_CalcType GetIKs() {return I_Ks; }
 
   virtual inline int GetSize(void);
 

@@ -459,9 +459,8 @@ void CBacCELLerate::UpdateNodes(bool useReferenceNodes) {
     const PetscScalar *plN;
     ierr = VecGetArrayRead(localNodes_, &plN); CHKERRQ(ierr);
     
-    /// the deformed EP geometry is held in single precision; the reference results of the coupled model depend on it
     for (size_t k = 0; k < localPoints_.size(); k++)
-        localCoords_[k] = Vector3<TFloat>(float(plN[3*k+0]), float(plN[3*k+1]), float(plN[3*k+2]));
+        localCoords_[k] = Vector3<TFloat>(plN[3*k+0], plN[3*k+1], plN[3*k+2]);
     
     ierr = VecRestoreArrayRead(localNodes_, &plN); CHKERRQ(ierr);
     DCCtrl::debug << "Done\n";

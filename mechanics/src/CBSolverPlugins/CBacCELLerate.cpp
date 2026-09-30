@@ -18,7 +18,6 @@
 #include "CBSolver.h"
 #include "CBElementSolidT4.h"
 #include <iostream>
-#include <vtkTetra.h>
 #include <vtkCellTypes.h>
 #include <vtkCellLocator.h>
 #include <vtkPointLocator.h>
@@ -30,8 +29,6 @@
 #include <algorithm>
 #include <limits>
 #include <unordered_map>
-extern "C" double dgesvd_(const char *, const char *, int *, int *, double *, int *, double *, double *, int *,
-                          double *, int *, double *, int *, int *);
 
 std::vector<unsigned char> & split(const std::string &s, char delim, std::vector<unsigned char> &elems) {
     std::stringstream ss(s);
@@ -734,38 +731,42 @@ void CBacCELLerate::InitMesh() {
     /// InitMapping() and InitLocalMaps() distribute what the other processes need
     std::string error;
     if (mpirank_ == 0) {
-        vtkSmartPointer<vtkXMLUnstructuredGridReader> reader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
-        reader->SetFileName(acMeshFilename.c_str());
-        reader->Update();
-        acMesh_ = reader->GetOutput();
-        nPoints_ = acMesh_->GetNumberOfPoints();
-        nCells_ = acMesh_->GetNumberOfCells();
-        
-        acMeshFiberValues_ = acMesh_->GetCellData()->GetArray("Fiber");
-        acMeshSheetValues_ = acMesh_->GetCellData()->GetArray("Sheet");
-        acMeshNormalValues_ = acMesh_->GetCellData()->GetArray("Sheetnormal");
-        acMeshMaterials_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Material")));
-        
-        /// the coupling reads every cell as a linear tetrahedron, so any other cell would be silently misread
-        vtkIdType cellId = 0;
-        while (cellId < nCells_ && acMesh_->GetCellType(cellId) == VTK_TETRA)
-            cellId++;
-        
-        if (cellId < nCells_) {
-            error = "CBacCELLerate::InitMesh(): " + acMeshFilename + " contains a cell of type " +
-                    vtkCellTypes::GetClassNameFromTypeId(acMesh_->GetCellType(cellId)) +
-                    " (cell " + std::to_string(cellId) + "), but only linear tetrahedra (vtkTetra) are supported.";
-        } else if (!acMeshFiberValues_ || !acMeshSheetValues_ || !acMeshNormalValues_) {
-            error = "Automatic mapping of fibers currently not supported.";
-
-            //    DCCtrl::debug << "Getting Fibres from CM Mesh ... ";
-            //    GetFibersFromMechanicsMesh();
-            //    acMeshFiberValues_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Fiber")));
-        } else if (!acMeshMaterials_) {
-            error = "CBacCELLerate::InitMesh(): No Material defined.";
-        } else if (GetParameters()->Get<bool>("Plugins.acCELLerate.Permute", false)) {
-            DCCtrl::debug << "\nPermuting Acc-Mesh ... ";
-            ApplySpatialSortPCA();
+        /// an exception must not leave before the broadcast below, which the other processes wait in
+        try {
+            vtkSmartPointer<vtkXMLUnstructuredGridReader> reader = vtkSmartPointer<vtkXMLUnstructuredGridReader>::New();
+            reader->SetFileName(acMeshFilename.c_str());
+            /// VTK only logs a file it cannot read and returns an empty mesh
+            if (!reader->Update(0, nullptr))
+                throw std::runtime_error("CBacCELLerate::InitMesh(): " + acMeshFilename + " could not be read.");
+            acMesh_ = reader->GetOutput();
+            nPoints_ = acMesh_->GetNumberOfPoints();
+            nCells_ = acMesh_->GetNumberOfCells();
+            
+            acMeshFiberValues_ = acMesh_->GetCellData()->GetArray("Fiber");
+            acMeshSheetValues_ = acMesh_->GetCellData()->GetArray("Sheet");
+            acMeshNormalValues_ = acMesh_->GetCellData()->GetArray("Sheetnormal");
+            acMeshMaterials_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Material")));
+            
+            /// the coupling reads every cell as a linear tetrahedron, so any other cell would be silently misread
+            vtkIdType cellId = 0;
+            while (cellId < nCells_ && acMesh_->GetCellType(cellId) == VTK_TETRA)
+                cellId++;
+            
+            if (cellId < nCells_) {
+                error = "CBacCELLerate::InitMesh(): " + acMeshFilename + " contains a cell of type " +
+                        vtkCellTypes::GetClassNameFromTypeId(acMesh_->GetCellType(cellId)) +
+                        " (cell " + std::to_string(cellId) + "), but only linear tetrahedra (vtkTetra) are supported.";
+            } else if (!acMeshFiberValues_ || !acMeshSheetValues_ || !acMeshNormalValues_) {
+                error = "Automatic mapping of fibers currently not supported.";
+                
+                //    DCCtrl::debug << "Getting Fibres from CM Mesh ... ";
+                //    GetFibersFromMechanicsMesh();
+                //    acMeshFiberValues_ = vtkDoubleArray::SafeDownCast((acMesh_->GetCellData()->GetArray("Fiber")));
+            } else if (!acMeshMaterials_) {
+                error = "CBacCELLerate::InitMesh(): No Material defined.";
+            }
+        } catch (const std::exception &e) {
+            error = e.what();
         }
     }
     
@@ -1230,104 +1231,6 @@ void CBacCELLerate::InitLocalMaps() {
     acMeshNormalValues_ = nullptr;
     acMesh_ = nullptr;
 } // CBacCELLerate::InitLocalMaps
-
-void CBacCELLerate::ApplySpatialSortPCA() {
-    /// Adapted from the PCA sorting done in CM
-    /// Most likely not compatible when used in combination with CBloadUnloadedState
-    int             mDim = 3, nDim = int(nPoints_);
-    int             lda  = mDim, ldu = mDim, ldvt = nDim, info, lwork;
-    double          wkopt;
-    std::vector<double> sVec(nDim), uVec(lda * mDim), a(lda * nDim);
-    Vector3<TFloat> mean(0, 0, 0);
-    
-    backwardMapping_.resize(nPoints_);
-    forwardMapping_.resize(nPoints_);
-    
-    for (int i = 0; i < nPoints_; i++) {
-        forwardMapping_.at(i) = i;
-        backwardMapping_.at(i) = i;
-    }
-    
-    for (TInt i = 0; i < nPoints_; i++) {
-        mean += acMesh_->GetPoint(i);
-    }
-    mean /= nPoints_;
-    
-    for (TInt i = 0; i < nPoints_; i++) {
-        Vector3<TFloat> node = acMesh_->GetPoint(i);
-        node -= mean;
-        TFloat *n = node.GetArray();
-        for (int k = 0; k < 3; k++) {
-            a[3 * i + k] = n[k];
-        }
-    }
-    
-    lwork = -1;
-    dgesvd_("S", "N", &mDim, &nDim, a.data(), &lda, sVec.data(), uVec.data(), &ldu, 0, &ldvt, &wkopt, &lwork, &info);
-    lwork = (int)wkopt;
-    std::vector<double> work(lwork);
-    dgesvd_("S", "N", &mDim, &nDim, a.data(), &lda, sVec.data(), uVec.data(), &ldu, 0, &ldvt, work.data(), &lwork,
-            &info);
-    if (info > 0) {
-        throw std::runtime_error("CBacCELLerate::ApplySpatialSortPCA(): The algorithm computing SVD failed to converge");
-    }
-    
-    std::vector<double> score(nPoints_);
-    
-    for (TInt i = 0; i < nPoints_; i++) {
-        double          s    = 0;
-        Vector3<TFloat> node = acMesh_->GetPoint(i);
-        node -= mean;
-        
-        TFloat *n = node.GetArray();
-        
-        for (int k = 0; k < 3; k++) {
-            s += n[k] * uVec[k];
-        }
-        score[i] = s;
-    }
-    
-    std::vector<std::pair<TInt, double>> nodesIndexes;
-    nodesIndexes.reserve(nPoints_);
-    
-    for (TInt i = 0; i < nPoints_; i++) {
-        std::pair<TInt, double> p;
-        p.first  = i;
-        p.second = score[i];
-        nodesIndexes.push_back(p);
-    }
-    
-    std::sort(nodesIndexes.begin(), nodesIndexes.end(), [](std::pair<TInt, double> f, std::pair<TInt, double> b) {
-        return f.second < b.second;
-    });
-    
-    std::vector<TInt> mapping(nPoints_);
-    
-    std::vector<TInt> tmpMapping = backwardMapping_;
-    
-    vtkSmartPointer<vtkPoints> sortedpoints = vtkSmartPointer<vtkPoints>::New();
-    
-    for (TInt i = 0; i < nPoints_; i++) {
-        sortedpoints->InsertNextPoint(acMesh_->GetPoint(nodesIndexes.at(i).first));
-        forwardMapping_.at(tmpMapping.at(nodesIndexes.at(i).first)) = i; // using tmpMapping to map from current indices to original to update forwardMapping
-        backwardMapping_.at(i) = tmpMapping.at(nodesIndexes.at(i).first); // and vice versa
-        
-        mapping[nodesIndexes.at(i).first] = i;
-    }
-    
-    vtkSmartPointer<vtkTetra> tetra1 = vtkSmartPointer<vtkTetra>::New();
-    vtkSmartPointer<vtkCellArray> cellArray = vtkSmartPointer<vtkCellArray>::New();
-    for (vtkIdType i = 0; i < nCells_; ++i) {
-        vtkSmartPointer<vtkCell> c = acMesh_->GetCell(i);
-        for (int k = 0; k < c->GetNumberOfPoints(); ++k) {
-            TInt n = int((c)->GetPointId(k));
-            tetra1->GetPointIds()->SetId(k, mapping[n]);
-        }
-        cellArray->InsertNextCell(tetra1);
-    }
-    acMesh_->SetPoints(sortedpoints);
-    acMesh_->SetCells(VTK_TETRA, cellArray);
-} // CBacCELLerate::ApplySpatialSortPCA
 
 void CBacCELLerate::GetFibersFromMechanicsMesh() {
     PetscErrorCode ierr;

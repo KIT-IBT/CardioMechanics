@@ -23,7 +23,6 @@
 #include <vtkPolyData.h>
 #include <vtkDataSetMapper.h>
 #include <vtkPlane.h>
-#include <vtkTetra.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkIntArray.h>
 #include <vtkDoubleArray.h>
@@ -111,7 +110,6 @@ private:
     Matrix3<TFloat> GetBasisAtCell(vtkIdType cellID) {return Q_[cellID];}
     
     void GetFibersFromMechanicsMesh();
-    void ApplySpatialSortPCA();
     void DetermineElementRanges();
     
     
@@ -222,10 +220,6 @@ private:
     VecScatter qpScatter_ = NULL;
     Vec qpValues_[2] = {NULL, NULL};
 
-    /// for node permutation using pca
-    std::vector<TInt> backwardMapping_;
-    std::vector<TInt> forwardMapping_;
-    
     /// parallel element layout
     std::vector<PetscInt> elementRanges_;
     PetscInt localElementsFrom_ = 0;

@@ -72,6 +72,9 @@ public:
     ~CBacCELLerate() {
         VecScatterDestroy(&localNodesScatter_);
         VecDestroy(&localNodes_);
+        VecScatterDestroy(&qpScatter_);
+        VecDestroy(&qpValues_[0]);
+        VecDestroy(&qpValues_[1]);
         VecDestroy(&stretchVecF_);
         VecDestroy(&velocityVec_);
         VecDestroy(&accNodes_);
@@ -101,6 +104,7 @@ private:
     void InitMesh();
     void InitPetscVec();
     void InitLocalMaps();
+    void GatherAtQPs(Vec from, Vec to);
     void CalcShapeFunctionDeriv();
     void CalcDeformationTensor(vtkIdType cellID, const Vector3<TFloat> *nodesCoords, Matrix3<TFloat> &deformationTensor);
     
@@ -160,7 +164,7 @@ private:
 
     /// Quadrature point of a solid element expressed in the shape functions of the closest acMesh_ cell
     struct QPMapping {
-        PetscInt points[4];
+        PetscInt points[4];  // cell vertices as indices into qpValues_
         Vector4<TFloat> shapeFun;
     };
 
@@ -212,6 +216,11 @@ private:
     /// Gathers the coordinates of localPoints_ from accNodes_
     VecScatter localNodesScatter_ = NULL;
     Vec localNodes_ = NULL;
+
+    /// Gathers the values of an acMesh_ point vector (force, Vm) at the points read by the local qpMappings_.
+    /// Two targets, since the step-back interpolation and Export each read two vectors at once.
+    VecScatter qpScatter_ = NULL;
+    Vec qpValues_[2] = {NULL, NULL};
 
     /// for node permutation using pca
     std::vector<TInt> backwardMapping_;

@@ -177,15 +177,10 @@ void CBacCELLerate::Apply(TFloat CMtime) {
         Vec ForceVec = act_->GetForceVec();
         ierr = VecCopy(timestepForce_, stepbackForce_); CHKERRQ(ierr);
         ierr = VecCopy(ForceVec, timestepForce_); CHKERRQ(ierr);
-        VecScatter  ScatterForce;
-        Vec localForce;
-        
-        ierr = VecScatterCreateToAll(ForceVec, &ScatterForce, &localForce); CHKERRQ(ierr);
-        ierr = VecScatterBegin(ScatterForce, ForceVec, localForce, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
-        ierr = VecScatterEnd(ScatterForce, ForceVec, localForce, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
-        
-        PetscScalar *pif;
-        ierr = VecGetArray(localForce, &pif); CHKERRQ(ierr);
+        GatherAtQPs(ForceVec, qpValues_[0]);
+
+        const PetscScalar *pif;
+        ierr = VecGetArrayRead(qpValues_[0], &pif); CHKERRQ(ierr);
         
         // Transfer calculated force to CM
         for (size_t eIdx = 0; eIdx < solidElements_.size(); eIdx++) {
@@ -212,26 +207,16 @@ void CBacCELLerate::Apply(TFloat CMtime) {
             }
         }
         
-        ierr = VecRestoreArray(localForce, &pif); CHKERRQ(ierr);
-        ierr = VecScatterDestroy(&ScatterForce); CHKERRQ(ierr);
-        ierr = VecDestroy(&localForce); CHKERRQ(ierr);
-        
+        ierr = VecRestoreArrayRead(qpValues_[0], &pif); CHKERRQ(ierr);
+
         DCCtrl::debug << "\n[" << MPI_Wtime() - t1 << " s]";
     } else if (stepBack_) {
-        VecScatter  ScattertsForce, ScattersbForce;
-        Vec localtsForce, localsbForce;
-        
-        ierr = VecScatterCreateToAll(timestepForce_, &ScattertsForce, &localtsForce); CHKERRQ(ierr);
-        ierr = VecScatterBegin(ScattertsForce, timestepForce_, localtsForce, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
-        ierr = VecScatterEnd(ScattertsForce, timestepForce_, localtsForce, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
-        
-        ierr = VecScatterCreateToAll(stepbackForce_, &ScattersbForce, &localsbForce); CHKERRQ(ierr);
-        ierr = VecScatterBegin(ScattersbForce, stepbackForce_, localsbForce, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
-        ierr = VecScatterEnd(ScattersbForce, stepbackForce_, localsbForce, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
-        
-        PetscScalar *ptsF, *psbF;
-        ierr = VecGetArray(localtsForce, &ptsF); CHKERRQ(ierr);
-        ierr = VecGetArray(localsbForce, &psbF); CHKERRQ(ierr);
+        GatherAtQPs(timestepForce_, qpValues_[0]);
+        GatherAtQPs(stepbackForce_, qpValues_[1]);
+
+        const PetscScalar *ptsF, *psbF;
+        ierr = VecGetArrayRead(qpValues_[0], &ptsF); CHKERRQ(ierr);
+        ierr = VecGetArrayRead(qpValues_[1], &psbF); CHKERRQ(ierr);
         
         DCCtrl::debug << "\n-------\n Interpolating between timesteps \n-------\n" << endl;
         DCCtrl::debug << "Time: " << time << "\n";
@@ -277,12 +262,8 @@ void CBacCELLerate::Apply(TFloat CMtime) {
                 }
             }
         }
-        ierr = VecRestoreArray(localtsForce, &ptsF); CHKERRQ(ierr);
-        ierr = VecRestoreArray(localsbForce, &psbF); CHKERRQ(ierr);
-        ierr = VecScatterDestroy(&ScattersbForce); CHKERRQ(ierr);
-        ierr = VecDestroy(&localsbForce); CHKERRQ(ierr);
-        ierr = VecScatterDestroy(&ScattertsForce); CHKERRQ(ierr);
-        ierr = VecDestroy(&localtsForce); CHKERRQ(ierr);
+        ierr = VecRestoreArrayRead(qpValues_[0], &ptsF); CHKERRQ(ierr);
+        ierr = VecRestoreArrayRead(qpValues_[1], &psbF); CHKERRQ(ierr);
         stepBack_ = false;
     } else {
         DCCtrl::debug << "No Forces added by CBacCELLerate\n" << endl;
@@ -311,19 +292,13 @@ void CBacCELLerate::Export(TFloat time) {
         Vec PotentialVec = act_->GetVmVec();
         Vec CalciumVec = act_->GetForceVec();
         
-        VecScatter  ScatterCalcium, ScatterPotential;
-        Vec localCalcium, localPotential;
-        
-        VecScatterCreateToAll(CalciumVec, &ScatterCalcium, &localCalcium);
-        VecScatterBegin(ScatterCalcium, CalciumVec, localCalcium, INSERT_VALUES, SCATTER_FORWARD);
-        VecScatterEnd(ScatterCalcium, CalciumVec, localCalcium, INSERT_VALUES, SCATTER_FORWARD);
-        VecScatterCreateToAll(PotentialVec, &ScatterPotential, &localPotential);
-        VecScatterBegin(ScatterPotential, PotentialVec, localPotential, INSERT_VALUES, SCATTER_FORWARD);
-        VecScatterEnd(ScatterPotential, PotentialVec, localPotential, INSERT_VALUES, SCATTER_FORWARD);
-        
-        PetscScalar *piC, *piV;
-        VecGetArray(localCalcium, &piC);
-        VecGetArray(localPotential, &piV);
+        GatherAtQPs(CalciumVec, qpValues_[0]);
+        GatherAtQPs(PotentialVec, qpValues_[1]);
+
+        PetscErrorCode ierr;
+        const PetscScalar *piC, *piV;
+        ierr = VecGetArrayRead(qpValues_[0], &piC); CHKERRQ(ierr);
+        ierr = VecGetArrayRead(qpValues_[1], &piV); CHKERRQ(ierr);
         
         for (size_t eIdx = 0; eIdx < solidElements_.size(); eIdx++) {
             CBElementSolid *e = solidElements_[eIdx];
@@ -352,14 +327,9 @@ void CBacCELLerate::Export(TFloat time) {
         GetAdapter()->GetSolver()->ExportElementsScalarData("Potential", potential);
         GetAdapter()->GetSolver()->ExportElementsScalarData("Calcium", calcium);
         
-        VecRestoreArray(localCalcium, &piC);
-        VecRestoreArray(localPotential, &piV);
-        
-        VecScatterDestroy(&ScatterCalcium);
-        VecScatterDestroy(&ScatterPotential);
-        
-        VecDestroy(&localPotential);
-        VecDestroy(&localCalcium);
+        ierr = VecRestoreArrayRead(qpValues_[0], &piC); CHKERRQ(ierr);
+        ierr = VecRestoreArrayRead(qpValues_[1], &piV); CHKERRQ(ierr);
+
         VecDestroy(&calcium);
         VecDestroy(&potential);
     }
@@ -370,6 +340,12 @@ void CBacCELLerate::StepBack() {
 }
 
 // ----------- Private ------------
+
+void CBacCELLerate::GatherAtQPs(Vec from, Vec to) {
+    PetscErrorCode ierr;
+    ierr = VecScatterBegin(qpScatter_, from, to, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
+    ierr = VecScatterEnd(qpScatter_, from, to, INSERT_VALUES, SCATTER_FORWARD); CHKERRQ(ierr);
+}
 
 void CBacCELLerate::UpdateStretch() {
     PetscErrorCode ierr;
@@ -887,16 +863,46 @@ void CBacCELLerate::InitMapping() {
     for (auto &p : points)
         pointMappings_.push_back({p.point, solidElements_[p.eIdx], Vector4<TFloat>(p.shapeFun)});
     
+    /// sorted global ids of the points read by the local quadrature points
+    std::vector<PetscInt> qpPoints;
+    qpPoints.reserve(4 * qps.size());
+    for (const MappingQP &qp : qps)
+        qpPoints.insert(qpPoints.end(), qp.points, qp.points + 4);
+    std::sort(qpPoints.begin(), qpPoints.end());
+    qpPoints.erase(std::unique(qpPoints.begin(), qpPoints.end()), qpPoints.end());
+
     qpMappings_.resize(solidElements_.size() * NumQP_);
     for (size_t k = 0; k < elements.size(); k++) {
         for (int QPi = 0; QPi < NumQP_; QPi++) {
             const MappingQP &qp = qps[k*NumQP_ + QPi];
             QPMapping &qpMapping = qpMappings_[elements[k].eIdx*NumQP_ + QPi];
-            std::copy(qp.points, qp.points + 4, qpMapping.points);
+            for (int i = 0; i < 4; i++)
+                qpMapping.points[i] = PetscInt(std::lower_bound(qpPoints.begin(), qpPoints.end(), qp.points[i]) -
+                                               qpPoints.begin());
             qpMapping.shapeFun = Vector4<TFloat>(qp.shapeFun);
         }
     }
-    
+
+    /// qpScatter_ is built on stretchVecF_ and applied to acCELLerate's force and Vm, so their layouts must agree
+    Vec pointVecs[3] = {stretchVecF_, act_->GetForceVec(), act_->GetVmVec()};
+    PetscInt from[3], to[3];
+    for (int i = 0; i < 3; i++) {
+        ierr = VecGetOwnershipRange(pointVecs[i], &from[i], &to[i]); CHKERRQ(ierr);
+    }
+    int layoutMismatch = from[1] != from[0] || to[1] != to[0] || from[2] != from[0] || to[2] != to[0];
+    ierr = MPI_Allreduce(MPI_IN_PLACE, &layoutMismatch, 1, MPI_INT, MPI_LOR, PETSC_COMM_WORLD); CHKERRQ(ierr);
+    if (layoutMismatch)
+        throw std::runtime_error("CBacCELLerate::InitMapping(): the parallel layouts of acCELLerate's force and Vm "
+                                 "vectors differ from that of the stretch vector.");
+
+    IS qpIS;
+    ierr = ISCreateGeneral(PETSC_COMM_SELF, PetscInt(qpPoints.size()), qpPoints.data(), PETSC_COPY_VALUES, &qpIS);
+    CHKERRQ(ierr);
+    ierr = VecCreateSeq(PETSC_COMM_SELF, PetscInt(qpPoints.size()), &qpValues_[0]); CHKERRQ(ierr);
+    ierr = VecDuplicate(qpValues_[0], &qpValues_[1]); CHKERRQ(ierr);
+    ierr = VecScatterCreate(stretchVecF_, qpIS, qpValues_[0], NULL, &qpScatter_); CHKERRQ(ierr);
+    ierr = ISDestroy(&qpIS); CHKERRQ(ierr);
+
     DCCtrl::debug << "Done\n";
 } // CBacCELLerate::InitMapping
 

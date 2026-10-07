@@ -14,6 +14,13 @@
 
 #include <ParameterSwitch.h>
 
+#include <set>
+#include <typeinfo>
+
+namespace {
+set<string> warnedMissingParameters;
+}  // namespace
+
 ParameterSwitch::ParameterSwitch(vbNewElphyParameters *s, unsigned int vtLASTEntry) {
   // cerr<<"ParaSwitch() mit vbNewElphyParameters, last="<<vtLASTEntry<<"\n";
   stat             = s;
@@ -77,18 +84,14 @@ bool ParameterSwitch::addDynamicParameter(Parameter pDynPara) {
   cnt++;
 
   if (index == vtFirst) {
-    throw kaBaseException("Parameter '%s' was not defined in the current implementation of the model!",
-                          pDynPara.name.c_str());
+    string warnKey = string(typeid(*stat).name()) + ":" + pDynPara.name;
+    if (warnedMissingParameters.insert(warnKey).second) {
+      cerr << "Warning: Parameter '" << pDynPara.name
+           << "' was not defined in the current implementation of the cell model '"
+           << typeid(*stat).name() << "'!" << endl;
+    }
+    return false;
   }
-
-  // cerr<<"jetzt sind "<<cnt<<" dynamische Parameter angelegt ...\n";
-  // for (int x=0;x<cnt+1;x++){
-  // cerr<<"\t"<<x<<": "<<(float)dyn[x]<<endl;
-  // }
-  // if (!useDynamicValues)
-  //    cerr<<"using dynamic values is set!\n";
   useDynamicValues = true;
-  /*if (dyn[stat->P[index].dynamicVar]!=pDynPara.value)
-      cerr<<dyn[stat->P[index].dynamicVar]<<"!="<<pDynPara.value<<endl;*/
   return dyn[stat->P[index].dynamicVar] == pDynPara.value;
 }  // ParameterSwitch::addDynamicParameter

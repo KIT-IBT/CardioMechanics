@@ -20,6 +20,8 @@ ATOL = 1e-9
 # Kurata fails parameter initialization.
 KNOWN_BROKEN = {"HimenoEtAl_Endo", "HimenoEtAl_Epi", "HimenoEtAl_Mid", "Kurata"}
 
+SMALLER_TINC = {"TWorld_endo", "TWorld_epi", "TWorld_mid"}
+
 
 def _discover_ev_models():
     # Non-symlink .ev files only: the symlinks (e.g. OHaraRudy -> OHaraRudy_endo)
@@ -44,7 +46,10 @@ CASES += [(f"{ev}+{fv}", ev, fv) for ev, fv in COUPLED]
 def test_cellmodel_trace(case_id, ev, fv, binary, cm_env, tmp_path, update_golden):
     evfile = DATA_DIR / f"{ev}.ev"
     assert evfile.is_file(), f"missing ev file {evfile}"
-    args = ["-evfile", evfile, "-tend", TEND, "-tinc", TINC, "-toutinc", TOUTINC]
+    if (ev in SMALLER_TINC):
+        args = ["-evfile", evfile, "-tend", TEND, "-tinc", "1e-6", "-toutinc", TOUTINC]
+    else:
+        args = ["-evfile", evfile, "-tend", TEND, "-tinc", TINC, "-toutinc", TOUTINC]
     if fv is not None:
         fvfile = DATA_DIR / f"{fv}.fv"
         assert fvfile.is_file(), f"missing fv file {fvfile}"

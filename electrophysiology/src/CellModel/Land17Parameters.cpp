@@ -66,6 +66,9 @@ void Land17Parameters::Init(const char *initFile) {
   P[VT_k_wu].name           = "VT_k_wu";
   P[VT_k_su].name           = "VT_k_su";
   P[VT_A].name              = "VT_A";
+  P[VT_XSSS].name           = "VT_XSSS";
+  P[VT_XWSS].name           = "VT_XWSS";
+  P[VT_ktm_block].name      = "VT_ktm_block";
   P[VT_XS_init].name        = "XS_init";
   P[VT_XW_init].name        = "XW_init";
   P[VT_TRPN_init].name      = "TRPN_init";

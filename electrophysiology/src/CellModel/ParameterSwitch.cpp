@@ -72,18 +72,18 @@ bool ParameterSwitch::addDynamicParameter(Parameter pDynPara) {
     delete[]tmp;
   }
   dyn[cnt] = pDynPara.value;
-  unsigned int index = vtFirst;
+  bool found = false;
   for (unsigned int y = vtFirst; y < vtLAST; y++) {
     if (stat->P[y].name == pDynPara.name) {
       stat->P[y].dynamicVar = cnt;
 
       // cerr<<y<<" -> "<<cnt<<endl;
-      index = y;
+      found = true;
     }
   }
   cnt++;
 
-  if (index == vtFirst) {
+  if (!found) {
     string warnKey = string(typeid(*stat).name()) + ":" + pDynPara.name;
     if (warnedMissingParameters.insert(warnKey).second) {
       cerr << "Warning: Parameter '" << pDynPara.name
@@ -93,5 +93,5 @@ bool ParameterSwitch::addDynamicParameter(Parameter pDynPara) {
     return false;
   }
   useDynamicValues = true;
-  return dyn[stat->P[index].dynamicVar] == pDynPara.value;
+  return true;
 }  // ParameterSwitch::addDynamicParameter

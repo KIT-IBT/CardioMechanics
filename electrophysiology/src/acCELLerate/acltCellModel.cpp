@@ -258,11 +258,21 @@ void HeterogeneCellModel::Set(vbElphyModel<double> **pem, PetscInt numCells) {
         
         string hcmvariable = (*iHCM).variable;
         PetscInt endfor    = endCell-startCell;
+        PetscInt accepted  = 0;
         for (PetscInt lindex = 0; lindex < endfor; lindex++)
-            pem[lindex]->AddHeteroValue(hcmvariable, pm[lindex]);
-        
+            accepted += pem[lindex]->AddHeteroValue(hcmvariable, pm[lindex]);
+
+        // Models lacking the parameter are skipped, but a name no cell on any
+        // rank accepts is a configuration error such as a typo.
+        PetscInt acceptedGlobal;
+        ierr = MPI_Allreduce(&accepted, &acceptedGlobal, 1, MPIU_INT, MPI_SUM,
+                             PetscObjectComm((PetscObject)hetCMV)); CHKERRQ(ierr);
+
         ierr = VecRestoreArray(hetCMV, &pm); CHKERRQ(ierr);
         ierr = VecDestroy(&hetCMV); CHKERRQ(ierr);
+        if (!acceptedGlobal)
+            throw kaBaseException("HeterogeneCellModel::Set: parameter '%s' is not defined in any cell model\n",
+                                  hcmvariable.c_str());
     }
 }  // HeterogeneCellModel::Set
 

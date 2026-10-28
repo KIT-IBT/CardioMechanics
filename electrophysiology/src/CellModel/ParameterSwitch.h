@@ -21,6 +21,8 @@ class ParameterSwitch {
  public:
   ParameterSwitch(vbNewElphyParameters *s, unsigned int);
   ML_CalcType getValue(int vt);
+  // Returns false if the model does not define the parameter, so callers can
+  // detect names that no model on the mesh accepts.
   bool addDynamicParameter(Parameter);
 
  private:

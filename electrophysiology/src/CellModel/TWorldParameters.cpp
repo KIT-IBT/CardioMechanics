@@ -65,7 +65,7 @@ void TWorldParameters::Init(const char *initFile, ML_CalcType tinc) {
   P[VT_Jrel_Multiplier].name = "Jrel_Multiplier";
   P[VT_Jup_Multiplier].name = "Jup_Multiplier";
   P[VT_CMDN_Multiplier].name = "CMDN_Multiplier";
-  P[VT_LambdaMultiplier].name = "LambdaMultiplier";
+  P[VT_lambdaScaling].name = "lambdaScaling";
 
   /// PKA Fractions
   P[VT_fINa_PKA].name = "fINa_PKA";

@@ -1046,7 +1046,7 @@ ML_CalcType TWorld::Calc(double tinc,  ML_CalcType V,  ML_CalcType i_external,  
   double PKAForceMultiplier = 1.0 + fMyBPC_PKA * 0.26;
   double PKAXBacceleration = 1.0 + fMyBPC_PKA/2;
     
-  double lambda_m = std::min(1.2, stretch * v(VT_LambdaMultiplier));
+  double lambda_m = std::min(1.2, stretch * v(VT_lambdaScaling));
   double overlap  = 1.0 + v(VT_beta_0) * (lambda_m + std::min(0.87, lambda_m) - 1.87);
   double h        = std::max(0.0, overlap);
     

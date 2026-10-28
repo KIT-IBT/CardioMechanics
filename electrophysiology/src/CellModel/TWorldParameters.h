@@ -54,7 +54,7 @@ enum varType {
   VT_Jrel_Multiplier,
   VT_Jup_Multiplier,
   VT_CMDN_Multiplier,
-  VT_LambdaMultiplier,
+  VT_lambdaScaling,
     
   /// PKA fractions
   VT_fINa_PKA,

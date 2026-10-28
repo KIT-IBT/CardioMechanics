@@ -31,7 +31,7 @@ IClb_Multiplier 1.0
 Jrel_Multiplier 1.0
 Jup_Multiplier 1.0
 CMDN_Multiplier 1.0
-LambdaMultiplier 1.0
+lambdaScaling 1.0
 fINa_PKA 0.0
 fICaL_PKA 0.0
 fINaK_PKA 0.0
